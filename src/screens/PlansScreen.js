@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch} from "react-redux";
 import { selectUser } from "../features/userSlice";
 import db from "../firebase";
 import "./PlansScreen.css";
@@ -9,24 +9,28 @@ function PlansScreen() {
   const [products, setProducts] = useState([]);
   const user = useSelector(selectUser);
   const [subscription, setSubscription] = useState(null);
+  const dispatch = useDispatch();
+
 
   useEffect(() => {
-    db.collection('customers')
-    .doc(user.uid)
-    .collection('subscriptions')
-    .get()
-    .then(querySnapshot => {
-        querySnapshot.forEach(async subscription => {
-            setSubscription({
-                role: subscription.data().role,
-                current_period_end: subscription.data().current_period_end.seconds,
-                current_period_start: subscription.data().current_period_start.seconds, 
-            });
+    db.collection("customers")
+      .doc(user.uid)
+      .collection("subscriptions")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach(async (subscription) => {
+          setSubscription({
+            role: subscription.data().role,
+            current_period_end: subscription.data().current_period_end.seconds,
+            current_period_start:
+              subscription.data().current_period_start.seconds,
+          });
         });
-    });
+      });
   }, [user.uid, dispatch]);
 
   useEffect(() => {
+    
     db.collection("products")
       .where("active", "==", true)
       .get()
@@ -45,6 +49,9 @@ function PlansScreen() {
         setProducts(products);
       });
   }, []);
+
+  console.log(products);
+  console.log(subscription);
 
   const loadCheckout = async (priceId) => {
     const docRef = await db
@@ -68,7 +75,7 @@ function PlansScreen() {
         const stripe = await loadStripe(
           "pk_test_51MvJysHBJvHeQvG27OoREgUUfrBQOUnnxh0GvnwZLfd3whmeHbiPbvSlg3dghhX6efspRZX1Pgnu2xMUXfRSw2mM002hlvH8bP"
         );
-        stripe.redirectToCheckout({ sessionId })
+        stripe.redirectToCheckout({ sessionId });
       }
     });
   };
@@ -76,6 +83,10 @@ function PlansScreen() {
   return (
     <div className="plansScreen">
       {Object.entries(products).map(([productId, productData]) => {
+        const isCurrentPackage = productData.name
+          ?.toLowerCase()
+          .includes(subscription?.role);
+
         return (
           <div className="plansScreen__plan">
             <div className="plansScreen__info">
@@ -83,8 +94,12 @@ function PlansScreen() {
               <h6>{productData.description}</h6>
             </div>
 
-            <button onClick={() => loadCheckout(productData?.prices?.priceId)}>
-              Souscrire
+            <button
+              onClick={() =>
+                !isCurrentPackage && loadCheckout(productData.prices.priceId)
+              }
+            >
+              {isCurrentPackage ? "Current Package" : "Souscrire"}
             </button>
           </div>
         );
