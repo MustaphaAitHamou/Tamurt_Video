@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from "react";
-import { useSelector, useDispatch} from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { selectUser } from "../features/userSlice";
 import db from "../firebase";
 import "./PlansScreen.css";
@@ -10,7 +10,6 @@ function PlansScreen() {
   const user = useSelector(selectUser);
   const [subscription, setSubscription] = useState(null);
   const dispatch = useDispatch();
-
 
   useEffect(() => {
     db.collection("customers")
@@ -30,7 +29,6 @@ function PlansScreen() {
   }, [user.uid, dispatch]);
 
   useEffect(() => {
-    
     db.collection("products")
       .where("active", "==", true)
       .get()
@@ -82,13 +80,21 @@ function PlansScreen() {
 
   return (
     <div className="plansScreen">
+
+    {subscription && <p>Date de renouvellement : {new Date(subscription?.current_period_end * 1000).toLocaleDateString()}</p>}
+
       {Object.entries(products).map(([productId, productData]) => {
         const isCurrentPackage = productData.name
           ?.toLowerCase()
           .includes(subscription?.role);
 
         return (
-          <div className="plansScreen__plan">
+          <div
+            key={productId}
+            className={`${
+              isCurrentPackage && "plansScreen__plan--disabled"
+            } plansScreen__plan`}
+          >
             <div className="plansScreen__info">
               <h5>{productData.name}</h5>
               <h6>{productData.description}</h6>
