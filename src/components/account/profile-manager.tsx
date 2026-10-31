@@ -156,7 +156,7 @@ function EditProfileDialog({ profile }: { profile: Profile }) {
               <Button
                 type="button"
                 variant="ghost"
-                className="text-destructive"
+                className="text-destructive-text"
                 disabled={pending}
                 onClick={() =>
                   startTransition(async () => {

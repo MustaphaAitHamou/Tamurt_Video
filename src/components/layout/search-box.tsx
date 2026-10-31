@@ -207,7 +207,7 @@ export function SearchBox({
                 event.preventDefault();
                 goToResults();
               }}
-              className="w-full border-t px-4 py-2.5 text-start text-sm font-medium text-primary hover:bg-accent"
+              className="w-full border-t px-4 py-2.5 text-start text-sm font-medium text-primary-text hover:bg-accent"
             >
               {t("seeAllResults")}
             </button>

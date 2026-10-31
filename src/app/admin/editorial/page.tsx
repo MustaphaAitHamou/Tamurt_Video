@@ -521,7 +521,7 @@ export default async function EditorialPage() {
           })}
         </ul>
         <details className="rounded-xl border border-dashed p-4">
-          <summary className="cursor-pointer text-sm font-medium text-primary">
+          <summary className="cursor-pointer text-sm font-medium text-primary-text">
             Ajouter une section
           </summary>
           <ActionForm
@@ -588,7 +588,7 @@ export default async function EditorialPage() {
           })}
         </ul>
         <details className="rounded-xl border border-dashed p-4">
-          <summary className="cursor-pointer text-sm font-medium text-primary">
+          <summary className="cursor-pointer text-sm font-medium text-primary-text">
             Ajouter une bannière
           </summary>
           <ActionForm

@@ -564,7 +564,8 @@
       "available": "Available",
       "rejected": "Declined",
       "impossible": "Cannot be acquired"
-    }
+    },
+    "submitAnyway": "Send anyway"
   },
   "news": {
     "title": "News",

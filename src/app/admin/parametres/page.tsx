@@ -317,7 +317,7 @@ export default async function SettingsPage() {
               )}
             </ul>
             <details className="rounded-lg border border-dashed p-3">
-              <summary className="cursor-pointer text-sm font-medium text-primary">
+              <summary className="cursor-pointer text-sm font-medium text-primary-text">
                 Déclarer un incident
               </summary>
               <ActionForm

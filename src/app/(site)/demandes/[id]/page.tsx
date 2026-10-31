@@ -67,7 +67,7 @@ export default async function RequestDetailPage({ params }: PageProps<"/demandes
           href={request.info_url}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+          className="inline-flex items-center gap-1.5 text-sm text-primary-text hover:underline"
         >
           <ExternalLinkIcon className="size-4" /> {t("infoUrl")}
         </a>

@@ -180,7 +180,7 @@ export default async function FinancesPage({ searchParams }: PageProps<"/admin/f
                   {formatPrice(plan.fixedCostShareCents)}
                 </TableCell>
                 <TableCell
-                  className={`text-end tabular-nums ${plan.marginCents < 0 ? "text-destructive" : ""}`}
+                  className={`text-end tabular-nums ${plan.marginCents < 0 ? "text-destructive-text" : ""}`}
                 >
                   {formatPrice(plan.marginCents)}{" "}
                   <span className="text-xs text-muted-foreground">({pct(plan.marginRate)})</span>

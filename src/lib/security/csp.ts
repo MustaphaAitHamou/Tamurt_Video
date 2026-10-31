@@ -8,6 +8,8 @@ export function buildContentSecurityPolicy(options: {
   supabaseUrl: string;
   extraScriptSrc?: string[];
   extraConnectSrc?: string[];
+  /** Ajoute upgrade-insecure-requests (uniquement si le site est servi en HTTPS). */
+  upgradeInsecureRequests?: boolean;
 }) {
   const { nonce, isDev, supabaseUrl } = options;
   const supabaseOrigin = new URL(supabaseUrl).origin;
@@ -52,5 +54,6 @@ export function buildContentSecurityPolicy(options: {
     .map(([name, values]) => `${name} ${values.join(" ")}`)
     .join("; ");
 
-  return isDev ? policy : `${policy}; upgrade-insecure-requests`;
+  const upgrade = options.upgradeInsecureRequests ?? !isDev;
+  return upgrade ? `${policy}; upgrade-insecure-requests` : policy;
 }

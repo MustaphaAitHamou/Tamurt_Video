@@ -14,7 +14,7 @@ export default async function SuspendedPage() {
   const tf = await getTranslations("footer");
   return (
     <div className="space-y-5 text-center">
-      <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-destructive/15 text-destructive">
+      <span className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-destructive/15 text-destructive-text">
         <ShieldAlertIcon className="size-7" />
       </span>
       <h1 className="text-2xl font-bold">{t("suspendedTitle")}</h1>

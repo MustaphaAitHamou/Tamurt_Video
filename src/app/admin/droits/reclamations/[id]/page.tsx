@@ -96,7 +96,7 @@ export default async function ClaimPage({ params }: PageProps<"/admin/droits/rec
                   {title.title}
                 </Link>{" "}
                 {title.takedown_at ? (
-                  <span className="text-destructive">
+                  <span className="text-destructive-text">
                     · retirée le {formatDateTime(title.takedown_at)}
                   </span>
                 ) : (

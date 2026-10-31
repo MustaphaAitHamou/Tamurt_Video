@@ -60,3 +60,7 @@ next-env.d.ts
 /.idea
 /.vscode/*
 !/.vscode/extensions.json
+
+# Sessions Playwright (tests E2E)
+/e2e/.auth/
+/test-results

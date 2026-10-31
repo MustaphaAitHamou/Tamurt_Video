@@ -22,7 +22,7 @@ export function AccountSection({
       )}
     >
       <div className="mb-5 space-y-1">
-        <h2 className={cn("text-lg font-semibold", tone === "danger" && "text-destructive")}>
+        <h2 className={cn("text-lg font-semibold", tone === "danger" && "text-destructive-text")}>
           {title}
         </h2>
         {description && <p className="text-sm text-muted-foreground">{description}</p>}

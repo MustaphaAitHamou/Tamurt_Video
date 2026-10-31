@@ -101,7 +101,7 @@ export default async function AccountOverviewPage({ searchParams }: PageProps<"/
             href={href}
             className="flex items-center gap-3 rounded-2xl border bg-card/60 p-5 text-sm font-medium transition hover:border-white/20 hover:bg-card"
           >
-            <Icon className="size-5 text-primary" /> {label}
+            <Icon className="size-5 text-primary-text" /> {label}
           </Link>
         ))}
       </div>

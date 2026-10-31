@@ -88,7 +88,7 @@ export default async function InvoicesPage() {
                       href={invoice.invoice_pdf_url ?? invoice.hosted_invoice_url ?? "#"}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                      className="inline-flex items-center gap-1.5 text-sm text-primary-text hover:underline"
                     >
                       <DownloadIcon className="size-4" /> PDF
                     </a>

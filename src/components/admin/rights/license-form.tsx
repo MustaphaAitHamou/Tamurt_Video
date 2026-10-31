@@ -183,7 +183,7 @@ export function LicenseForm({
             </label>
           ))}
         </div>
-        {err("modes") && <p className="text-xs text-destructive">{err("modes")?.join(" ")}</p>}
+        {err("modes") && <p className="text-xs text-destructive-text">{err("modes")?.join(" ")}</p>}
       </fieldset>
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium">Supports autorisés</legend>

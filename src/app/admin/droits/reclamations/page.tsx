@@ -98,7 +98,7 @@ export default async function ClaimsPage({
               <TableCell className="max-w-64 truncate text-sm">
                 {claim.titles?.title ?? claim.title_reference}
                 {claim.titles?.takedown_at && (
-                  <span className="block text-xs text-destructive">Retiré</span>
+                  <span className="block text-xs text-destructive-text">Retiré</span>
                 )}
               </TableCell>
               <TableCell>

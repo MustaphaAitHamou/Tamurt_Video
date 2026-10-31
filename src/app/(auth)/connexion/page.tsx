@@ -22,7 +22,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/connexion
         <p className="text-sm text-muted-foreground">{t("signInSubtitle")}</p>
       </div>
       {params.erreur === "lien" && (
-        <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+        <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive-text">
           {t("linkInvalid")}
         </p>
       )}

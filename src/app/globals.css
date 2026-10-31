@@ -16,16 +16,19 @@
   --card-foreground: oklch(0.97 0.003 285);
   --popover: oklch(0.19 0.007 285);
   --popover-foreground: oklch(0.97 0.003 285);
-  --primary: oklch(0.6 0.215 22);
+  /* Fond plein (texte blanc ≥ 4,5:1, WCAG AA) ; --primary-text : texte rouge sur fond sombre. */
+  --primary: oklch(0.56 0.215 24);
   --primary-foreground: oklch(0.99 0 0);
+  --primary-text: oklch(0.71 0.17 22);
   --secondary: oklch(0.235 0.007 285);
   --secondary-foreground: oklch(0.96 0.003 285);
   --muted: oklch(0.21 0.006 285);
   --muted-foreground: oklch(0.74 0.012 285);
   --accent: oklch(0.26 0.008 285);
   --accent-foreground: oklch(0.98 0.003 285);
-  --destructive: oklch(0.64 0.21 25);
+  --destructive: oklch(0.55 0.2 25);
   --destructive-foreground: oklch(0.99 0 0);
+  --destructive-text: oklch(0.72 0.17 25);
   --success: oklch(0.72 0.16 150);
   --warning: oklch(0.8 0.15 75);
   --gold: oklch(0.79 0.12 80);
@@ -51,6 +54,7 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-text: var(--primary-text);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -59,6 +63,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-text: var(--destructive-text);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-gold: var(--gold);

@@ -69,7 +69,9 @@ export default async function DataRequestsPage() {
                   {open && (
                     <span
                       className={
-                        remaining < 7 ? "text-xs text-destructive" : "text-xs text-muted-foreground"
+                        remaining < 7
+                          ? "text-xs text-destructive-text"
+                          : "text-xs text-muted-foreground"
                       }
                     >
                       Échéance J{remaining >= 0 ? `-${remaining}` : `+${-remaining}`}

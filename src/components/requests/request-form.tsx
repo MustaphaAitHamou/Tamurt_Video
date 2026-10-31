@@ -93,7 +93,7 @@ export function RequestForm() {
               formRef.current?.requestSubmit();
             }}
           >
-            {t("submit")} quand même
+            {t("submitAnyway")}
           </Button>
         </div>
       )}
@@ -101,7 +101,7 @@ export function RequestForm() {
         <p className="text-sm">
           <Link
             href={`/demandes/${existingId}`}
-            className="text-primary underline underline-offset-4"
+            className="text-primary-text underline underline-offset-4"
           >
             {t("voteInstead")}
           </Link>

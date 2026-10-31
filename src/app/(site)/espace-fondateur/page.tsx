@@ -143,7 +143,7 @@ export default async function FounderSpacePage() {
             <ul className="space-y-4">
               {news.map((a) => (
                 <li key={a.id} className="flex gap-3">
-                  <NewspaperIcon className="mt-0.5 size-4 shrink-0 text-primary" />
+                  <NewspaperIcon className="mt-0.5 size-4 shrink-0 text-primary-text" />
                   <div>
                     <Link href={`/actualites/${a.slug}`} className="font-medium hover:underline">
                       {a.title}
@@ -164,7 +164,7 @@ export default async function FounderSpacePage() {
         <ul className="grid gap-3 sm:grid-cols-2">
           {nextFeatures.map((item) => (
             <li key={item.id} className="flex items-start gap-3 rounded-xl border p-4 text-sm">
-              <RocketIcon className="mt-0.5 size-4 shrink-0 text-primary" />
+              <RocketIcon className="mt-0.5 size-4 shrink-0 text-primary-text" />
               <span>
                 {item.title}
                 {item.targetLabel && (

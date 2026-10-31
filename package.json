@@ -60,6 +60,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.11.1",
     "@formatjs/icu-messageformat-parser": "3.5.22",
     "@playwright/test": "1.63.0",
     "@tailwindcss/turbopack": "^4.3.3",
@@ -83,7 +84,6 @@
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
     "typescript": "~5.9.3",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "4.1.12"
   }
 }

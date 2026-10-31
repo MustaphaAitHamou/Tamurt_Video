@@ -225,7 +225,7 @@ export default async function AdminDashboardPage() {
             {recent.map((entry) => (
               <li key={entry.id} className="flex justify-between gap-4 py-2">
                 <span>
-                  <span className="font-mono text-xs text-primary">{entry.action}</span> ·{" "}
+                  <span className="font-mono text-xs text-primary-text">{entry.action}</span> ·{" "}
                   {entry.entity_type}
                 </span>
                 <time className="text-xs text-muted-foreground">

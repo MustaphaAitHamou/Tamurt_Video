@@ -11,6 +11,10 @@ export async function proxy(request: NextRequest) {
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321",
     extraScriptSrc: process.env.CSP_EXTRA_SCRIPT_SRC?.split(" ").filter(Boolean),
     extraConnectSrc: process.env.CSP_EXTRA_CONNECT_SRC?.split(" ").filter(Boolean),
+    // Un site servi en http (tests locaux de la version de production) ne doit pas forcer https.
+    upgradeInsecureRequests:
+      process.env.NODE_ENV === "production" &&
+      (process.env.NEXT_PUBLIC_SITE_URL ?? "").startsWith("https://"),
   });
 
   const requestHeaders = new Headers(request.headers);

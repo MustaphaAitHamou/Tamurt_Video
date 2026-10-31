@@ -16,7 +16,7 @@ const badgeVariants = cva(
         gold: "border-gold/40 bg-gold/15 text-gold",
         success: "border-success/30 bg-success/15 text-success",
         warning: "border-warning/30 bg-warning/15 text-warning",
-        destructive: "border-destructive/30 bg-destructive/15 text-destructive",
+        destructive: "border-destructive/30 bg-destructive/15 text-destructive-text",
       },
     },
     defaultVariants: { variant: "default" },

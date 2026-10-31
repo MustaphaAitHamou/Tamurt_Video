@@ -178,7 +178,7 @@ export default async function CollectionsPage() {
                   </Field>
                 </ActionForm>
                 <details>
-                  <summary className="cursor-pointer text-xs text-primary">
+                  <summary className="cursor-pointer text-xs text-primary-text">
                     Modifier la collection
                   </summary>
                   <div className="mt-3 space-y-3">

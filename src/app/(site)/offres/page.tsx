@@ -74,7 +74,7 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
       {errorKey && ERRORS[errorKey] && (
         <p
           role="alert"
-          className="mx-auto mb-8 flex max-w-2xl items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+          className="mx-auto mb-8 flex max-w-2xl items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive-text"
         >
           <AlertCircleIcon className="size-4 shrink-0" /> {ERRORS[errorKey]}
         </p>
@@ -159,7 +159,7 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
                     <CheckIcon
                       className={cn(
                         "mt-0.5 size-4 shrink-0",
-                        isFounder ? "text-gold" : "text-primary",
+                        isFounder ? "text-gold" : "text-primary-text",
                       )}
                     />
                     <span {...frenchText}>{feature}</span>

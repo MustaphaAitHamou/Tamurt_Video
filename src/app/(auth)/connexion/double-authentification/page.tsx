@@ -18,7 +18,7 @@ export default async function MfaChallengePage({
   if (user.aal === "aal2") redirect(next);
   return (
     <div className="space-y-6">
-      <span className="flex size-12 items-center justify-center rounded-2xl bg-primary/15 text-primary">
+      <span className="flex size-12 items-center justify-center rounded-2xl bg-primary/15 text-primary-text">
         <ShieldCheckIcon className="size-6" />
       </span>
       <div className="space-y-2">

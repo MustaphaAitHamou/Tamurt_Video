@@ -55,7 +55,7 @@ export default async function NewsPage() {
                   </span>
                   <span className="space-y-2">
                     <span className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      {item.pinned && <PinIcon className="size-3.5 text-primary" />}
+                      {item.pinned && <PinIcon className="size-3.5 text-primary-text" />}
                       <Badge variant="outline">{t(`categories.${item.category}`)}</Badge>
                       {item.audience !== "public" && (
                         <Badge variant="gold">{t("membersOnly")}</Badge>

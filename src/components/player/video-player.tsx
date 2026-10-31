@@ -611,7 +611,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
           {resumeFrom !== null && !notice && (
             <button
               type="button"
-              className="cursor-pointer font-semibold text-primary"
+              className="cursor-pointer font-semibold text-primary-text"
               onClick={() => {
                 if (videoRef.current) videoRef.current.currentTime = 0;
                 setResumeFrom(null);
@@ -838,7 +838,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
                       variant="ghost"
                       size="icon"
                       aria-label={t("subtitles")}
-                      className={subtitle !== "off" ? "text-primary" : undefined}
+                      className={subtitle !== "off" ? "text-primary-text" : undefined}
                     >
                       <CaptionsIcon className="size-5" />
                     </Button>

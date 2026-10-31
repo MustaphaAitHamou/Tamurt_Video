@@ -92,7 +92,7 @@ export default async function PaymentEventsPage({
               </TableCell>
               <TableCell className="text-sm tabular-nums">{event.attempts}</TableCell>
               <TableCell className="max-w-80 text-xs">
-                {event.error && <p className="mb-1 text-destructive">{event.error}</p>}
+                {event.error && <p className="mb-1 text-destructive-text">{event.error}</p>}
                 {event.related_user_id && (
                   <Link href={`/admin/utilisateurs/${event.related_user_id}`} className="underline">
                     Compte concerné

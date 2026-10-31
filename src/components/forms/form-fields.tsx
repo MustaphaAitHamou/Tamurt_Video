@@ -59,7 +59,7 @@ export function FormMessage({
         "flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm",
         state.ok
           ? "border-success/30 bg-success/10 text-success"
-          : "border-destructive/30 bg-destructive/10 text-destructive",
+          : "border-destructive/30 bg-destructive/10 text-destructive-text",
         className,
       )}
     >
@@ -97,7 +97,7 @@ export function Field({
       <Label htmlFor={name}>
         {label}
         {required && (
-          <span aria-hidden className="text-primary">
+          <span aria-hidden className="text-primary-text">
             *
           </span>
         )}
@@ -109,7 +109,7 @@ export function Field({
         </p>
       )}
       {errorId && (
-        <p id={errorId} className="text-xs text-destructive">
+        <p id={errorId} className="text-xs text-destructive-text">
           {error?.join(" ")}
         </p>
       )}

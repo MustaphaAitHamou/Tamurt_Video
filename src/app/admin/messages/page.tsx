@@ -164,7 +164,7 @@ export default async function MessagesPage({ searchParams }: PageProps<"/admin/m
                     }
                     label={email.status}
                   />
-                  {email.error && <p className="text-xs text-destructive">{email.error}</p>}
+                  {email.error && <p className="text-xs text-destructive-text">{email.error}</p>}
                 </TableCell>
               </TableRow>
             ))}

@@ -564,7 +564,8 @@
       "available": "متاح",
       "rejected": "مرفوض",
       "impossible": "تعذر الاقتناء"
-    }
+    },
+    "submitAnyway": "إرسال على أي حال"
   },
   "news": {
     "title": "الأخبار",

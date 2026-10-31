@@ -153,7 +153,7 @@ export async function FounderLanding() {
               key={title}
               className="rounded-2xl border bg-card/60 p-6 transition hover:border-white/20 hover:bg-card"
             >
-              <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
+              <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary-text">
                 <Icon className="size-5" />
               </span>
               <h3 className="mb-2 text-lg font-semibold">{title}</h3>

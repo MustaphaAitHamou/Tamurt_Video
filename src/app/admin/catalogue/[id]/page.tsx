@@ -682,7 +682,7 @@ async function MediaTab({
                       {asset.height ? ` · ${asset.height}p` : ""}
                     </p>
                     {asset.error_message && (
-                      <p className="text-xs text-destructive">{asset.error_message}</p>
+                      <p className="text-xs text-destructive-text">{asset.error_message}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
@@ -729,7 +729,7 @@ async function MediaTab({
                   )}
                   {editable && (
                     <details>
-                      <summary className="cursor-pointer text-xs text-primary">
+                      <summary className="cursor-pointer text-xs text-primary-text">
                         Ajouter des sous-titres (WebVTT)
                       </summary>
                       <ActionForm

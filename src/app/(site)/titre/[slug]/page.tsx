@@ -166,7 +166,7 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
               {title.availability === "taken_down" && (
-                <p className="flex items-center gap-2 rounded-full bg-destructive/15 px-4 py-2 text-sm text-destructive">
+                <p className="flex items-center gap-2 rounded-full bg-destructive/15 px-4 py-2 text-sm text-destructive-text">
                   <AlertCircleIcon className="size-4" /> {t("takenDown")}
                 </p>
               )}

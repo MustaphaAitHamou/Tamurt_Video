@@ -59,7 +59,7 @@ export function MfaEnrollment({ next }: { next?: string }) {
         >
           <ShieldCheckIcon /> Activer la double authentification
         </Button>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm text-destructive-text">{error}</p>}
       </div>
     );
   }

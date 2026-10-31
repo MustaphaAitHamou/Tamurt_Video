@@ -564,7 +564,8 @@
       "available": "Disponible",
       "rejected": "Refusée",
       "impossible": "Impossible à acquérir"
-    }
+    },
+    "submitAnyway": "Envoyer quand même"
   },
   "news": {
     "title": "Actualités",
