@@ -107,14 +107,17 @@ export class StripePaymentProvider implements PaymentProvider {
       );
       productId = product.id;
     }
-    const price = await this.stripe.prices.create({
-      product: productId,
-      currency: input.currency.toLowerCase(),
-      unit_amount: input.amountCents,
-      recurring: { interval: input.interval },
-      tax_behavior: "inclusive",
-      metadata: { plan_code: input.planCode },
-    });
+    const price = await this.stripe.prices.create(
+      {
+        product: productId,
+        currency: input.currency.toLowerCase(),
+        unit_amount: input.amountCents,
+        recurring: { interval: input.interval },
+        tax_behavior: "inclusive",
+        metadata: { plan_code: input.planCode },
+      },
+      input.idempotencyKey ? { idempotencyKey: `price-${input.idempotencyKey}` } : undefined,
+    );
     return { productId, priceId: price.id };
   }
 

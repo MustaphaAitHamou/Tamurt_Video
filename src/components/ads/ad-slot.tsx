@@ -2,6 +2,7 @@ import { tierAtLeast } from "@/lib/permissions";
 import { resolveImageUrl } from "@/lib/images";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getViewer } from "@/server/auth/session";
+import { getSettings } from "@/server/settings";
 import { AdSlotClient } from "@/components/ads/ad-slot-client";
 
 /**
@@ -11,6 +12,7 @@ import { AdSlotClient } from "@/components/ads/ad-slot-client";
  * Aucune régie externe n'est chargée sans configuration explicite.
  */
 export async function AdSlot({ slotKey, className }: { slotKey: string; className?: string }) {
+  if (!(await getSettings()).adsEnabled) return null;
   const viewer = await getViewer();
   if (viewer && tierAtLeast(viewer.entitlements.tier, "founder") && !viewer.entitlements.includesAds) return null;
   const supabase = await createSupabaseServerClient();

@@ -241,6 +241,10 @@ export async function getRecommendations(viewer: Viewer, limit = 20): Promise<Ti
   return result;
 }
 
+function withinWindow(startsAt: string | null, endsAt: string | null, now = Date.now()) {
+  return (!startsAt || Date.parse(startsAt) <= now) && (!endsAt || Date.parse(endsAt) > now);
+}
+
 function audienceAllowed(audience: string, viewer: Viewer | null) {
   switch (audience) {
     case "visitors":
@@ -275,7 +279,7 @@ export async function getHomeSections(): Promise<HomeSectionData[]> {
   const supabase = await createSupabaseServerClient();
   const { data: sections, error } = await supabase
     .from("home_sections")
-    .select("id, slug, title, title_i18n, source, config, layout, max_items, audience")
+    .select("id, slug, title, title_i18n, source, config, layout, max_items, audience, starts_at, ends_at")
     .eq("is_active", true)
     .order("position");
   if (error) {
@@ -283,7 +287,9 @@ export async function getHomeSections(): Promise<HomeSectionData[]> {
     return [];
   }
 
-  const visible = (sections ?? []).filter((s) => audienceAllowed(s.audience, viewer));
+  // La RLS applique déjà la fenêtre de diffusion aux visiteurs ; le filtre est répété
+  // ici pour que l'équipe éditoriale voie l'accueil tel que le public le voit.
+  const visible = (sections ?? []).filter((s) => audienceAllowed(s.audience, viewer) && withinWindow(s.starts_at, s.ends_at));
   const results = await Promise.all(
     visible.map(async (section): Promise<HomeSectionData | null> => {
       const config = (section.config ?? {}) as Record<string, unknown>;
@@ -348,13 +354,14 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("home_banners")
-    .select(`id, headline, subheadline, cta_label, cta_href, image_path, audience, titles(${TITLE_CARD_COLUMNS})`)
+    .select(`id, headline, subheadline, cta_label, cta_href, image_path, audience, starts_at, ends_at, titles(${TITLE_CARD_COLUMNS})`)
     .eq("is_active", true)
     .order("position")
-    .limit(6);
+    .limit(12);
 
   const slides: HeroSlide[] = (data ?? [])
-    .filter((b) => audienceAllowed(b.audience, viewer))
+    .filter((b) => audienceAllowed(b.audience, viewer) && withinWindow(b.starts_at, b.ends_at))
+    .slice(0, 6)
     .map((b) => {
       const title = b.titles ? toTitleCard(b.titles) : null;
       return {

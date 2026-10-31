@@ -2610,10 +2610,42 @@ export type Database = {
         Args: { p_note: string; p_plan: string; p_until: string; p_user: string };
         Returns: string;
       };
+      admin_list_users: {
+        Args: {
+          p_limit?: number;
+          p_offset?: number;
+          p_role?: Database["public"]["Enums"]["app_role"];
+          p_search?: string;
+          p_suspended?: boolean;
+          p_tier?: Database["public"]["Enums"]["plan_tier"];
+        };
+        Returns: {
+          created_at: string;
+          display_name: string;
+          email: string;
+          email_confirmed: boolean;
+          founder_number: number;
+          id: string;
+          last_sign_in_at: string;
+          plan_code: string;
+          roles: Database["public"]["Enums"]["app_role"][];
+          subscription_status: Database["public"]["Enums"]["subscription_status"];
+          suspended_at: string;
+          tier: Database["public"]["Enums"]["plan_tier"];
+          total_count: number;
+        }[];
+      };
       admin_set_plan_price: { Args: { p_amount_cents: number; p_plan: string }; Returns: string };
       admin_set_suspension: {
         Args: { p_reason?: string; p_suspended: boolean; p_user: string };
         Returns: undefined;
+      };
+      admin_user_emails: {
+        Args: { p_ids: string[] };
+        Returns: {
+          email: string;
+          id: string;
+        }[];
       };
       can_view_audience: {
         Args: { p_audience: Database["public"]["Enums"]["content_audience"] };

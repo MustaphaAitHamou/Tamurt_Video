@@ -82,6 +82,8 @@ export interface PaymentProvider {
     amountCents: number;
     currency: string;
     interval: "month" | "year";
+    /** Clé d'idempotence (identifiant du prix interne) : évite les doublons en cas de nouvelle tentative. */
+    idempotencyKey?: string;
   }): Promise<{ productId: string; priceId: string }>;
   /** Vérifie la signature et décode l'événement ; lève une erreur si invalide. */
   parseWebhook(rawBody: string, signature: string | null): ProviderEvent;

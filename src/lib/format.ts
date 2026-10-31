@@ -79,3 +79,48 @@ export function slugify(input: string) {
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
 }
+
+const PARIS = "Europe/Paris";
+
+function zonedParts(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).formatToParts(date);
+  const get = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+  return { year: get("year"), month: get("month"), day: get("day"), hour: get("hour"), minute: get("minute"), second: get("second") };
+}
+
+/** Décalage (minutes) d'un fuseau par rapport à UTC à un instant donné. */
+export function timeZoneOffsetMinutes(date: Date, timeZone = PARIS) {
+  const p = zonedParts(date, timeZone);
+  return (Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(date.getTime() / 1000) * 1000) / 60_000;
+}
+
+/** Valeur d'un champ « datetime-local » exprimée à l'heure de Paris. */
+export function toParisInputValue(value: string | null | undefined) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const p = zonedParts(date, PARIS);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${p.year}-${pad(p.month)}-${pad(p.day)}T${pad(p.hour)}:${pad(p.minute)}`;
+}
+
+/** Interprète une saisie « AAAA-MM-JJTHH:MM » comme une heure de Paris et renvoie l'instant UTC (ISO). */
+export function parisInputToIso(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+  if (!match) return null;
+  const [, y, mo, d, h, mi] = match.map(Number) as [number, number, number, number, number, number];
+  const naiveUtc = Date.UTC(y, mo - 1, d, h, mi);
+  // Deux passes pour tenir compte d'un changement d'heure proche.
+  let instant = naiveUtc - timeZoneOffsetMinutes(new Date(naiveUtc)) * 60_000;
+  instant = naiveUtc - timeZoneOffsetMinutes(new Date(instant)) * 60_000;
+  return new Date(instant).toISOString();
+}

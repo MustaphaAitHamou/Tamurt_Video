@@ -94,7 +94,6 @@ function CreateProfileDialog() {
 }
 
 function EditProfileDialog({ profile }: { profile: Profile }) {
-  const t = useTranslations("account");
   const tc = useTranslations("common");
   const router = useRouter();
   const [pending, startTransition] = useTransition();

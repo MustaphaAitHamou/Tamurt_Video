@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { CookieIcon } from "lucide-react";
@@ -12,6 +12,7 @@ import {
   CONSENT_EVENT,
   CONSENT_POLICY_VERSION,
   OPEN_CONSENT_EVENT,
+  parseConsent,
   readConsentFromDocument,
   type ConsentChoices,
 } from "@/components/legal/consent";
@@ -32,37 +33,47 @@ function persist(choices: Omit<ConsentChoices, "necessary">) {
   }).catch(() => undefined);
 }
 
+function subscribe(callback: () => void) {
+  window.addEventListener(CONSENT_EVENT, callback);
+  return () => window.removeEventListener(CONSENT_EVENT, callback);
+}
+
+function getRawConsent() {
+  const match = document.cookie.split("; ").find((c) => c.startsWith(`${CONSENT_COOKIE}=`));
+  return match?.slice(CONSENT_COOKIE.length + 1) ?? "";
+}
+
+// Côté serveur, le consentement est inconnu : rien n'est affiché avant l'hydratation.
+const getServerSnapshot = () => null;
+
 /** Bandeau de consentement : refuser est aussi simple qu'accepter. */
 export function CookieConsent() {
   const t = useTranslations("cookies");
-  const [open, setOpen] = useState(false);
+  const rawConsent = useSyncExternalStore(subscribe, getRawConsent, getServerSnapshot);
+  const needsChoice = rawConsent !== null && parseConsent(rawConsent) === null;
+  const [reopened, setReopened] = useState(false);
   const [customizing, setCustomizing] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [ads, setAds] = useState(false);
 
   useEffect(() => {
-    const existing = readConsentFromDocument();
-    if (!existing) setOpen(true);
-    else {
-      setAnalytics(existing.analytics);
-      setAds(existing.ads);
-    }
     const reopen = () => {
       const current = readConsentFromDocument();
       setAnalytics(current?.analytics ?? false);
       setAds(current?.ads ?? false);
       setCustomizing(true);
-      setOpen(true);
+      setReopened(true);
     };
     window.addEventListener(OPEN_CONSENT_EVENT, reopen);
     return () => window.removeEventListener(OPEN_CONSENT_EVENT, reopen);
   }, []);
 
+  const open = needsChoice || reopened;
   if (!open) return null;
 
   const save = (choices: { analytics: boolean; ads: boolean }) => {
     persist(choices);
-    setOpen(false);
+    setReopened(false);
     setCustomizing(false);
   };
 

@@ -35,6 +35,11 @@ export type PlanEconomics = PlanUsage & {
 
 const round = (value: number) => Math.round(value);
 
+/** Montant en euros au format français (ex. 0,28 €), pour les messages d'alerte. */
+export function formatEuros(cents: number) {
+  return `${(cents / 100).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+}
+
 export function streamingCostCents(minutes: number, model: CostModel) {
   return round((Math.max(minutes, 0) / 1000) * model.streamDeliveredUsdPer1000Min * model.usdToEurRate * 100);
 }
@@ -98,7 +103,7 @@ export function profitabilityRisks(input: {
   const feeShare = input.founderPriceCents > 0 ? fee / input.founderPriceCents : 0;
   if (feeShare >= 0.1) {
     risks.push(
-      `La commission de paiement absorbe environ ${Math.round(feeShare * 100)} % du forfait Fondateur (${(fee / 100).toFixed(2)} € sur ${(input.founderPriceCents / 100).toFixed(2)} €) : la part fixe pèse lourd sur les petits montants.`,
+      `La commission de paiement absorbe environ ${Math.round(feeShare * 100)} % du forfait Fondateur (${formatEuros(fee)} sur ${formatEuros(input.founderPriceCents)}) : la part fixe pèse lourd sur les petits montants.`,
     );
   }
   const founder = input.economics.find((e) => e.code === "founder");
@@ -109,19 +114,19 @@ export function profitabilityRisks(input: {
   }
   if (input.launchPhase === "commercial") {
     risks.push(
-      `En phase commerciale, les fondateurs accèdent au catalogue Standard à ${(input.founderPriceCents / 100).toFixed(2)} € au lieu de ${(input.standardPriceCents / 100).toFixed(2)} € : les droits de diffusion rémunérés au visionnage ou au prorata des abonnés peuvent rendre ce segment déficitaire. Suivez la marge de la formule Fondateur.`,
+      `En phase commerciale, les fondateurs accèdent au catalogue Standard à ${formatEuros(input.founderPriceCents)} au lieu de ${formatEuros(input.standardPriceCents)} : les droits de diffusion rémunérés au visionnage ou au prorata des abonnés peuvent rendre ce segment déficitaire. Suivez la marge de la formule Fondateur.`,
     );
   }
   for (const plan of input.economics) {
     if (plan.activeSubscribers > 0 && plan.marginCents < 0) {
-      risks.push(`La formule ${plan.name} est déficitaire sur la période (${(plan.marginCents / 100).toFixed(2)} €).`);
+      risks.push(`La formule ${plan.name} est déficitaire sur la période (${formatEuros(plan.marginCents)}).`);
     }
   }
   const totalSubscribers = input.economics.reduce((sum, p) => sum + p.activeSubscribers, 0);
   const fixed = totalFixedCostsCents(input.model);
   if (totalSubscribers > 0 && fixed / totalSubscribers > input.founderPriceCents) {
     risks.push(
-      `Les coûts fixes (${(fixed / 100).toFixed(2)} € par mois) dépassent le revenu d'un abonné fondateur par abonné actif : la base d'abonnés doit croître pour les couvrir.`,
+      `Les coûts fixes (${formatEuros(fixed)} par mois) dépassent le revenu d'un abonné fondateur par abonné actif : la base d'abonnés doit croître pour les couvrir.`,
     );
   }
   return risks;

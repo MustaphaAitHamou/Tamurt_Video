@@ -16,6 +16,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireViewer } from "@/server/auth/session";
 import { getWatchlist, listCatalog } from "@/server/catalog/queries";
 import { getAnnouncements, getRoadmap } from "@/server/content";
+import { nowMs } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Espace fondateur", robots: { index: false } };
 
@@ -48,7 +49,7 @@ export default async function FounderSpacePage() {
       .limit(24),
   ]);
   const since = viewer.profile.founderSince ? new Date(viewer.profile.founderSince) : null;
-  const months = since ? Math.max(0, Math.floor((Date.now() - since.getTime()) / (30.44 * 86_400_000))) : 0;
+  const months = since ? Math.max(0, Math.floor((nowMs() - since.getTime()) / (30.44 * 86_400_000))) : 0;
   const nextFeatures = roadmap.filter((r) => r.status !== "done").slice(0, 4);
 
   return (

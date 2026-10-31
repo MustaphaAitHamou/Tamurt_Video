@@ -3,7 +3,7 @@ import "server-only";
 import { getEnv } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getEmailProvider } from "@/server/email/providers";
-import { preferenceKeyForType, renderEmail, templateForNotificationType } from "@/server/email/templates";
+import { preferenceKeyForType, renderEmail, templateForNotificationType, type EmailTemplate } from "@/server/email/templates";
 
 type NotificationRow = {
   id: string;
@@ -119,4 +119,31 @@ export async function notifyUser(input: {
     await sendNotificationEmail(id).catch((cause) => console.error("[email] envoi immédiat", cause));
   }
   return id;
+}
+
+/**
+ * Email transactionnel adressé directement (destinataire sans compte : auteur
+ * d'une réclamation, d'un message de contact). Journalisé dans email_outbox.
+ */
+export async function sendDirectEmail(input: { to: string; title: string; body: string; link?: string | null; template?: EmailTemplate; userId?: string | null }) {
+  const env = getEnv();
+  const template = input.template ?? "external.notice";
+  const rendered = renderEmail(template, { title: input.title, body: input.body, link: input.link ?? null, siteUrl: env.siteUrl });
+  const provider = getEmailProvider();
+  const result = await provider.send({ to: input.to, subject: rendered.subject, html: rendered.html, text: rendered.text, replyTo: env.email.replyTo });
+  await createSupabaseAdminClient()
+    .from("email_outbox")
+    .insert({
+      user_id: input.userId ?? null,
+      notification_id: null,
+      to_email: input.to,
+      template,
+      subject: rendered.subject,
+      provider: provider.id,
+      status: result.status,
+      provider_message_id: result.providerMessageId ?? null,
+      error: result.error ?? null,
+      preview_text: rendered.preview.slice(0, 300),
+    });
+  return result.status;
 }

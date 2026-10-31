@@ -18,42 +18,46 @@ export function SearchBox({ className, autoFocus = false }: { className?: string
   const listId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Suggestion[]>([]);
+  const [fetched, setFetched] = useState<{ query: string; results: Suggestion[] }>({ query: "", results: [] });
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const [loading, setLoading] = useState(false);
+  const [pending, setPending] = useState(false);
+  const trimmedQuery = query.trim();
+  const searchable = trimmedQuery.length >= 2;
+  // Les suggestions ne valent que pour la requête qui les a produites.
+  const results = searchable && fetched.query === trimmedQuery ? fetched.results : [];
+  const loading = searchable && pending;
 
   useEffect(() => {
-    const trimmed = query.trim();
-    if (trimmed.length < 2) {
-      setResults([]);
-      setLoading(false);
-      return;
-    }
+    if (!searchable) return;
     const controller = new AbortController();
-    setLoading(true);
     const timer = setTimeout(async () => {
       try {
-        const response = await fetch(`/api/search/suggest?q=${encodeURIComponent(trimmed)}`, {
+        const response = await fetch(`/api/search/suggest?q=${encodeURIComponent(trimmedQuery)}`, {
           signal: controller.signal,
         });
         if (response.ok) {
           const body = (await response.json()) as { results: Suggestion[] };
-          setResults(body.results);
+          setFetched({ query: trimmedQuery, results: body.results });
           setActive(-1);
           setOpen(true);
         }
       } catch {
         // Requête annulée ou réseau indisponible : la page de résultats reste accessible.
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        if (!controller.signal.aborted) setPending(false);
       }
     }, 200);
     return () => {
       controller.abort();
       clearTimeout(timer);
     };
-  }, [query]);
+  }, [searchable, trimmedQuery]);
+
+  function updateQuery(value: string) {
+    setQuery(value);
+    setPending(value.trim().length >= 2);
+  }
 
   function goToResults() {
     const trimmed = query.trim();
@@ -101,7 +105,7 @@ export function SearchBox({ className, autoFocus = false }: { className?: string
           name="q"
           value={query}
           autoFocus={autoFocus}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => updateQuery(event.target.value)}
           onFocus={() => results.length > 0 && setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={onKeyDown}
@@ -122,7 +126,7 @@ export function SearchBox({ className, autoFocus = false }: { className?: string
           <button
             type="button"
             onClick={() => {
-              setQuery("");
+              updateQuery("");
               inputRef.current?.focus();
             }}
             className="absolute end-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:text-foreground"

@@ -28,7 +28,18 @@ export type PlatformMetrics = {
     payment_failures: number;
     webhook_failures: number;
   };
-  catalog: Record<string, number>;
+  catalog: {
+    titles_published: number;
+    titles_announced: number;
+    titles_draft: number;
+    titles_taken_down: number;
+    demo_titles: number;
+    episodes_published: number;
+    media_ready: number;
+    media_minutes_stored: number;
+    licenses_expiring_30d: number;
+    claims_open: number;
+  };
   streaming: { sessions: number; minutes_watched: number; unique_viewers: number; active_streams_now: number; minutes_by_tier: Record<string, number> };
   requests: { open: number; new_in_period: number; votes_in_period: number };
   incidents: { open: number; critical_open: number };
@@ -60,16 +71,27 @@ export async function getFinanceSummary(from: Date, to: Date) {
     .from("subscription_plans")
     .select("code, name, tier, price_cents")
     .order("sort_order");
+  // Seuls les abonnements payants (Stripe) génèrent du revenu : les accès offerts sont exclus de la marge.
+  const { data: paying } = await createSupabaseAdminClient()
+    .from("subscriptions")
+    .select("subscription_plans(tier)")
+    .eq("provider", "stripe")
+    .in("status", ["active", "trialing", "past_due"]);
+  const payingByTier = new Map<string, number>();
+  for (const row of paying ?? []) {
+    const tier = row.subscription_plans?.tier;
+    if (tier) payingByTier.set(tier, (payingByTier.get(tier) ?? 0) + 1);
+  }
   const usage = (plans ?? []).map((plan) => ({
     code: plan.code,
     name: plan.name,
     priceCents: plan.price_cents,
-    activeSubscribers: (metrics.subscriptions as unknown as Record<string, number>)[plan.tier] ?? 0,
+    activeSubscribers: payingByTier.get(plan.tier) ?? 0,
     minutesWatched: metrics.streaming.minutes_by_tier[plan.tier] ?? 0,
   }));
   const economics = planEconomics(usage, model, metrics.finance_entries.hosting ?? 0);
   const streamingCost = streamingCostCents(metrics.streaming.minutes_watched, model);
-  const storageCost = storageCostCents(metrics.catalog.media_minutes_stored ?? 0, model);
+  const storageCost = storageCostCents(metrics.catalog.media_minutes_stored, model);
   const fixedCosts = totalFixedCostsCents(model);
   const manual = metrics.finance_entries;
   const revenue = {

@@ -15,6 +15,7 @@ import { isLocale, localeIntlTag } from "@/i18n/config";
 import { formatDateTime } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireViewer } from "@/server/auth/session";
+import { nowMs } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Sécurité", robots: { index: false } };
 
@@ -41,7 +42,7 @@ export default async function SecurityPage() {
         label,
         country: s.country_code,
         lastSeen: s.last_heartbeat_at,
-        active: !s.ended_at && Date.now() - new Date(s.last_heartbeat_at).getTime() < 120_000,
+        active: !s.ended_at && nowMs() - new Date(s.last_heartbeat_at).getTime() < 120_000,
       });
     }
   }

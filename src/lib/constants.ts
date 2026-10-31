@@ -15,6 +15,16 @@ export type AvatarKey = (typeof AVATARS)[number]["key"];
 export const AGE_RATINGS = [0, 10, 12, 16, 18] as const;
 
 export const TITLE_KINDS = ["film", "series", "documentary", "short", "show", "interview"] as const;
+
+/** Libellés français pour l'administration (l'interface publique passe par next-intl). */
+export const TITLE_KIND_LABELS: Record<(typeof TITLE_KINDS)[number], string> = {
+  film: "Film",
+  series: "Série",
+  documentary: "Documentaire",
+  short: "Court-métrage",
+  show: "Émission",
+  interview: "Entretien",
+};
 export type TitleKind = (typeof TITLE_KINDS)[number];
 
 /** Langues de contenu courantes (codes ISO 639). */

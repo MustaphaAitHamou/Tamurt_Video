@@ -7,6 +7,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/server/auth/session";
 import { failure, fromZodError, success, type ActionResult } from "@/server/errors";
 import { getClientIp, hashIp } from "@/server/http";
+import { sendDirectEmail } from "@/server/email/dispatcher";
 import { rateLimit } from "@/server/rate-limit";
 
 const contactSchema = z.object({
@@ -86,6 +87,11 @@ export async function submitClaimAction(_prev: ActionResult | null, formData: Fo
     ip_hash: ipHash ?? null,
   });
   if (error) return failure("Envoi impossible. Écrivez-nous via le formulaire de contact.", "STORAGE");
+  await sendDirectEmail({
+    to: parsed.data.claimantEmail,
+    title: "Nous avons bien reçu votre signalement",
+    body: `Bonjour ${parsed.data.claimantName},\n\nVotre signalement concernant « ${parsed.data.titleReference.slice(0, 200)} » a été transmis à l'équipe chargée des droits. Il est examiné dans les meilleurs délais ; en cas d'atteinte manifeste, le contenu est retiré sans attendre la fin de l'examen.\n\nVous serez informé·e par email des suites données.`,
+  }).catch((cause) => console.error("[email] accusé de réception", cause));
   await admin.rpc("notify_staff", {
     p_permission: "takedown.execute",
     p_type: "staff.content_claim",

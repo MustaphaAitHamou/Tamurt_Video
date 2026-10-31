@@ -74,7 +74,13 @@ export function VideoPlayer(props: VideoPlayerProps) {
   const tTiers = useTranslations("tiers");
   const router = useRouter();
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  // Élément conteneur des menus : en plein écran, seuls ses descendants sont visibles.
+  const [portalContainer, setPortalContainer] = useState<HTMLDivElement | null>(null);
+  const attachContainer = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    setPortalContainer(node);
+  }, []);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const pendingSeekRef = useRef<number | null>(null);
@@ -105,11 +111,12 @@ export function VideoPlayer(props: VideoPlayerProps) {
   const [subtitle, setSubtitle] = useState<string>("off");
   const [controlsVisible, setControlsVisible] = useState(true);
   const [resumeFrom, setResumeFrom] = useState<number | null>(null);
-  const [countdown, setCountdown] = useState<number | null>(null);
   const [nextDismissed, setNextDismissed] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
-  sessionRef.current = session;
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
 
   const requestSession = useCallback(
     async (sessionId?: string | null) => {
@@ -128,10 +135,6 @@ export function VideoPlayer(props: VideoPlayerProps) {
   // Demande initiale d'autorisation de lecture.
   useEffect(() => {
     let cancelled = false;
-    setSession(null);
-    setDenied(null);
-    setFatalError(null);
-    setBuffering(true);
     const key = `${titleId}:${episodeId ?? ""}:${kind}:${attempt}`;
     if (inflightRef.current?.key !== key) {
       inflightRef.current = { key, promise: requestSession() };
@@ -151,6 +154,15 @@ export function VideoPlayer(props: VideoPlayerProps) {
       cancelled = true;
     };
   }, [requestSession, attempt, titleId, episodeId, kind]);
+
+  // Nouvelle tentative : l'état est réinitialisé ici (le composant est remonté à chaque changement d'œuvre).
+  const retry = () => {
+    setSession(null);
+    setDenied(null);
+    setFatalError(null);
+    setBuffering(true);
+    setAttempt((value) => value + 1);
+  };
 
   // Envoi de la progression (fetch keepalive, sendBeacon à la fermeture).
   const report = useCallback((event: "heartbeat" | "pause" | "seek" | "ended" | "stop") => {
@@ -402,20 +414,11 @@ export function VideoPlayer(props: VideoPlayerProps) {
   );
   const showNextCard = creditsReached && !nextDismissed;
 
-  // Compte à rebours vers l'épisode suivant.
-  useEffect(() => {
-    if (!showNextCard || !session?.autoplayNext) {
-      setCountdown(null);
-      return;
-    }
-    setCountdown(AUTOPLAY_SECONDS);
-    const interval = setInterval(() => setCountdown((value) => (value === null ? null : value - 1)), 1000);
-    return () => clearInterval(interval);
-  }, [showNextCard, session?.autoplayNext]);
-
-  useEffect(() => {
-    if (countdown === 0 && session?.nextEpisode) goToEpisode(session.nextEpisode.id);
-  }, [countdown, session?.nextEpisode, goToEpisode]);
+  const countdownActive = showNextCard && Boolean(session?.autoplayNext);
+  const playNextEpisode = useCallback(() => {
+    const next = sessionRef.current?.nextEpisode;
+    if (next) goToEpisode(next.id);
+  }, [goToEpisode]);
 
   const progressPercent = duration > 0 ? (time / duration) * 100 : 0;
   const bufferedPercent = duration > 0 ? (bufferedEnd / duration) * 100 : 0;
@@ -438,7 +441,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
 
   return (
     <div
-      ref={containerRef}
+      ref={attachContainer}
       className={cn("relative h-dvh w-full overflow-hidden bg-black text-white outline-none select-none", !controlsVisible && playing && "cursor-none")}
       onMouseMove={showControls}
       onTouchStart={showControls}
@@ -537,7 +540,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
                 </Button>
               )}
               {(fatalError || denied?.reason === "too_many_streams" || denied?.reason === "provider_unavailable" || denied?.reason === "rate_limited") && (
-                <Button variant="secondary" onClick={() => setAttempt((value) => value + 1)}>
+                <Button variant="secondary" onClick={retry}>
                   {t("play")}
                 </Button>
               )}
@@ -596,9 +599,15 @@ export function VideoPlayer(props: VideoPlayerProps) {
           <div className="flex gap-2">
             <Button size="sm" variant="light" onClick={() => session.nextEpisode && goToEpisode(session.nextEpisode.id)}>
               <PlayIcon className="fill-current" />
-              {countdown !== null ? t("nextEpisodeIn", { seconds: Math.max(countdown, 0) }) : t("nextEpisode")}
+              {countdownActive ? (
+                <Countdown seconds={AUTOPLAY_SECONDS} onComplete={playNextEpisode}>
+                  {(remaining) => t("nextEpisodeIn", { seconds: remaining })}
+                </Countdown>
+              ) : (
+                t("nextEpisode")
+              )}
             </Button>
-            {countdown !== null && (
+            {countdownActive && (
               <Button size="sm" variant="ghost" onClick={() => setNextDismissed(true)}>
                 {t("cancelAutoplay")}
               </Button>
@@ -705,7 +714,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
                       <ListVideoIcon className="size-5" />
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="right" className="p-0" container={containerRef.current}>
+                  <SheetContent side="right" className="p-0" container={portalContainer}>
                     <SheetHeader className="border-b">
                       <SheetTitle>{t("episodes")}</SheetTitle>
                     </SheetHeader>
@@ -738,7 +747,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
                       <CaptionsIcon className="size-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" side="top" container={containerRef.current}>
+                  <DropdownMenuContent align="end" side="top" container={portalContainer}>
                     <DropdownMenuLabel>{t("subtitles")}</DropdownMenuLabel>
                     <DropdownMenuRadioGroup value={subtitle} onValueChange={setSubtitle}>
                       <DropdownMenuRadioItem value="off">{t("subtitlesOff")}</DropdownMenuRadioItem>
@@ -758,7 +767,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
                     <SettingsIcon className="size-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" side="top" className="w-56" container={containerRef.current}>
+                <DropdownMenuContent align="end" side="top" className="w-56" container={portalContainer}>
                   {levels.length > 0 && (
                     <>
                       <DropdownMenuLabel>
@@ -825,4 +834,17 @@ export function VideoPlayer(props: VideoPlayerProps) {
       )}
     </div>
   );
+}
+
+/** Décompte autonome : monté le temps du compte à rebours, son état repart de zéro à chaque affichage. */
+function Countdown({ seconds, onComplete, children }: { seconds: number; onComplete: () => void; children: (remaining: number) => React.ReactNode }) {
+  const [remaining, setRemaining] = useState(seconds);
+  useEffect(() => {
+    const interval = setInterval(() => setRemaining((value) => value - 1), 1000);
+    return () => clearInterval(interval);
+  }, []);
+  useEffect(() => {
+    if (remaining <= 0) onComplete();
+  }, [remaining, onComplete]);
+  return <>{children(Math.max(remaining, 0))}</>;
 }

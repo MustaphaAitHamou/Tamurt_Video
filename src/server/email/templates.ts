@@ -11,12 +11,15 @@ export type EmailTemplate =
   | "catalog.title_available"
   | "request.status_changed"
   | "account.notice"
+  | "external.notice"
   | "staff.alert";
 
 export type RenderedEmail = { subject: string; html: string; text: string; preview: string };
 
 const escapeHtml = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const EXTERNAL_FOOTER = "Vous recevez cet email en réponse à une démarche effectuée auprès de Tamurt Vidéo. Répondez simplement à ce message pour toute question.";
 
 function layout(input: { heading: string; paragraphs: string[]; cta?: { label: string; url: string }; footerNote?: string }) {
   const body = input.paragraphs
@@ -86,6 +89,10 @@ export function renderEmail(template: EmailTemplate, data: { title: string; body
       paragraphs.push(data.body ?? "Une alerte nécessite l'attention de l'équipe.");
       cta = { label: "Ouvrir l'administration", url };
       break;
+    case "external.notice":
+      for (const paragraph of (data.body ?? "").split(/\n{2,}/)) if (paragraph.trim()) paragraphs.push(paragraph.trim());
+      if (data.link) cta = { label: "Ouvrir", url };
+      break;
     default:
       paragraphs.push(data.body ?? "");
       if (data.link) cta = { label: "Ouvrir", url };
@@ -94,7 +101,7 @@ export function renderEmail(template: EmailTemplate, data: { title: string; body
   const heading = template.startsWith("billing.") ? subject : data.title;
   return {
     subject,
-    html: layout({ heading, paragraphs, cta }),
+    html: layout({ heading, paragraphs, cta, footerNote: template === "external.notice" ? EXTERNAL_FOOTER : undefined }),
     text: text({ heading, paragraphs, cta }),
     preview: paragraphs[0] ?? heading,
   };

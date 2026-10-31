@@ -44,6 +44,10 @@ const nextConfig: NextConfig = {
     dangerouslyAllowLocalIP: isDev,
     qualities: [60, 75, 85],
   },
+  experimental: {
+    // Affiches et sous-titres envoyés par actions serveur (sous le plafond de 4,5 Mo de Vercel).
+    serverActions: { bodySizeLimit: "4mb" },
+  },
   // Les médias de test générés localement accompagnent la route de diffusion de développement.
   outputFileTracingIncludes: {
     "/api/dev-stream/[...path]": ["./dev-media/**/*"],
