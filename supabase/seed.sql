@@ -1,0 +1,1 @@
+-- Données de démonstration : générées plus loin.

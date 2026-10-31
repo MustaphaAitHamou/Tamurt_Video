@@ -1,0 +1,8 @@
+legacy/
+supabase/templates/
+pnpm-lock.yaml
+.next/
+coverage/
+playwright-report/
+test-results/
+dev-media/

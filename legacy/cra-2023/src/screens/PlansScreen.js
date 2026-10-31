@@ -70,9 +70,7 @@ function PlansScreen() {
       }
 
       if (sessionId) {
-        const stripe = await loadStripe(
-          "pk_test_51MvJysHBJvHeQvG27OoREgUUfrBQOUnnxh0GvnwZLfd3whmeHbiPbvSlg3dghhX6efspRZX1Pgnu2xMUXfRSw2mM002hlvH8bP"
-        );
+        const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
         stripe.redirectToCheckout({ sessionId });
       }
     });

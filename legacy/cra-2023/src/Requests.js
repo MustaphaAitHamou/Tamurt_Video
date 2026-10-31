@@ -1,4 +1,5 @@
-const API_KEY = "ee3868460738307d7e53ba555a6552fb";
+// Clé retirée du dépôt (archive 2023) : fournir REACT_APP_TMDB_API_KEY.
+const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
 const requests = {
     fetchTrending: `/trending/all/week?api_key=${API_KEY}&language=fr`,
