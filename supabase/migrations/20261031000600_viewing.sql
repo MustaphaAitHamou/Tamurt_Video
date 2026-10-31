@@ -42,12 +42,14 @@ create table public.watch_history (
   completed boolean not null default false,
   counted_view boolean not null default false,
   country_code text,
+  device_id text check (device_id ~ '^[0-9a-f]{32}$'),
   device_label text
 );
 create index watch_history_active_idx on public.watch_history (account_id, last_heartbeat_at desc) where ended_at is null;
 create index watch_history_profile_idx on public.watch_history (viewer_profile_id, started_at desc);
 create index watch_history_title_idx on public.watch_history (title_id, started_at desc);
 create index watch_history_started_idx on public.watch_history (started_at);
+create index watch_history_device_idx on public.watch_history (account_id, device_id) where ended_at is null;
 
 create table public.search_history (
   id uuid primary key default gen_random_uuid(),
@@ -71,7 +73,8 @@ create or replace function public.start_watch_session(
   p_asset uuid,
   p_country text,
   p_device_label text,
-  p_max_streams integer
+  p_max_streams integer,
+  p_device_id text default null
 )
 returns table (session_id uuid, allowed boolean, active_streams integer, resume_position_seconds integer)
 language plpgsql
@@ -85,6 +88,13 @@ declare
   v_resume integer := 0;
 begin
   perform pg_advisory_xact_lock(hashtextextended('watch:' || p_user::text, 0));
+
+  -- Un appareil ne compte que pour un écran : une nouvelle lecture remplace la précédente.
+  if p_device_id is not null then
+    update public.watch_history
+       set ended_at = now()
+     where account_id = p_user and device_id = p_device_id and ended_at is null;
+  end if;
 
   select count(*) into v_active
   from public.watch_history
@@ -106,9 +116,9 @@ begin
     and wp.episode_id is not distinct from p_episode;
 
   insert into public.watch_history
-    (account_id, viewer_profile_id, title_id, episode_id, media_asset_id, country_code, device_label, last_position_seconds)
+    (account_id, viewer_profile_id, title_id, episode_id, media_asset_id, country_code, device_id, device_label, last_position_seconds)
   values
-    (p_user, p_viewer_profile, p_title, p_episode, p_asset, p_country, left(p_device_label, 80), coalesce(v_resume, 0))
+    (p_user, p_viewer_profile, p_title, p_episode, p_asset, p_country, p_device_id, left(p_device_label, 80), coalesce(v_resume, 0))
   returning id into v_id;
 
   return query select v_id, true, v_active + 1, coalesce(v_resume, 0);
@@ -458,8 +468,8 @@ create policy search_history_insert on public.search_history for insert to authe
 create policy search_history_delete on public.search_history for delete to authenticated
   using (account_id = (select auth.uid()));
 
-revoke execute on function public.start_watch_session(uuid, uuid, uuid, uuid, uuid, text, text, integer) from public, anon, authenticated;
-grant execute on function public.start_watch_session(uuid, uuid, uuid, uuid, uuid, text, text, integer) to service_role;
+revoke execute on function public.start_watch_session(uuid, uuid, uuid, uuid, uuid, text, text, integer, text) from public, anon, authenticated;
+grant execute on function public.start_watch_session(uuid, uuid, uuid, uuid, uuid, text, text, integer, text) to service_role;
 grant execute on function public.record_watch_progress(uuid, integer, integer, integer, text) to authenticated;
 grant execute on function public.next_episode(uuid) to anon, authenticated;
 grant execute on function public.continue_watching(uuid, integer) to authenticated;

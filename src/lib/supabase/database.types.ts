@@ -1582,6 +1582,8 @@ export type Database = {
           subtitle_locale: string | null;
           suspended_at: string | null;
           suspension_reason: string | null;
+          terms_accepted_at: string | null;
+          terms_version: string | null;
           updated_at: string;
         };
         ComputedFields: never;
@@ -1603,6 +1605,8 @@ export type Database = {
           subtitle_locale?: string | null;
           suspended_at?: string | null;
           suspension_reason?: string | null;
+          terms_accepted_at?: string | null;
+          terms_version?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -1623,6 +1627,8 @@ export type Database = {
           subtitle_locale?: string | null;
           suspended_at?: string | null;
           suspension_reason?: string | null;
+          terms_accepted_at?: string | null;
+          terms_version?: string | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -2366,6 +2372,7 @@ export type Database = {
           completed: boolean;
           counted_view: boolean;
           country_code: string | null;
+          device_id: string | null;
           device_label: string | null;
           ended_at: string | null;
           episode_id: string | null;
@@ -2384,6 +2391,7 @@ export type Database = {
           completed?: boolean;
           counted_view?: boolean;
           country_code?: string | null;
+          device_id?: string | null;
           device_label?: string | null;
           ended_at?: string | null;
           episode_id?: string | null;
@@ -2401,6 +2409,7 @@ export type Database = {
           completed?: boolean;
           counted_view?: boolean;
           country_code?: string | null;
+          device_id?: string | null;
           device_label?: string | null;
           ended_at?: string | null;
           episode_id?: string | null;
@@ -2919,6 +2928,7 @@ export type Database = {
         Args: {
           p_asset: string;
           p_country: string;
+          p_device_id?: string;
           p_device_label: string;
           p_episode: string;
           p_max_streams: number;

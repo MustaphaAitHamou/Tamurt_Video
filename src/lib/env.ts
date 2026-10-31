@@ -44,6 +44,8 @@ const serverSchema = z
     CLOUDFLARE_STREAM_WEBHOOK_SECRET: optionalString,
     DEV_STREAM_SECRET: optionalString,
     ALLOW_DEV_STREAMING_IN_PRODUCTION: booleanish,
+    CLOUDFLARE_STREAM_GEO_LOCK: z.enum(["true", "false"]).optional(),
+    PLAYBACK_TOKEN_TTL_SECONDS: z.coerce.number().int().min(300).max(86_400).optional(),
 
     GEO_COUNTRY_HEADER: z.string().default("x-vercel-ip-country"),
     DEV_COUNTRY_OVERRIDE: optionalString,
@@ -129,6 +131,9 @@ function buildEnv(source: NodeJS.ProcessEnv) {
         webhookSecret: raw.CLOUDFLARE_STREAM_WEBHOOK_SECRET,
       },
       devSecret: raw.DEV_STREAM_SECRET ?? derive("dev-stream"),
+      mediaTokenSecret: derive("media-token"),
+      geoLock: raw.CLOUDFLARE_STREAM_GEO_LOCK !== "false",
+      tokenTtlSeconds: raw.PLAYBACK_TOKEN_TTL_SECONDS,
     },
     geo: {
       header: raw.GEO_COUNTRY_HEADER.toLowerCase(),

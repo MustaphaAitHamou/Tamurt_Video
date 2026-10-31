@@ -23,13 +23,15 @@ function SheetContent({
   children,
   side = "right",
   closeLabel = "Fermer",
+  container,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
   closeLabel?: string;
+  container?: HTMLElement | null;
 }) {
   return (
-    <SheetPrimitive.Portal>
+    <SheetPrimitive.Portal container={container ?? undefined}>
       <SheetPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
       <SheetPrimitive.Content
         data-slot="sheet-content"
