@@ -6,9 +6,13 @@ import { ageRatingLabel } from "@/lib/format";
 import type { TitleCardData } from "@/server/catalog/types";
 
 export function AgeRatingBadge({ rating }: { rating: number }) {
+  const t = useTranslations("title");
   return (
-    <span className="inline-flex h-5 items-center rounded border border-white/30 px-1.5 text-[11px] font-semibold text-white/80">
-      {ageRatingLabel(rating)}
+    <span
+      title={rating > 0 ? t("ageRatingHint", { age: rating }) : undefined}
+      className="inline-flex h-5 items-center rounded border border-white/30 px-1.5 text-[11px] font-semibold text-white/80"
+    >
+      {rating === 0 ? t("allAges") : ageRatingLabel(rating)}
     </span>
   );
 }

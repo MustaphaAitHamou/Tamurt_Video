@@ -44,7 +44,7 @@ export default async function NewsPage() {
                       {item.audience !== "public" && <Badge variant="gold">{t("membersOnly")}</Badge>}
                       {t("publishedOn", { date: formatDate(item.publishedAt, locale) })}
                     </span>
-                    <span className="block text-lg font-semibold group-hover:underline">{item.title}</span>
+                    <span dir="auto" className="block text-lg font-semibold group-hover:underline">{item.title}</span>
                     {item.excerpt && <span className="block text-sm text-muted-foreground">{item.excerpt}</span>}
                   </span>
                 </Link>

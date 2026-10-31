@@ -37,10 +37,14 @@ export default async function RoadmapPage() {
                   .map((item) => (
                     <li key={item.id} className="space-y-3 rounded-2xl border bg-card/60 p-5">
                       <div className="flex items-start justify-between gap-3">
-                        <p className="font-medium">{item.title}</p>
+                        <p dir="auto" className="font-medium">{item.title}</p>
                         {item.targetLabel && <Badge variant="outline">{item.targetLabel}</Badge>}
                       </div>
-                      {item.description && <p className="text-sm text-muted-foreground">{item.description}</p>}
+                      {item.description && (
+                        <p dir="auto" className="text-sm text-muted-foreground">
+                          {item.description}
+                        </p>
+                      )}
                       <Progress value={item.progress} aria-label={`${item.title} : ${item.progress} %`} />
                     </li>
                   ))}

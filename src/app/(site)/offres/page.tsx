@@ -31,15 +31,21 @@ const ERRORS: Record<string, string> = {
 
 export default async function PricingPage({ searchParams }: PageProps<"/offres">) {
   const params = await searchParams;
-  const [t, tf, viewer, plans, settings, rawLocale] = await Promise.all([
+  const [t, tf, tTiers, viewer, plans, settings, rawLocale] = await Promise.all([
     getTranslations("pricing"),
     getTranslations("founderLanding"),
+    getTranslations("tiers"),
     getViewer(),
     getPublicPlans(),
     getPublicSettings(),
     getLocale(),
   ]);
   const locale = isLocale(rawLocale) ? localeIntlTag[rawLocale] : "fr-FR";
+  // Les textes des formules sont rédigés en français dans l'administration : hors français,
+  // le nom vient des traductions et les descriptifs restent balisés comme texte français.
+  const isFrench = rawLocale === "fr";
+  const planName = (plan: { name: string; tier: "free" | "founder" | "standard" | "premium" }) => (isFrench ? plan.name : tTiers(plan.tier));
+  const frenchText = isFrench ? {} : ({ lang: "fr", dir: "auto" } as const);
   const provider = getPaymentProvider();
   const highlighted = typeof params.formule === "string" ? params.formule : null;
   const errorKey = typeof params.erreur === "string" ? params.erreur : null;
@@ -99,9 +105,13 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
                 </div>
                 <h2 className="flex items-center gap-2 text-2xl font-bold">
                   {isFounder && <CrownIcon className="size-5 text-gold" />}
-                  {plan.name}
+                  {planName(plan)}
                 </h2>
-                {plan.tagline && <p className="text-sm text-muted-foreground">{plan.tagline}</p>}
+                {plan.tagline && (
+                  <p className="text-sm text-muted-foreground" {...frenchText}>
+                    {plan.tagline}
+                  </p>
+                )}
               </div>
               <p className="flex items-baseline gap-1.5">
                 <span className="font-display text-5xl font-extrabold">{formatPrice(plan.priceCents, plan.currency, locale)}</span>
@@ -118,12 +128,16 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
                   </>
                 )}
               </p>
-              {plan.description && <p className="mt-4 text-sm leading-relaxed text-white/80">{plan.description}</p>}
+              {plan.description && (
+                <p className="mt-4 text-sm leading-relaxed text-white/80" {...frenchText}>
+                  {plan.description}
+                </p>
+              )}
               <ul className="mt-6 mb-8 space-y-2.5">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex gap-2.5 text-sm leading-relaxed">
                     <CheckIcon className={cn("mt-0.5 size-4 shrink-0", isFounder ? "text-gold" : "text-primary")} />
-                    {feature}
+                    <span {...frenchText}>{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -156,7 +170,7 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
                   <form action={startCheckoutAction}>
                     <input type="hidden" name="plan" value={plan.code} />
                     <SubmitButton className="w-full" size="lg" variant={isFounder ? "gold" : "default"}>
-                      {t("choose", { plan: plan.name })}
+                      {t("choose", { plan: planName(plan) })}
                     </SubmitButton>
                   </form>
                 )}

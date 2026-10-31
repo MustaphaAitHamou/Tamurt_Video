@@ -21,7 +21,15 @@ export const metadata: Metadata = { title: "Abonnement", robots: { index: false 
 export default async function SubscriptionPage({ searchParams }: PageProps<"/compte/abonnement">) {
   const params = await searchParams;
   const viewer = await requireViewer("/compte/abonnement");
-  const [t, plans, rawLocale] = await Promise.all([getTranslations("account"), getPublicPlans(), getLocale()]);
+  const [t, tb, tp, tTiers, plans, rawLocale] = await Promise.all([
+    getTranslations("account"),
+    getTranslations("billing"),
+    getTranslations("pricing"),
+    getTranslations("tiers"),
+    getPublicPlans(),
+    getLocale(),
+  ]);
+  const planName = (plan: { name: string; tier: "free" | "founder" | "standard" | "premium" }) => (rawLocale === "fr" ? plan.name : tTiers(plan.tier));
   const locale = isLocale(rawLocale) ? localeIntlTag[rawLocale] : "fr-FR";
   const e = viewer.entitlements;
   const provider = getPaymentProvider();
@@ -37,12 +45,12 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
       {params.paiement === "confirmation" && !e.subscriptionId && (
         <p role="status" className="flex items-start gap-3 rounded-xl border border-gold/40 bg-gold/10 p-4 text-sm text-gold">
           <HourglassIcon className="mt-0.5 size-4 shrink-0" />
-          Paiement reçu par notre prestataire, confirmation en cours. Votre accès sera activé dès réception de la confirmation sécurisée (en général quelques secondes) : actualisez cette page.
+          {tb("paymentPending")}
         </p>
       )}
       {params.info === "deja-abonne" && (
         <p role="status" className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">
-          Vous avez déjà un abonnement actif : changez de formule ci-dessous.
+          {tb("alreadySubscribed")}
         </p>
       )}
 
@@ -60,21 +68,21 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
               <div className="space-y-2">
                 <p className="flex items-center gap-2 text-xl font-semibold">
                   {e.planTier === "founder" && <CrownIcon className="size-5 text-gold" />}
-                  {e.planName}
+                  {rawLocale === "fr" || !e.planTier ? e.planName : tTiers(e.planTier)}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant={e.status === "active" || e.status === "trialing" ? "success" : e.status === "past_due" ? "warning" : "muted"}>
                     {e.status ? t(`statuses.${e.status}`) : ""}
                   </Badge>
                   {e.isFounderRate && <Badge variant="gold">{t("founderRate")}</Badge>}
-                  {e.provider === "manual" && <Badge variant="outline">Attribué par l&apos;équipe</Badge>}
+                  {e.provider === "manual" && <Badge variant="outline">{tb("grantedByTeam")}</Badge>}
                 </div>
               </div>
               {e.unitAmountCents !== null && (
                 <p className="text-end">
                   <span className="font-display text-3xl font-bold">{formatPrice(e.unitAmountCents, e.currency ?? "EUR", locale)}</span>
-                  <span className="text-sm text-muted-foreground"> / mois</span>
-                  <span className="block text-xs text-muted-foreground">Facturé en {e.currency ?? "EUR"}</span>
+                  <span className="text-sm text-muted-foreground"> {tp("perMonth")}</span>
+                  <span className="block text-xs text-muted-foreground">{tp("billedIn", { currency: e.currency ?? "EUR" })}</span>
                 </p>
               )}
             </div>
@@ -82,7 +90,7 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
             {e.launchPhase === "commercial" && e.planTier === "founder" && (
               <p className="flex items-start gap-2 rounded-xl border border-gold/30 bg-gold/10 p-3 text-sm text-gold">
                 <CrownIcon className="mt-0.5 size-4 shrink-0" />
-                Le catalogue Standard est lancé : vous en profitez au tarif fondateur tant que votre abonnement reste actif.
+                {tb("standardLaunched")}
               </p>
             )}
             {e.inGrace && graceUntil && (
@@ -107,26 +115,26 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
                 <CancelSubscriptionButton cancelScheduled={e.cancelAtPeriodEnd} endDate={endDate} />
               </div>
             )}
-            {isStripe && !provider && <p className="text-sm text-muted-foreground">La gestion en ligne est momentanément indisponible.</p>}
+            {isStripe && !provider && <p className="text-sm text-muted-foreground">{tb("onlineManagementUnavailable")}</p>}
           </div>
         )}
       </AccountSection>
 
       {isStripe && provider && otherPlans.length > 0 && (
-        <AccountSection title="Changer de formule" description="Le changement prend effet immédiatement ; la différence est calculée au prorata.">
+        <AccountSection title={tb("changePlanTitle")} description={tb("changePlanDescription")}>
           <ul className="space-y-3">
             {otherPlans.map((plan) => (
               <li key={plan.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
                 <div>
-                  <p className="font-medium">{plan.name}</p>
+                  <p className="font-medium">{planName(plan)}</p>
                   <p className="text-sm text-muted-foreground">
-                    {formatPrice(plan.priceCents, plan.currency, locale)} / mois
-                    {tierAtLeast(plan.tier, e.tier) ? "" : " · formule inférieure"}
+                    {formatPrice(plan.priceCents, plan.currency, locale)} {tp("perMonth")}
+                    {tierAtLeast(plan.tier, e.tier) ? "" : ` · ${tb("lowerPlan")}`}
                   </p>
                 </div>
                 <ChangePlanButton
                   planCode={plan.code}
-                  planName={plan.name}
+                  planName={planName(plan)}
                   priceLabel={formatPrice(plan.priceCents, plan.currency, locale)}
                   losesFounderRate={e.isFounderRate}
                 />
@@ -136,17 +144,20 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
         </AccountSection>
       )}
 
-      <AccountSection title="Conditions" description="Abonnement mensuel à renouvellement automatique, résiliable à tout moment.">
+      <AccountSection title={tb("termsTitle")} description={tb("termsDescription")}>
         <p className="text-sm text-muted-foreground">
-          Consultez les{" "}
-          <Link href="/legal/cga" className="text-foreground underline underline-offset-4">
-            conditions générales d&apos;abonnement
-          </Link>{" "}
-          et la{" "}
-          <Link href="/legal/remboursement" className="text-foreground underline underline-offset-4">
-            politique de remboursement
-          </Link>
-          . Tamurt Vidéo ne stocke jamais vos données de carte bancaire.
+          {tb.rich("termsText", {
+            terms: (chunks) => (
+              <Link href="/legal/cga" className="text-foreground underline underline-offset-4">
+                {chunks}
+              </Link>
+            ),
+            refunds: (chunks) => (
+              <Link href="/legal/remboursement" className="text-foreground underline underline-offset-4">
+                {chunks}
+              </Link>
+            ),
+          })}
         </p>
       </AccountSection>
     </>

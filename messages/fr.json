@@ -231,7 +231,11 @@
     "takenDown": "Ce contenu n'est plus disponible.",
     "noEpisodes": "Aucun épisode n'est encore disponible.",
     "share": "Partager",
-    "linkCopied": "Lien copié"
+    "linkCopied": "Lien copié",
+    "seasonCount": "{count, plural, one {# saison} other {# saisons}}",
+    "episodeCount": "{count, plural, one {# épisode} other {# épisodes}}",
+    "allAges": "Tous publics",
+    "ageRatingHint": "Déconseillé aux moins de {age} ans"
   },
   "browse": {
     "title": "Catalogue",
@@ -459,7 +463,28 @@
     "kidsProfileHint": "Limite le catalogue aux contenus adaptés (-10 ans par défaut).",
     "maxAgeRating": "Classification maximale",
     "avatar": "Avatar",
-    "profileLimit": "Votre formule permet {count, plural, one {# profil} other {# profils}}."
+    "profileLimit": "Votre formule permet {count, plural, one {# profil} other {# profils}}.",
+    "invoicesDescription": "Historique de vos paiements. Les factures sont émises par notre prestataire de paiement.",
+    "invoiceStatuses": {
+      "paid": "Payée",
+      "open": "En attente",
+      "void": "Annulée",
+      "uncollectible": "Impayée",
+      "draft": "Brouillon"
+    },
+    "completed": "terminé",
+    "episodeLabel": "É{number} — {name}",
+    "dataRequestDescription": "Accès, rectification, effacement, limitation ou opposition : nous répondons dans un délai d'un mois.",
+    "dataRequestType": "Type de demande",
+    "dataRequestTypes": {
+      "access": "Accès à mes données",
+      "export": "Portabilité (export)",
+      "rectification": "Rectification",
+      "erasure": "Effacement",
+      "restriction": "Limitation du traitement",
+      "objection": "Opposition"
+    },
+    "dataRequestDetails": "Précisions"
   },
   "founder": {
     "title": "Espace fondateur",
@@ -486,7 +511,12 @@
       "in_progress": "En cours",
       "done": "Terminé",
       "paused": "En pause"
-    }
+    },
+    "foundersOnly": "Réservé aux fondateurs",
+    "noPayments": "Aucun paiement enregistré pour le moment.",
+    "grantedByTeam": "Votre accès fondateur a été attribué par l'équipe.",
+    "paid": "Payé",
+    "manageSupport": "Gérer mon soutien"
   },
   "requests": {
     "title": "Demandes de films et séries",
@@ -624,5 +654,27 @@
     "title": "Notifications",
     "empty": "Vous êtes à jour.",
     "unread": "{count, plural, one {# non lue} other {# non lues}}"
+  },
+  "billing": {
+    "paymentPending": "Paiement reçu par notre prestataire, confirmation en cours. Votre accès sera activé dès réception de la confirmation sécurisée (en général quelques secondes) : actualisez cette page.",
+    "alreadySubscribed": "Vous avez déjà un abonnement actif : changez de formule ci-dessous.",
+    "grantedByTeam": "Attribué par l'équipe",
+    "standardLaunched": "Le catalogue Standard est lancé : vous en profitez au tarif fondateur tant que votre abonnement reste actif.",
+    "onlineManagementUnavailable": "La gestion en ligne est momentanément indisponible.",
+    "changePlanTitle": "Changer de formule",
+    "changePlanDescription": "Le changement prend effet immédiatement ; la différence est calculée au prorata.",
+    "lowerPlan": "formule inférieure",
+    "termsTitle": "Conditions",
+    "termsDescription": "Abonnement mensuel à renouvellement automatique, résiliable à tout moment.",
+    "termsText": "Consultez les <terms>conditions générales d'abonnement</terms> et la <refunds>politique de remboursement</refunds>. Tamurt Vidéo ne stocke jamais vos données de carte bancaire.",
+    "cancelTitle": "Résilier votre abonnement ?",
+    "cancelText": "Aucun nouveau prélèvement ne sera effectué. Vous gardez l'accès jusqu'au {date}. Vous pourrez réactiver l'abonnement avant cette date.",
+    "cancelTextNoDate": "Aucun nouveau prélèvement ne sera effectué. Vous gardez l'accès jusqu'au terme de la période en cours. Vous pourrez réactiver l'abonnement avant cette date.",
+    "keep": "Conserver",
+    "confirmCancel": "Confirmer la résiliation",
+    "switchTo": "Passer à {plan}",
+    "switchTitle": "Passer à la formule {plan} ?",
+    "switchText": "Nouveau tarif : {price} par mois, facturé en euros. La différence pour la période en cours est calculée au prorata.",
+    "founderLoss": "Attention : ce changement met fin définitivement à votre tarif fondateur. Il ne pourra pas être rétabli."
   }
 }

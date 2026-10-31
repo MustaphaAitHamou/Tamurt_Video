@@ -61,10 +61,14 @@ export function EpisodeList({
                   </span>
                   <span className="min-w-0 flex-1 space-y-1">
                     <span className="flex items-baseline justify-between gap-3">
-                      <span className="truncate font-medium">{episode.name}</span>
+                      <span dir="auto" className="truncate font-medium">{episode.name}</span>
                       <span className="shrink-0 text-xs text-muted-foreground">{formatRuntime(episode.runtimeMinutes)}</span>
                     </span>
-                    {episode.synopsis && <span className="line-clamp-2 text-sm text-muted-foreground">{episode.synopsis}</span>}
+                    {episode.synopsis && (
+                      <span dir="auto" className="line-clamp-2 text-sm text-muted-foreground">
+                        {episode.synopsis}
+                      </span>
+                    )}
                   </span>
                 </>
               );

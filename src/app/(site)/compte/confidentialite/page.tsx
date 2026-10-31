@@ -41,19 +41,18 @@ export default async function PrivacyPage() {
         </Button>
       </AccountSection>
 
-      <AccountSection title={t("dataRequest")} description="Accès, rectification, effacement, limitation ou opposition : nous répondons dans un délai d'un mois.">
+      <AccountSection title={t("dataRequest")} description={t("dataRequestDescription")}>
         <ActionForm action={submitDataRequestAction} submitLabel={tc("send")} resetOnSuccess>
-          <Field label="Type de demande" name="requestType">
+          <Field label={t("dataRequestType")} name="requestType">
             <NativeSelect id="requestType" name="requestType" defaultValue="access">
-              <option value="access">Accès à mes données</option>
-              <option value="export">Portabilité (export)</option>
-              <option value="rectification">Rectification</option>
-              <option value="erasure">Effacement</option>
-              <option value="restriction">Limitation du traitement</option>
-              <option value="objection">Opposition</option>
+              {(["access", "export", "rectification", "erasure", "restriction", "objection"] as const).map((type) => (
+                <option key={type} value={type}>
+                  {t(`dataRequestTypes.${type}`)}
+                </option>
+              ))}
             </NativeSelect>
           </Field>
-          <Field label="Précisions" name="details">
+          <Field label={t("dataRequestDetails")} name="details">
             <Textarea id="details" name="details" maxLength={2000} />
           </Field>
         </ActionForm>

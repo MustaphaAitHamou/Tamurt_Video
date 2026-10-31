@@ -93,7 +93,7 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
           </div>
           <div className="max-w-3xl space-y-5 animate-fade-up">
             <TitleBadges title={title} />
-            <h1 className="text-4xl leading-[1.05] font-extrabold sm:text-6xl">{title.title}</h1>
+            <h1 dir="auto" className="text-4xl leading-[1.05] font-extrabold sm:text-6xl">{title.title}</h1>
             {title.originalTitle && title.originalTitle !== title.title && (
               <p className="text-sm text-white/70">
                 {t("originalTitle")} : <span lang={title.originalLanguages[0]}>{title.originalTitle}</span>
@@ -104,7 +104,7 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
               {title.releaseYear && <span>· {title.releaseYear}</span>}
               {title.runtimeMinutes && title.structure === "single" && <span>· {formatRuntime(title.runtimeMinutes)}</span>}
               {title.structure === "episodic" && title.seasons.length > 0 && (
-                <span>· {title.seasons.length > 1 ? `${title.seasons.length} saisons` : `${title.seasons[0]?.episodes.length ?? 0} épisodes`}</span>
+                <span>· {title.seasons.length > 1 ? t("seasonCount", { count: title.seasons.length }) : t("episodeCount", { count: title.seasons[0]?.episodes.length ?? 0 })}</span>
               )}
               <AgeRatingBadge rating={title.ageRating} />
               {title.subtitleLanguages.length > 0 && (
@@ -113,8 +113,16 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
                 </Badge>
               )}
             </div>
-            {title.tagline && <p className="font-display text-xl text-white/90 italic">{title.tagline}</p>}
-            {title.synopsisShort && <p className="max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">{title.synopsisShort}</p>}
+            {title.tagline && (
+              <p dir="auto" className="font-display text-xl text-white/90 italic">
+                {title.tagline}
+              </p>
+            )}
+            {title.synopsisShort && (
+              <p dir="auto" className="max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
+                {title.synopsisShort}
+              </p>
+            )}
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
               {title.availability === "taken_down" && (

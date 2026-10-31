@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getClientIp, hashIp } from "@/server/http";
+import { rateLimit } from "@/server/rate-limit";
 import { isSameOriginRequest } from "@/server/request-guards";
 
 const schema = z.object({
@@ -15,6 +17,9 @@ const schema = z.object({
 /** Progression envoyée par le lecteur (fetch keepalive ou sendBeacon). */
 export async function POST(request: NextRequest) {
   if (!isSameOriginRequest(request)) return NextResponse.json({ ok: false }, { status: 403 });
+  // Un lecteur envoie environ 240 battements par heure ; la limite couvre un foyer de plusieurs écrans.
+  const limit = await rateLimit(`progress:${hashIp(await getClientIp()) ?? "unknown"}`, 2000, 3600);
+  if (!limit.allowed) return NextResponse.json({ ok: false }, { status: 429 });
   const text = await request.text().catch(() => "");
   let body: unknown = null;
   try {

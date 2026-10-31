@@ -61,7 +61,7 @@ export async function signInAction(_prev: ActionResult | null, formData: FormDat
     .maybeSingle();
   const cookieStore = await cookies();
   if (profile?.preferred_locale) {
-    cookieStore.set("NEXT_LOCALE", profile.preferred_locale, { path: "/", maxAge: 31536000, sameSite: "lax" });
+    cookieStore.set("NEXT_LOCALE", profile.preferred_locale, { path: "/", maxAge: 31536000, sameSite: "lax", secure: process.env.NODE_ENV === "production" });
   }
   cookieStore.delete(VIEWER_PROFILE_COOKIE);
   await logAudit({ actorId: data.user.id, action: "auth.sign_in", entityType: "user", entityId: data.user.id });

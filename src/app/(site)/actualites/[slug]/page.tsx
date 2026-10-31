@@ -42,7 +42,7 @@ export default async function NewsArticlePage({ params }: PageProps<"/actualites
           <Badge variant="outline">{t(`categories.${item.category}`)}</Badge>
           <time dateTime={item.published_at ?? undefined}>{t("publishedOn", { date: formatDate(item.published_at, locale) })}</time>
         </div>
-        <h1 className="text-4xl leading-tight font-bold">{item.title}</h1>
+        <h1 dir="auto" className="text-4xl leading-tight font-bold">{item.title}</h1>
         {item.excerpt && <p className="text-lg text-muted-foreground">{item.excerpt}</p>}
       </header>
       {item.coverUrl && (

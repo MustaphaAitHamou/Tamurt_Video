@@ -22,7 +22,7 @@ export const metadata: Metadata = { title: "Espace fondateur", robots: { index: 
 
 export default async function FounderSpacePage() {
   const viewer = await requireViewer("/espace-fondateur");
-  const [t, tn, rawLocale] = await Promise.all([getTranslations("founder"), getTranslations("news"), getLocale()]);
+  const [t, tn, ta, rawLocale] = await Promise.all([getTranslations("founder"), getTranslations("news"), getTranslations("account"), getLocale()]);
   const locale = isLocale(rawLocale) ? localeIntlTag[rawLocale] : "fr-FR";
   const isActiveFounder = viewer.entitlements.planTier === "founder";
   const wasFounder = Boolean(viewer.profile.founderSince);
@@ -82,7 +82,7 @@ export default async function FounderSpacePage() {
             {roadmap.map((item) => (
               <li key={item.id} className="space-y-2">
                 <div className="flex items-center justify-between gap-3 text-sm">
-                  <span className="font-medium">{item.title}</span>
+                  <span dir="auto" className="font-medium">{item.title}</span>
                   <Badge variant={item.status === "done" ? "success" : item.status === "in_progress" ? "gold" : "muted"}>
                     {t(`roadmapStatuses.${item.status}`)}
                   </Badge>
@@ -106,7 +106,7 @@ export default async function FounderSpacePage() {
                     </Link>
                     <p className="text-xs text-muted-foreground">
                       {tn(`categories.${a.category}`)} · {formatDate(a.publishedAt, locale)}
-                      {a.audience === "founders" && " · Réservé aux fondateurs"}
+                      {a.audience === "founders" && ` · ${t("foundersOnly")}`}
                     </p>
                   </div>
                 </li>
@@ -144,16 +144,15 @@ export default async function FounderSpacePage() {
       <AccountSection title={t("paymentsTitle")}>
         {!payments.data?.length ? (
           <p className="text-sm text-muted-foreground">
-            Aucun paiement enregistré pour le moment.{" "}
-            {viewer.entitlements.provider === "manual" && "Votre accès fondateur a été attribué par l'équipe."}
+            {t("noPayments")} {viewer.entitlements.provider === "manual" && t("grantedByTeam")}
           </p>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Montant</TableHead>
-                <TableHead>Statut</TableHead>
+                <TableHead>{ta("invoiceDate")}</TableHead>
+                <TableHead>{ta("invoiceAmount")}</TableHead>
+                <TableHead>{ta("invoiceStatus")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -161,14 +160,14 @@ export default async function FounderSpacePage() {
                 <TableRow key={p.id}>
                   <TableCell>{formatDate(p.paid_at, locale) || "—"}</TableCell>
                   <TableCell>{formatPrice(p.amount_paid_cents, p.currency, locale)}</TableCell>
-                  <TableCell>{p.status === "paid" ? "Payé" : p.status}</TableCell>
+                  <TableCell>{p.status === "paid" ? t("paid") : p.status}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         )}
         <Button asChild variant="secondary" className="mt-4">
-          <Link href="/compte/abonnement">Gérer mon soutien</Link>
+          <Link href="/compte/abonnement">{t("manageSupport")}</Link>
         </Button>
       </AccountSection>
     </div>

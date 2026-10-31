@@ -5,6 +5,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getSessionUser } from "@/server/auth/session";
 import { getClientIp, hashIp } from "@/server/http";
 import { rateLimit } from "@/server/rate-limit";
+import { isSameOriginRequest } from "@/server/request-guards";
 
 const bodySchema = z.object({
   analytics: z.boolean(),
@@ -14,6 +15,7 @@ const bodySchema = z.object({
 
 /** Journalise la preuve du consentement (choix, version, horodatage). */
 export async function POST(request: NextRequest) {
+  if (!isSameOriginRequest(request)) return NextResponse.json({ ok: false }, { status: 403 });
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ ok: false }, { status: 400 });

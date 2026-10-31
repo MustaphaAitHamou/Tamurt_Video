@@ -1,1 +1,96 @@
-{}
+{
+  "common": {
+    "appName": "Tamurt Vidéo",
+    "loading": "Asali…",
+    "retry": "Ɛreḍ tikkelt-nniḍen",
+    "back": "Tuɣalin",
+    "save": "Sekles",
+    "cancel": "Sefsex",
+    "close": "Mdel",
+    "confirm": "Sentem",
+    "delete": "Kkes",
+    "edit": "Ẓreg",
+    "seeAll": "Wali akk",
+    "seeMore": "Wali ugar",
+    "send": "Azen",
+    "continue": "Kemmel",
+    "optional": "d afrayan",
+    "new": "Amaynut",
+    "free": "Baṭel",
+    "yes": "Ih",
+    "no": "Ala",
+    "or": "neɣ",
+    "previous": "Uzwir",
+    "next": "Uḍfir",
+    "skipToContent": "Ɛeddi ɣer ugbur agejdan",
+    "draftTranslation": "Asuqel-a mazal ur yettwasentem ara: kra n yiḍrisen ad qqimen s tefransist."
+  },
+  "kinds": {
+    "film": "Asaru"
+  },
+  "kindsPlural": {
+    "film": "Isura"
+  },
+  "nav": {
+    "home": "Agejdan",
+    "films": "Isura",
+    "myList": "Tabdart-iw",
+    "news": "Isallen",
+    "account": "Amiḍan-iw",
+    "signIn": "Qqen",
+    "signUp": "Jerred",
+    "signOut": "Ffeɣ",
+    "notifications": "Ilɣa",
+    "menu": "Umuɣ",
+    "openMenu": "Ldi umuɣ",
+    "language": "Tutlayt"
+  },
+  "search": {
+    "label": "Nadi",
+    "placeholder": "Nadi…"
+  },
+  "footer": {
+    "help": "Tallalt",
+    "terms": "Tiwtilin n useqdec",
+    "privacy": "Tasertit n tbaḍnit",
+    "cookieSettings": "Sefrek inagan n tuqqna",
+    "contact": "Nermes-aɣ"
+  },
+  "home": {
+    "watchNow": "Wali",
+    "moreInfo": "Ugar n telɣut"
+  },
+  "player": {
+    "play": "Urar",
+    "subtitles": "Iduzwilen",
+    "fullscreen": "Agdil aččuran",
+    "back": "Tuɣalin"
+  },
+  "auth": {
+    "email": "Tansa imayl",
+    "password": "Awal uffir",
+    "signIn": "Qqen",
+    "signUp": "Snulfu-d amiḍan-iw"
+  },
+  "account": {
+    "title": "Amiḍan-iw",
+    "welcome": "Azul, {name}!",
+    "myList": "Tabdart-iw",
+    "privacy": "Tabaḍnit",
+    "notifications": "Ilɣa"
+  },
+  "cookies": {
+    "title": "Tabaḍnit-nwen",
+    "acceptAll": "Qbel akk",
+    "rejectAll": "Agi akk",
+    "customize": "Sagen",
+    "save": "Sekles afran-iw",
+    "learnMore": "Issin ugar"
+  },
+  "errors": {
+    "backHome": "Tuɣalin ɣer ugejdan"
+  },
+  "notifications": {
+    "title": "Ilɣa"
+  }
+}

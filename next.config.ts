@@ -57,8 +57,16 @@ const nextConfig: NextConfig = {
       { source: "/:path*", headers: securityHeaders },
       {
         source: "/api/:path*",
-        headers: [{ key: "Cache-Control", value: "no-store" }],
+        headers: [
+          { key: "Cache-Control", value: "no-store" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
       },
+      // Espaces privés : jamais indexés, même si un lien fuit.
+      ...["/admin/:path*", "/compte/:path*", "/regarder/:path*", "/profils", "/espace-fondateur", "/connexion/:path*", "/auth/:path*"].map((source) => ({
+        source,
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      })),
     ];
   },
 };

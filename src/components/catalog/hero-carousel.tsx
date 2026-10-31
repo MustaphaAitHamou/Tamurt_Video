@@ -97,11 +97,11 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                     </span>
                   )}
                 </div>
-                <h1 className="text-shadow-hero text-4xl leading-[1.05] font-extrabold sm:text-6xl lg:text-7xl">
+                <h1 dir="auto" className="text-shadow-hero text-4xl leading-[1.05] font-extrabold sm:text-6xl lg:text-7xl">
                   {slide.headline}
                 </h1>
                 {slide.subheadline && (
-                  <p className="text-shadow-hero line-clamp-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+                  <p dir="auto" className="text-shadow-hero line-clamp-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
                     {slide.subheadline}
                   </p>
                 )}

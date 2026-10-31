@@ -13,7 +13,6 @@ import { requireViewer } from "@/server/auth/session";
 
 export const metadata: Metadata = { title: "Factures", robots: { index: false } };
 
-const STATUS_LABELS: Record<string, string> = { paid: "Payée", open: "En attente", void: "Annulée", uncollectible: "Impayée", draft: "Brouillon" };
 
 export default async function InvoicesPage() {
   const viewer = await requireViewer("/compte/factures");
@@ -28,7 +27,7 @@ export default async function InvoicesPage() {
     .limit(100);
 
   return (
-    <AccountSection title={t("invoices")} description="Historique de vos paiements. Les factures sont émises par notre prestataire de paiement.">
+    <AccountSection title={t("invoices")} description={t("invoicesDescription")}>
       {!invoices?.length ? (
         <EmptyState title={t("noInvoices")} icon={ReceiptIcon} />
       ) : (
@@ -57,7 +56,7 @@ export default async function InvoicesPage() {
                 </TableCell>
                 <TableCell>
                   <Badge variant={invoice.status === "paid" ? "success" : invoice.status === "open" ? "warning" : "muted"}>
-                    {STATUS_LABELS[invoice.status] ?? invoice.status}
+                    {t.has(`invoiceStatuses.${invoice.status}`) ? t(`invoiceStatuses.${invoice.status}`) : invoice.status}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-end">

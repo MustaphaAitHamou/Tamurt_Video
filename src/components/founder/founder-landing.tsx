@@ -164,7 +164,7 @@ export async function FounderLanding() {
             {roadmap.slice(0, 5).map((item) => (
               <li key={item.id} className="rounded-xl border bg-card/60 p-5">
                 <div className="mb-3 flex items-center justify-between gap-4">
-                  <span className="font-medium">{item.title}</span>
+                  <span dir="auto" className="font-medium">{item.title}</span>
                   <Badge variant={item.status === "done" ? "success" : item.status === "in_progress" ? "gold" : "muted"}>
                     {tf(`roadmapStatuses.${item.status}`)}
                   </Badge>

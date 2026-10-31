@@ -49,10 +49,10 @@ export default async function HistoryPage() {
                     <Link href={`/titre/${title.slug}`} className="font-medium hover:underline">
                       {title.title}
                     </Link>
-                    {episode && <p className="text-sm text-muted-foreground">É{episode.episode_number} — {episode.name}</p>}
+                    {episode && <p className="text-sm text-muted-foreground">{t("episodeLabel", { number: episode.episode_number, name: episode.name })}</p>}
                     <p className="text-xs text-muted-foreground">
                       {formatDateTime(row.started_at, locale)} · {Math.round(row.watched_seconds / 60)} min
-                      {row.completed ? " · terminé" : ""}
+                      {row.completed ? ` · ${t("completed")}` : ""}
                     </p>
                   </div>
                 </li>

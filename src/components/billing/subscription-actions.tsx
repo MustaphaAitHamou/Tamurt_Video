@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { changePlanAction, setCancelAtPeriodEndAction } from "@/actions/billing";
@@ -19,6 +20,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function CancelSubscriptionButton({ cancelScheduled, endDate }: { cancelScheduled: boolean; endDate: string | null }) {
+  const t = useTranslations("billing");
+  const ta = useTranslations("account");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const run = (cancel: boolean) =>
@@ -32,7 +35,7 @@ export function CancelSubscriptionButton({ cancelScheduled, endDate }: { cancelS
   if (cancelScheduled) {
     return (
       <Button onClick={() => run(false)} disabled={pending}>
-        Réactiver l&apos;abonnement
+        {ta("reactivate")}
       </Button>
     );
   }
@@ -40,21 +43,18 @@ export function CancelSubscriptionButton({ cancelScheduled, endDate }: { cancelS
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button variant="outline" disabled={pending}>
-          Résilier
+          {ta("cancel")}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Résilier votre abonnement ?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Aucun nouveau prélèvement ne sera effectué. Vous gardez l&apos;accès jusqu&apos;au {endDate ?? "terme de la période en cours"}.
-            Vous pourrez réactiver l&apos;abonnement avant cette date.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{t("cancelTitle")}</AlertDialogTitle>
+          <AlertDialogDescription>{endDate ? t("cancelText", { date: endDate }) : t("cancelTextNoDate")}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Conserver</AlertDialogCancel>
+          <AlertDialogCancel>{t("keep")}</AlertDialogCancel>
           <AlertDialogAction onClick={() => run(true)} className="bg-destructive hover:bg-destructive/90">
-            Confirmer la résiliation
+            {t("confirmCancel")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -73,6 +73,8 @@ export function ChangePlanButton({
   priceLabel: string;
   losesFounderRate: boolean;
 }) {
+  const t = useTranslations("billing");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
@@ -80,27 +82,21 @@ export function ChangePlanButton({
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
         <Button variant="secondary" disabled={pending}>
-          Passer à {planName}
+          {t("switchTo", { plan: planName })}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Passer à la formule {planName} ?</AlertDialogTitle>
+          <AlertDialogTitle>{t("switchTitle", { plan: planName })}</AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="space-y-2">
-              <p>
-                Nouveau tarif : {priceLabel} par mois, facturé en euros. La différence pour la période en cours est calculée au prorata.
-              </p>
-              {losesFounderRate && (
-                <p className="font-medium text-warning">
-                  Attention : ce changement met fin définitivement à votre tarif fondateur. Il ne pourra pas être rétabli.
-                </p>
-              )}
+              <p>{t("switchText", { price: priceLabel })}</p>
+              {losesFounderRate && <p className="font-medium text-warning">{t("founderLoss")}</p>}
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Annuler</AlertDialogCancel>
+          <AlertDialogCancel>{tc("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={() =>
               startTransition(async () => {
@@ -112,7 +108,7 @@ export function ChangePlanButton({
               })
             }
           >
-            Confirmer
+            {tc("confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

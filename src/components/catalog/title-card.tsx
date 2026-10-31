@@ -14,7 +14,7 @@ function Artwork({ title, variant, priority }: { title: TitleCardData; variant: 
   if (!src) {
     return (
       <div className="bg-tamurt-pattern flex size-full items-end bg-gradient-to-br from-zinc-800 to-zinc-950 p-3">
-        <span className="font-display text-sm font-semibold text-white/80">{title.title}</span>
+        <span dir="auto" className="font-display text-sm font-semibold text-white/80">{title.title}</span>
       </div>
     );
   }
@@ -93,7 +93,7 @@ export function TitleCard({
           </div>
           {variant !== "poster" && (
             <div className="absolute inset-x-0 bottom-0 p-3">
-              <p className="line-clamp-1 font-display text-base font-semibold text-white">{title.title}</p>
+              <p dir="auto" className="line-clamp-1 font-display text-base font-semibold text-white">{title.title}</p>
               <p className="text-xs text-white/70">
                 {progress?.isNextEpisode ? th("nextEpisode") : progress?.episodeLabel ?? tk(title.kind)}
                 {!progress && title.releaseYear ? ` · ${title.releaseYear}` : ""}
@@ -109,7 +109,7 @@ export function TitleCard({
       </div>
       {variant === "poster" && typeof rank !== "number" && (
         <div className="mt-2 px-0.5">
-          <p className="line-clamp-1 text-sm font-medium text-white/90">{title.title}</p>
+          <p dir="auto" className="line-clamp-1 text-sm font-medium text-white/90">{title.title}</p>
           <p className="text-xs text-muted-foreground">
             {tk(title.kind)}
             {title.releaseYear ? ` · ${title.releaseYear}` : ""}
