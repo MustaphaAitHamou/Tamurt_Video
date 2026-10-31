@@ -16,7 +16,12 @@ import { countryName, languageName } from "@/lib/constants";
 import { formatRuntime } from "@/lib/format";
 import { tierAtLeast } from "@/lib/permissions";
 import { publicEnv } from "@/lib/public-env";
-import { getCatalogContext, getSimilarTitles, getTitleDetail, getWatchlistIds } from "@/server/catalog/queries";
+import {
+  getCatalogContext,
+  getSimilarTitles,
+  getTitleDetail,
+  getWatchlistIds,
+} from "@/server/catalog/queries";
 
 export async function generateMetadata({ params }: PageProps<"/titre/[slug]">): Promise<Metadata> {
   const { slug } = await params;
@@ -30,7 +35,9 @@ export async function generateMetadata({ params }: PageProps<"/titre/[slug]">): 
       type: title.structure === "episodic" ? "video.tv_show" : "video.movie",
       title: title.title,
       description: title.synopsisShort ?? undefined,
-      images: title.backdropUrl ? [{ url: title.backdropUrl, width: 1600, height: 900 }] : undefined,
+      images: title.backdropUrl
+        ? [{ url: title.backdropUrl, width: 1600, height: 900 }]
+        : undefined,
     },
     robots: title.isDemo ? { index: false } : undefined,
   };
@@ -60,7 +67,9 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
   const watchHref = `/regarder/${title.slug}${resumeEpisode ? `?episode=${resumeEpisode.id}` : firstEpisode ? `?episode=${firstEpisode.id}` : ""}`;
 
   const directors = title.credits.filter((c) => c.role === "director");
-  const cast = title.credits.filter((c) => c.role === "actor" || c.role === "presenter" || c.role === "guest");
+  const cast = title.credits.filter(
+    (c) => c.role === "actor" || c.role === "presenter" || c.role === "guest",
+  );
   const writers = title.credits.filter((c) => c.role === "writer");
 
   const jsonLd = {
@@ -79,32 +88,60 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
 
   return (
     <article>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
       <section className="relative isolate flex min-h-[78svh] items-end overflow-hidden pt-28 pb-12">
         {title.backdropUrl && (
-          <Image src={title.backdropUrl} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
+          <Image
+            src={title.backdropUrl}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="-z-20 object-cover"
+          />
         )}
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-background via-background/80 to-background/10 rtl:bg-gradient-to-l" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background via-background/30 to-black/40" />
 
         <div className="mx-auto grid w-full max-w-[1400px] items-end gap-10 px-4 sm:px-6 md:grid-cols-[minmax(0,260px)_1fr] lg:px-10">
           <div className="relative hidden aspect-[2/3] w-full overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10 md:block">
-            {title.posterUrl && <Image src={title.posterUrl} alt={title.title} fill sizes="260px" className="object-cover" />}
+            {title.posterUrl && (
+              <Image
+                src={title.posterUrl}
+                alt={title.title}
+                fill
+                sizes="260px"
+                className="object-cover"
+              />
+            )}
           </div>
-          <div className="max-w-3xl space-y-5 animate-fade-up">
+          <div className="max-w-3xl animate-fade-up space-y-5">
             <TitleBadges title={title} />
-            <h1 dir="auto" className="text-4xl leading-[1.05] font-extrabold sm:text-6xl">{title.title}</h1>
+            <h1 dir="auto" className="text-4xl leading-[1.05] font-extrabold sm:text-6xl">
+              {title.title}
+            </h1>
             {title.originalTitle && title.originalTitle !== title.title && (
               <p className="text-sm text-white/70">
-                {t("originalTitle")} : <span lang={title.originalLanguages[0]}>{title.originalTitle}</span>
+                {t("originalTitle")} :{" "}
+                <span lang={title.originalLanguages[0]}>{title.originalTitle}</span>
               </p>
             )}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-white/80">
               <span>{tk(title.kind)}</span>
               {title.releaseYear && <span>· {title.releaseYear}</span>}
-              {title.runtimeMinutes && title.structure === "single" && <span>· {formatRuntime(title.runtimeMinutes)}</span>}
+              {title.runtimeMinutes && title.structure === "single" && (
+                <span>· {formatRuntime(title.runtimeMinutes)}</span>
+              )}
               {title.structure === "episodic" && title.seasons.length > 0 && (
-                <span>· {title.seasons.length > 1 ? t("seasonCount", { count: title.seasons.length }) : t("episodeCount", { count: title.seasons[0]?.episodes.length ?? 0 })}</span>
+                <span>
+                  ·{" "}
+                  {title.seasons.length > 1
+                    ? t("seasonCount", { count: title.seasons.length })
+                    : t("episodeCount", { count: title.seasons[0]?.episodes.length ?? 0 })}
+                </span>
               )}
               <AgeRatingBadge rating={title.ageRating} />
               {title.subtitleLanguages.length > 0 && (
@@ -119,7 +156,10 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
               </p>
             )}
             {title.synopsisShort && (
-              <p dir="auto" className="max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
+              <p
+                dir="auto"
+                className="max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg"
+              >
                 {title.synopsisShort}
               </p>
             )}
@@ -154,7 +194,9 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
                       <CrownIcon /> {t("upgradeToWatch", { plan: tiers(title.minTier) })}
                     </Link>
                   </Button>
-                  <span className="text-sm text-white/70">{t("requiresPlan", { plan: tiers(title.minTier) })}</span>
+                  <span className="text-sm text-white/70">
+                    {t("requiresPlan", { plan: tiers(title.minTier) })}
+                  </span>
                 </>
               )}
               {playable && (
@@ -162,7 +204,10 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
                   <Link href={watchHref}>
                     <PlayIcon className="fill-current" />
                     {resumeEpisode
-                      ? t("resumeEpisode", { season: resumeEpisode.season, episode: resumeEpisode.number })
+                      ? t("resumeEpisode", {
+                          season: resumeEpisode.season,
+                          episode: resumeEpisode.number,
+                        })
                       : title.progress
                         ? t("resume")
                         : t("play")}
@@ -177,7 +222,12 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
                 </Button>
               )}
               {title.availability !== "taken_down" && (
-                <WatchlistButton titleId={title.id} initialInList={watchlist.has(title.id)} signedIn={Boolean(viewer)} nextPath={path} />
+                <WatchlistButton
+                  titleId={title.id}
+                  initialInList={watchlist.has(title.id)}
+                  signedIn={Boolean(viewer)}
+                  nextPath={path}
+                />
               )}
               <ShareButton title={title.title} path={path} />
             </div>
@@ -200,7 +250,11 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
             <h2 id="about-heading" className="text-2xl font-bold">
               {t("about")}
             </h2>
-            {title.descriptionLong && <p className="leading-relaxed whitespace-pre-line text-white/80">{title.descriptionLong}</p>}
+            {title.descriptionLong && (
+              <p className="leading-relaxed whitespace-pre-line text-white/80">
+                {title.descriptionLong}
+              </p>
+            )}
           </div>
           <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 rounded-2xl border bg-card/60 p-6 text-sm">
             {directors.length > 0 && (
@@ -218,7 +272,11 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
             {cast.length > 0 && (
               <>
                 <dt className="text-muted-foreground">{t("cast")}</dt>
-                <dd>{cast.map((c) => (c.character ? `${c.name} (${c.character})` : c.name)).join(", ")}</dd>
+                <dd>
+                  {cast
+                    .map((c) => (c.character ? `${c.name} (${c.character})` : c.name))
+                    .join(", ")}
+                </dd>
               </>
             )}
             {title.genres.length > 0 && (
@@ -226,7 +284,11 @@ export default async function TitlePage({ params }: PageProps<"/titre/[slug]">) 
                 <dt className="text-muted-foreground">{t("genres")}</dt>
                 <dd className="flex flex-wrap gap-1.5">
                   {title.genres.map((g) => (
-                    <Link key={g.slug} href={`/catalogue?genre=${g.slug}`} className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs hover:bg-white/20">
+                    <Link
+                      key={g.slug}
+                      href={`/catalogue?genre=${g.slug}`}
+                      className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs hover:bg-white/20"
+                    >
                       {g.label}
                     </Link>
                   ))}

@@ -8,17 +8,33 @@ import { SearchIcon, XIcon, Loader2Icon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-type Suggestion = { id: string; slug: string; title: string; kind: string; year: number | null; poster: string | null };
+type Suggestion = {
+  id: string;
+  slug: string;
+  title: string;
+  kind: string;
+  year: number | null;
+  poster: string | null;
+};
 
 /** Recherche instantanée accessible (combobox ARIA, navigation au clavier). */
-export function SearchBox({ className, autoFocus = false }: { className?: string; autoFocus?: boolean }) {
+export function SearchBox({
+  className,
+  autoFocus = false,
+}: {
+  className?: string;
+  autoFocus?: boolean;
+}) {
   const t = useTranslations("search");
   const tk = useTranslations("kinds");
   const router = useRouter();
   const listId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
-  const [fetched, setFetched] = useState<{ query: string; results: Suggestion[] }>({ query: "", results: [] });
+  const [fetched, setFetched] = useState<{ query: string; results: Suggestion[] }>({
+    query: "",
+    results: [],
+  });
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
   const [pending, setPending] = useState(false);
@@ -98,7 +114,10 @@ export function SearchBox({ className, autoFocus = false }: { className?: string
         }}
         className="relative"
       >
-        <SearchIcon className="pointer-events-none absolute start-3 top-1/2 z-10 size-4 -translate-y-1/2 text-white/60" aria-hidden />
+        <SearchIcon
+          className="pointer-events-none absolute start-3 top-1/2 z-10 size-4 -translate-y-1/2 text-white/60"
+          aria-hidden
+        />
         <input
           ref={inputRef}
           type="search"
@@ -138,9 +157,16 @@ export function SearchBox({ className, autoFocus = false }: { className?: string
       </form>
       {open && query.trim().length >= 2 && (
         <div className="absolute inset-x-0 top-12 z-50 overflow-hidden rounded-xl border bg-popover/95 shadow-2xl backdrop-blur-xl">
-          <ul id={listId} role="listbox" aria-label={t("suggestions")} className="max-h-96 overflow-y-auto p-1.5">
+          <ul
+            id={listId}
+            role="listbox"
+            aria-label={t("suggestions")}
+            className="max-h-96 overflow-y-auto p-1.5"
+          >
             {results.length === 0 && !loading && (
-              <li className="px-3 py-4 text-sm text-muted-foreground">{t("noResults", { query: query.trim() })}</li>
+              <li className="px-3 py-4 text-sm text-muted-foreground">
+                {t("noResults", { query: query.trim() })}
+              </li>
             )}
             {results.map((item, index) => (
               <li
@@ -160,7 +186,9 @@ export function SearchBox({ className, autoFocus = false }: { className?: string
                 )}
               >
                 <span className="relative h-12 w-8 shrink-0 overflow-hidden rounded bg-muted">
-                  {item.poster && <Image src={item.poster} alt="" fill sizes="32px" className="object-cover" />}
+                  {item.poster && (
+                    <Image src={item.poster} alt="" fill sizes="32px" className="object-cover" />
+                  )}
                 </span>
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium">{item.title}</span>

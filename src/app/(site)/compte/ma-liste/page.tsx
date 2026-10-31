@@ -17,7 +17,15 @@ export default async function MyListPage() {
       <h2 className="text-xl font-semibold">
         {t("myList")} — {viewer.activeProfile.name}
       </h2>
-      {items.length ? <TitleGrid items={items} /> : <EmptyState title={t("myListEmpty")} icon={ListVideoIcon} action={{ href: "/catalogue", label: "Catalogue" }} />}
+      {items.length ? (
+        <TitleGrid items={items} />
+      ) : (
+        <EmptyState
+          title={t("myListEmpty")}
+          icon={ListVideoIcon}
+          action={{ href: "/catalogue", label: "Catalogue" }}
+        />
+      )}
     </section>
   );
 }

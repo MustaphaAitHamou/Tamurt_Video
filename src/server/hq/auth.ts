@@ -17,7 +17,10 @@ export function hashHqKey(secret: string) {
 }
 
 /** Vérifie un en-tête « Authorization: Bearer thq_… » et le droit demandé. */
-export async function authenticateHqRequest(authorization: string | null, scope: "metrics:read" | "incidents:read") {
+export async function authenticateHqRequest(
+  authorization: string | null,
+  scope: "metrics:read" | "incidents:read",
+) {
   const secret = authorization?.match(/^Bearer\s+(thq_[A-Za-z0-9_-]{20,})$/)?.[1];
   if (!secret) return null;
   const admin = createSupabaseAdminClient();
@@ -26,7 +29,16 @@ export async function authenticateHqRequest(authorization: string | null, scope:
     .select("id, name, scopes, expires_at, revoked_at")
     .eq("key_hash", hashHqKey(secret))
     .maybeSingle();
-  if (!key || key.revoked_at || (key.expires_at && new Date(key.expires_at) < new Date()) || !key.scopes.includes(scope)) return null;
-  await admin.from("hq_api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", key.id);
+  if (
+    !key ||
+    key.revoked_at ||
+    (key.expires_at && new Date(key.expires_at) < new Date()) ||
+    !key.scopes.includes(scope)
+  )
+    return null;
+  await admin
+    .from("hq_api_keys")
+    .update({ last_used_at: new Date().toISOString() })
+    .eq("id", key.id);
   return { id: key.id, name: key.name };
 }

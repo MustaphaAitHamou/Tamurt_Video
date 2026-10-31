@@ -26,8 +26,11 @@ export async function GET(_request: NextRequest, ctx: RouteContext<"/api/dev-str
   }
   const { path: segments } = await ctx.params;
   const [token, ...fileParts] = segments;
-  if (!token || fileParts.length === 0 || fileParts.length > 3) return new NextResponse("Requête invalide", { status: 400 });
-  if (!fileParts.every((part) => /^[A-Za-z0-9_.-]{1,64}$/.test(part) && part !== "." && part !== "..")) {
+  if (!token || fileParts.length === 0 || fileParts.length > 3)
+    return new NextResponse("Requête invalide", { status: 400 });
+  if (
+    !fileParts.every((part) => /^[A-Za-z0-9_.-]{1,64}$/.test(part) && part !== "." && part !== "..")
+  ) {
     return new NextResponse("Requête invalide", { status: 400 });
   }
 
@@ -43,7 +46,8 @@ export async function GET(_request: NextRequest, ctx: RouteContext<"/api/dev-str
 
   const base = path.resolve(process.cwd(), "dev-media", folder);
   const filePath = path.resolve(base, ...fileParts);
-  if (!filePath.startsWith(base + path.sep)) return new NextResponse("Requête invalide", { status: 400 });
+  if (!filePath.startsWith(base + path.sep))
+    return new NextResponse("Requête invalide", { status: 400 });
 
   try {
     const data = await readFile(filePath);
@@ -55,9 +59,9 @@ export async function GET(_request: NextRequest, ctx: RouteContext<"/api/dev-str
       },
     });
   } catch {
-    return new NextResponse(
-      "Média de test absent : exécutez « pnpm media:dev » (ffmpeg requis).",
-      { status: 404, headers: { "Content-Type": "text/plain; charset=utf-8" } },
-    );
+    return new NextResponse("Média de test absent : exécutez « pnpm media:dev » (ffmpeg requis).", {
+      status: 404,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
   }
 }

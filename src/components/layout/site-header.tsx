@@ -8,7 +8,11 @@ import { HeaderShell } from "@/components/layout/header-shell";
 import type { HeaderViewer, NavLink } from "@/components/layout/types";
 
 export async function SiteHeader() {
-  const [viewer, settings, t] = await Promise.all([getViewer(), getPublicSettings(), getTranslations("nav")]);
+  const [viewer, settings, t] = await Promise.all([
+    getViewer(),
+    getPublicSettings(),
+    getTranslations("nav"),
+  ]);
   const founderPhase = settings.launchPhase === "founder";
 
   let headerViewer: HeaderViewer | null = null;
@@ -28,7 +32,12 @@ export async function SiteHeader() {
       isStaff: viewer.staff.roles.length > 0,
       unreadCount: count ?? 0,
       activeProfileId: viewer.activeProfile.id,
-      profiles: viewer.viewerProfiles.map((p) => ({ id: p.id, name: p.name, avatarKey: p.avatarKey, isKids: p.isKids })),
+      profiles: viewer.viewerProfiles.map((p) => ({
+        id: p.id,
+        name: p.name,
+        avatarKey: p.avatarKey,
+        isKids: p.isKids,
+      })),
     };
   }
 
@@ -39,7 +48,9 @@ export async function SiteHeader() {
     { href: "/catalogue?type=documentary", label: t("documentaries") },
     { href: "/prochainement", label: t("comingSoon") },
     ...(viewer ? [{ href: "/compte/ma-liste", label: t("myList") }] : []),
-    ...(founderPhase ? [{ href: "/fondateurs", label: t("founders") }] : [{ href: "/offres", label: t("pricing") }]),
+    ...(founderPhase
+      ? [{ href: "/fondateurs", label: t("founders") }]
+      : [{ href: "/offres", label: t("pricing") }]),
   ];
 
   return (

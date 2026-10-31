@@ -1,6 +1,17 @@
-import { createHmac, createPrivateKey, sign as cryptoSign, timingSafeEqual, type KeyObject } from "node:crypto";
+import {
+  createHmac,
+  createPrivateKey,
+  sign as cryptoSign,
+  timingSafeEqual,
+  type KeyObject,
+} from "node:crypto";
 
-import { StreamingUnavailableError, type AssetStatus, type DirectUpload, type StreamingProvider } from "@/server/streaming/types";
+import {
+  StreamingUnavailableError,
+  type AssetStatus,
+  type DirectUpload,
+  type StreamingProvider,
+} from "@/server/streaming/types";
 
 /**
  * Cloudflare Stream : HLS adaptatif, vidéos privées (requireSignedURLs) et
@@ -28,7 +39,9 @@ function base64url(input: Buffer | string) {
 }
 
 export function loadSigningKey(pemOrBase64: string): KeyObject {
-  const pem = pemOrBase64.includes("-----BEGIN") ? pemOrBase64 : Buffer.from(pemOrBase64, "base64").toString("utf8");
+  const pem = pemOrBase64.includes("-----BEGIN")
+    ? pemOrBase64
+    : Buffer.from(pemOrBase64, "base64").toString("utf8");
   return createPrivateKey(pem);
 }
 
@@ -64,7 +77,12 @@ export function signStreamToken(input: {
  * Vérifie l'en-tête « Webhook-Signature: time=<unix>,sig1=<hex> » :
  * HMAC-SHA256 de « <time>.<corps brut> » avec le secret du webhook.
  */
-export function verifyCloudflareWebhook(rawBody: string, signatureHeader: string | null, secret: string, toleranceSeconds = 300) {
+export function verifyCloudflareWebhook(
+  rawBody: string,
+  signatureHeader: string | null,
+  secret: string,
+  toleranceSeconds = 300,
+) {
   if (!signatureHeader) return false;
   const parts = Object.fromEntries(
     signatureHeader.split(",").map((part) => {
@@ -89,14 +107,19 @@ export class CloudflareStreamProvider implements StreamingProvider {
     this.key = loadSigningKey(config.signingKeyPem);
   }
 
-  private async api<T>(path: string, init: RequestInit = {}): Promise<{ result: T; response: Response }> {
+  private async api<T>(
+    path: string,
+    init: RequestInit = {},
+  ): Promise<{ result: T; response: Response }> {
     const response = await fetch(`${API}/accounts/${this.config.accountId}${path}`, {
       ...init,
       headers: { Authorization: `Bearer ${this.config.apiToken}`, ...(init.headers ?? {}) },
       cache: "no-store",
     });
     if (!response.ok) {
-      throw new StreamingUnavailableError(`Cloudflare Stream a répondu ${response.status} sur ${path}.`);
+      throw new StreamingUnavailableError(
+        `Cloudflare Stream a répondu ${response.status} sur ${path}.`,
+      );
     }
     const body = (await response.json().catch(() => ({}))) as { success?: boolean; result?: T };
     return { result: body.result as T, response };
@@ -123,27 +146,37 @@ export class CloudflareStreamProvider implements StreamingProvider {
    * Le serveur crée l'emplacement ; le navigateur envoie ensuite les morceaux
    * directement à Cloudflare sans transiter par l'application.
    */
-  async createDirectUpload(input: { fileName: string; sizeBytes: number; maxDurationSeconds: number; creatorId: string }): Promise<DirectUpload> {
+  async createDirectUpload(input: {
+    fileName: string;
+    sizeBytes: number;
+    maxDurationSeconds: number;
+    creatorId: string;
+  }): Promise<DirectUpload> {
     const metadata = [
       `name ${Buffer.from(input.fileName).toString("base64")}`,
       "requiresignedurls",
       `maxdurationseconds ${Buffer.from(String(input.maxDurationSeconds)).toString("base64")}`,
     ].join(",");
-    const response = await fetch(`${API}/accounts/${this.config.accountId}/stream?direct_user=true`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.config.apiToken}`,
-        "Tus-Resumable": "1.0.0",
-        "Upload-Length": String(input.sizeBytes),
-        "Upload-Metadata": metadata,
-        "Upload-Creator": input.creatorId,
+    const response = await fetch(
+      `${API}/accounts/${this.config.accountId}/stream?direct_user=true`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.config.apiToken}`,
+          "Tus-Resumable": "1.0.0",
+          "Upload-Length": String(input.sizeBytes),
+          "Upload-Metadata": metadata,
+          "Upload-Creator": input.creatorId,
+        },
+        cache: "no-store",
       },
-      cache: "no-store",
-    });
+    );
     const uploadUrl = response.headers.get("location");
     const uid = response.headers.get("stream-media-id");
     if (!response.ok || !uploadUrl || !uid) {
-      throw new StreamingUnavailableError(`Création de l'envoi impossible (statut ${response.status}).`);
+      throw new StreamingUnavailableError(
+        `Création de l'envoi impossible (statut ${response.status}).`,
+      );
     }
     return { uploadUrl, providerAssetId: uid };
   }
@@ -158,7 +191,8 @@ export class CloudflareStreamProvider implements StreamingProvider {
     const state = result?.status?.state;
     return {
       state: result?.readyToStream ? "ready" : state === "error" ? "error" : "processing",
-      durationSeconds: result?.duration && result.duration > 0 ? Math.round(result.duration) : undefined,
+      durationSeconds:
+        result?.duration && result.duration > 0 ? Math.round(result.duration) : undefined,
       width: result?.input?.width,
       height: result?.input?.height,
       errorMessage: result?.status?.errorReasonText,

@@ -47,7 +47,9 @@ export const getRoadmap = cache(async (): Promise<RoadmapItem[]> => {
 });
 
 /** Actualités visibles par l'utilisateur courant (la RLS applique l'audience). */
-export async function getAnnouncements(options: { limit?: number; category?: string } = {}): Promise<AnnouncementSummary[]> {
+export async function getAnnouncements(
+  options: { limit?: number; category?: string } = {},
+): Promise<AnnouncementSummary[]> {
   const supabase = await createSupabaseServerClient();
   let query = supabase
     .from("announcements")
@@ -58,7 +60,10 @@ export async function getAnnouncements(options: { limit?: number; category?: str
     .order("published_at", { ascending: false })
     .limit(options.limit ?? 20);
   if (options.category) {
-    query = query.eq("category", options.category as Database["public"]["Enums"]["announcement_category"]);
+    query = query.eq(
+      "category",
+      options.category as Database["public"]["Enums"]["announcement_category"],
+    );
   }
   const { data } = await query;
   return (data ?? []).map((a) => ({

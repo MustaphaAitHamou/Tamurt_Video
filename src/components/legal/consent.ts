@@ -6,12 +6,21 @@ export const OPEN_CONSENT_EVENT = "tamurt:open-consent";
 
 export type ConsentChoices = { necessary: true; analytics: boolean; ads: boolean };
 
-export function parseConsent(raw: string | undefined | null): (ConsentChoices & { version: string }) | null {
+export function parseConsent(
+  raw: string | undefined | null,
+): (ConsentChoices & { version: string }) | null {
   if (!raw) return null;
   try {
-    const value = JSON.parse(decodeURIComponent(raw)) as Partial<ConsentChoices & { version: string }>;
+    const value = JSON.parse(decodeURIComponent(raw)) as Partial<
+      ConsentChoices & { version: string }
+    >;
     if (value.version !== CONSENT_POLICY_VERSION) return null;
-    return { necessary: true, analytics: Boolean(value.analytics), ads: Boolean(value.ads), version: value.version };
+    return {
+      necessary: true,
+      analytics: Boolean(value.analytics),
+      ads: Boolean(value.ads),
+      version: value.version,
+    };
   } catch {
     return null;
   }

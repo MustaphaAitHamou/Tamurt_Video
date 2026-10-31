@@ -15,7 +15,10 @@ export async function logAudit(entry: {
   entityId?: string | null;
   metadata?: Record<string, unknown>;
 }) {
-  const [ip, userAgent] = await Promise.all([getClientIp().catch(() => undefined), getUserAgent().catch(() => undefined)]);
+  const [ip, userAgent] = await Promise.all([
+    getClientIp().catch(() => undefined),
+    getUserAgent().catch(() => undefined),
+  ]);
   const { error } = await createSupabaseAdminClient().rpc("log_audit", {
     p_actor: entry.actorId as string,
     p_action: entry.action,

@@ -54,7 +54,7 @@ export function ScrollRow({
     <div className={cn("group/row relative", className)}>
       <div
         ref={ref}
-        className="scrollbar-none flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-4 pt-1 pb-4 sm:gap-4 sm:px-6 lg:px-10 [&>*]:snap-start"
+        className="flex snap-x snap-mandatory scrollbar-none gap-3 overflow-x-auto scroll-smooth px-4 pt-1 pb-4 sm:gap-4 sm:px-6 lg:px-10 [&>*]:snap-start"
       >
         {children}
       </div>

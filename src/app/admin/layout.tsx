@@ -8,7 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { ROLE_LABELS } from "@/lib/permissions";
 import { requireStaff } from "@/server/auth/session";
 
-export const metadata: Metadata = { title: { default: "Administration", template: "%s · Administration Tamurt" }, robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: { default: "Administration", template: "%s · Administration Tamurt" },
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
   const viewer = await requireStaff("admin.access", "/admin");
@@ -19,7 +22,10 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
           <Link href="/admin" aria-label="Administration Tamurt Vidéo">
             <Logo className="h-6" />
           </Link>
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground lg:mt-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground lg:mt-4"
+          >
             <ArrowLeftIcon className="size-3.5" /> Retour au site
           </Link>
         </div>
@@ -36,11 +42,13 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
           <p className="flex items-center gap-1.5">
             {viewer.user.aal === "aal2" ? (
               <>
-                <ShieldCheckIcon className="size-3.5 text-success" /> Double authentification vérifiée
+                <ShieldCheckIcon className="size-3.5 text-success" /> Double authentification
+                vérifiée
               </>
             ) : (
               <>
-                <ShieldAlertIcon className="size-3.5 text-warning" /> Double authentification non exigée par les paramètres
+                <ShieldAlertIcon className="size-3.5 text-warning" /> Double authentification non
+                exigée par les paramètres
               </>
             )}
           </p>

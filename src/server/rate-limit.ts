@@ -10,7 +10,11 @@ export type RateLimitResult = { allowed: boolean; remaining: number; resetAt: Da
  * un hébergement serverless sans service supplémentaire. En cas d'indisponibilité
  * de la base, la requête est autorisée (disponibilité privilégiée) et l'incident journalisé.
  */
-export async function rateLimit(key: string, limit: number, windowSeconds: number): Promise<RateLimitResult> {
+export async function rateLimit(
+  key: string,
+  limit: number,
+  windowSeconds: number,
+): Promise<RateLimitResult> {
   if (getEnv().rateLimitDisabled) {
     return { allowed: true, remaining: limit, resetAt: null };
   }
@@ -21,5 +25,9 @@ export async function rateLimit(key: string, limit: number, windowSeconds: numbe
     console.error("[rate-limit] indisponible", error?.message);
     return { allowed: true, remaining: limit, resetAt: null };
   }
-  return { allowed: data.allowed, remaining: data.remaining, resetAt: data.reset_at ? new Date(data.reset_at) : null };
+  return {
+    allowed: data.allowed,
+    remaining: data.remaining,
+    resetAt: data.reset_at ? new Date(data.reset_at) : null,
+  };
 }

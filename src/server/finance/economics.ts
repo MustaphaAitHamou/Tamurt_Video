@@ -41,11 +41,18 @@ export function formatEuros(cents: number) {
 }
 
 export function streamingCostCents(minutes: number, model: CostModel) {
-  return round((Math.max(minutes, 0) / 1000) * model.streamDeliveredUsdPer1000Min * model.usdToEurRate * 100);
+  return round(
+    (Math.max(minutes, 0) / 1000) * model.streamDeliveredUsdPer1000Min * model.usdToEurRate * 100,
+  );
 }
 
 export function storageCostCents(minutesStored: number, model: CostModel) {
-  return round((Math.max(minutesStored, 0) / 1000) * model.streamStoredUsdPer1000Min * model.usdToEurRate * 100);
+  return round(
+    (Math.max(minutesStored, 0) / 1000) *
+      model.streamStoredUsdPer1000Min *
+      model.usdToEurRate *
+      100,
+  );
 }
 
 export function paymentFeeCents(amountCents: number, model: CostModel) {
@@ -54,7 +61,10 @@ export function paymentFeeCents(amountCents: number, model: CostModel) {
 }
 
 export function totalFixedCostsCents(model: CostModel) {
-  return Object.values(model.fixedMonthlyCostsCents).reduce((sum, value) => sum + (Number.isFinite(value) ? value : 0), 0);
+  return Object.values(model.fixedMonthlyCostsCents).reduce(
+    (sum, value) => sum + (Number.isFinite(value) ? value : 0),
+    0,
+  );
 }
 
 /** Coût de diffusion d'une minute, en centimes. */
@@ -66,7 +76,11 @@ export function costPerMinuteCents(model: CostModel) {
  * Marge mensuelle par formule. Les coûts fixes sont répartis au prorata du
  * nombre d'abonnés ; les coûts de diffusion selon les minutes réellement vues.
  */
-export function planEconomics(plans: PlanUsage[], model: CostModel, extraFixedCostsCents = 0): PlanEconomics[] {
+export function planEconomics(
+  plans: PlanUsage[],
+  model: CostModel,
+  extraFixedCostsCents = 0,
+): PlanEconomics[] {
   const fixed = totalFixedCostsCents(model) + extraFixedCostsCents;
   const totalSubscribers = plans.reduce((sum, p) => sum + p.activeSubscribers, 0);
   const minuteCost = costPerMinuteCents(model);
@@ -74,7 +88,8 @@ export function planEconomics(plans: PlanUsage[], model: CostModel, extraFixedCo
     const revenueCents = plan.priceCents * plan.activeSubscribers;
     const paymentFeesCents = paymentFeeCents(plan.priceCents, model) * plan.activeSubscribers;
     const streaming = streamingCostCents(plan.minutesWatched, model);
-    const fixedShare = totalSubscribers > 0 ? round((fixed * plan.activeSubscribers) / totalSubscribers) : 0;
+    const fixedShare =
+      totalSubscribers > 0 ? round((fixed * plan.activeSubscribers) / totalSubscribers) : 0;
     const marginCents = revenueCents - paymentFeesCents - streaming - fixedShare;
     const netPerSubscriber = plan.priceCents - paymentFeeCents(plan.priceCents, model);
     return {
@@ -85,7 +100,8 @@ export function planEconomics(plans: PlanUsage[], model: CostModel, extraFixedCo
       fixedCostShareCents: fixedShare,
       marginCents,
       marginRate: revenueCents > 0 ? marginCents / revenueCents : null,
-      breakEvenMinutesPerSubscriber: minuteCost > 0 ? Math.floor(netPerSubscriber / minuteCost) : null,
+      breakEvenMinutesPerSubscriber:
+        minuteCost > 0 ? Math.floor(netPerSubscriber / minuteCost) : null,
     };
   });
 }
@@ -107,7 +123,10 @@ export function profitabilityRisks(input: {
     );
   }
   const founder = input.economics.find((e) => e.code === "founder");
-  if (founder?.breakEvenMinutesPerSubscriber !== null && founder?.breakEvenMinutesPerSubscriber !== undefined) {
+  if (
+    founder?.breakEvenMinutesPerSubscriber !== null &&
+    founder?.breakEvenMinutesPerSubscriber !== undefined
+  ) {
     risks.push(
       `Au tarif fondateur, la diffusion seule devient déficitaire au-delà d'environ ${founder.breakEvenMinutesPerSubscriber} minutes de visionnage par mois et par abonné, avant coûts fixes et droits de diffusion.`,
     );
@@ -119,7 +138,9 @@ export function profitabilityRisks(input: {
   }
   for (const plan of input.economics) {
     if (plan.activeSubscribers > 0 && plan.marginCents < 0) {
-      risks.push(`La formule ${plan.name} est déficitaire sur la période (${formatEuros(plan.marginCents)}).`);
+      risks.push(
+        `La formule ${plan.name} est déficitaire sur la période (${formatEuros(plan.marginCents)}).`,
+      );
     }
   }
   const totalSubscribers = input.economics.reduce((sum, p) => sum + p.activeSubscribers, 0);

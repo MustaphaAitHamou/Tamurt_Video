@@ -11,10 +11,14 @@ import { failure, failureFromDb, fromZodError, success, type ActionResult } from
 import { generateHqKey } from "@/server/hq/auth";
 import { SETTINGS_CACHE_TAG } from "@/server/settings";
 
-const euros = (value: FormDataEntryValue | null) => Math.round(Number(String(value ?? "").replace(",", ".")) * 100);
+const euros = (value: FormDataEntryValue | null) =>
+  Math.round(Number(String(value ?? "").replace(",", ".")) * 100);
 
 /** Écrit des paramètres de plateforme (RLS : settings.write) puis invalide le cache. */
-async function writeSettings(ctx: Extract<Awaited<ReturnType<typeof adminContext>>, { ok: true }>, values: Record<string, unknown>) {
+async function writeSettings(
+  ctx: Extract<Awaited<ReturnType<typeof adminContext>>, { ok: true }>,
+  values: Record<string, unknown>,
+) {
   for (const [key, value] of Object.entries(values)) {
     const { error } = await ctx.supabase
       .from("platform_settings")
@@ -28,17 +32,39 @@ async function writeSettings(ctx: Extract<Awaited<ReturnType<typeof adminContext
 
 // --- Finances ---------------------------------------------------------------------
 
-const CATEGORIES = ["subscription_revenue", "ad_revenue", "other_revenue", "payment_fees", "hosting", "streaming", "storage", "email", "tools", "content_licenses", "other_cost"] as const;
+const CATEGORIES = [
+  "subscription_revenue",
+  "ad_revenue",
+  "other_revenue",
+  "payment_fees",
+  "hosting",
+  "streaming",
+  "storage",
+  "email",
+  "tools",
+  "content_licenses",
+  "other_cost",
+] as const;
 
-export async function addFinanceEntryAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function addFinanceEntryAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("finance.write");
   if (!ctx.ok) return ctx.result;
   const parsed = z
-    .object({ period_month: z.string().regex(/^\d{4}-\d{2}$/, "Mois attendu"), category: z.enum(CATEGORIES), description: z.string().trim().max(300).optional() })
+    .object({
+      period_month: z.string().regex(/^\d{4}-\d{2}$/, "Mois attendu"),
+      category: z.enum(CATEGORIES),
+      description: z.string().trim().max(300).optional(),
+    })
     .safeParse(Object.fromEntries(formData));
   if (!parsed.success) return fromZodError(parsed.error);
   const amount = euros(formData.get("amount"));
-  if (!Number.isFinite(amount) || amount <= 0 || amount > 100_000_000) return failure("Montant invalide (en euros, positif).", "VALIDATION", { amount: ["Montant invalide"] });
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 100_000_000)
+    return failure("Montant invalide (en euros, positif).", "VALIDATION", {
+      amount: ["Montant invalide"],
+    });
   const { error } = await ctx.supabase.from("finance_entries").insert({
     period_month: `${parsed.data.period_month}-01`,
     category: parsed.data.category,
@@ -63,7 +89,10 @@ export async function deleteFinanceEntryAction(entryId: string): Promise<ActionR
 }
 
 /** Hypothèses de coûts utilisées par les estimations (tarifs fournisseurs à vérifier régulièrement). */
-export async function updateCostSettingsAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function updateCostSettingsAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("settings.write");
   if (!ctx.ok) return ctx.result;
   const num = (name: string, min: number, max: number) => {
@@ -75,7 +104,8 @@ export async function updateCostSettingsAction(_prev: ActionResult | null, formD
   const rate = num("usd_eur", 0.1, 10);
   const percent = num("fee_percent", 0, 20);
   const fixed = num("fee_fixed", 0, 500);
-  if ([delivered, stored, rate, percent, fixed].some((v) => v === null)) return failure("Valeurs numériques invalides.", "VALIDATION");
+  if ([delivered, stored, rate, percent, fixed].some((v) => v === null))
+    return failure("Valeurs numériques invalides.", "VALIDATION");
   const fixedCosts: Record<string, number> = {};
   for (const key of ["hosting", "database", "email", "domain", "other"]) {
     const cents = euros(formData.get(`fixed_${key}`));
@@ -100,18 +130,35 @@ export async function setAdsEnabledAction(enabled: boolean): Promise<ActionResul
   const ctx = await adminContext("ads.manage");
   if (!ctx.ok) return ctx.result;
   // L'interrupteur général est un paramètre de plateforme : écrit après contrôle « ads.manage ».
-  const { error } = await createSupabaseAdminClient().from("platform_settings").update({ value: enabled, updated_by: ctx.viewer.user.id }).eq("key", "ads_enabled");
+  const { error } = await createSupabaseAdminClient()
+    .from("platform_settings")
+    .update({ value: enabled, updated_by: ctx.viewer.user.id })
+    .eq("key", "ads_enabled");
   if (error) return failureFromDb(error);
   updateTag(SETTINGS_CACHE_TAG);
-  await logAudit({ actorId: ctx.viewer.user.id, action: enabled ? "ads.enabled" : "ads.disabled", entityType: "platform_settings", entityId: "ads_enabled" });
+  await logAudit({
+    actorId: ctx.viewer.user.id,
+    action: enabled ? "ads.enabled" : "ads.disabled",
+    entityType: "platform_settings",
+    entityId: "ads_enabled",
+  });
   revalidatePath("/admin/publicite");
   revalidatePath("/", "layout");
-  return success(undefined, enabled ? "Publicité activée (abonnés payants toujours exclus)." : "Publicité désactivée partout.");
+  return success(
+    undefined,
+    enabled
+      ? "Publicité activée (abonnés payants toujours exclus)."
+      : "Publicité désactivée partout.",
+  );
 }
 
 const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 
-export async function updateAdSlotAction(slotId: string, _prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function updateAdSlotAction(
+  slotId: string,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("ads.manage");
   if (!ctx.ok) return ctx.result;
   const parsed = z
@@ -121,28 +168,49 @@ export async function updateAdSlotAction(slotId: string, _prev: ActionResult | n
         .string()
         .trim()
         .optional()
-        .refine((v) => !v || /^\/[^/]/.test(v) || v.startsWith("https://"), "Lien interne ou https://"),
+        .refine(
+          (v) => !v || /^\/[^/]/.test(v) || v.startsWith("https://"),
+          "Lien interne ou https://",
+        ),
       alt: z.string().trim().max(160).optional(),
       label: z.string().trim().max(40).optional(),
     })
     .safeParse(Object.fromEntries(formData));
   if (!parsed.success) return fromZodError(parsed.error);
-  const { data: slot } = await ctx.supabase.from("ad_slots").select("config").eq("id", slotId).maybeSingle();
+  const { data: slot } = await ctx.supabase
+    .from("ad_slots")
+    .select("config")
+    .eq("id", slotId)
+    .maybeSingle();
   if (!slot) return failure("Emplacement introuvable.", "NOT_FOUND");
-  const config: Record<string, unknown> = { ...((slot.config ?? {}) as Record<string, unknown>), href: parsed.data.href || null, alt: parsed.data.alt || null, label: parsed.data.label || "Annonce" };
+  const config: Record<string, unknown> = {
+    ...((slot.config ?? {}) as Record<string, unknown>),
+    href: parsed.data.href || null,
+    alt: parsed.data.alt || null,
+    label: parsed.data.label || "Annonce",
+  };
   const file = formData.get("image");
   if (file instanceof File && file.size > 0) {
-    if (!IMAGE_TYPES.has(file.type) || file.size > 3_900_000) return failure("Image JPEG, PNG, WebP ou AVIF de moins de 4 Mo.", "VALIDATION");
+    if (!IMAGE_TYPES.has(file.type) || file.size > 3_900_000)
+      return failure("Image JPEG, PNG, WebP ou AVIF de moins de 4 Mo.", "VALIDATION");
     const path = `ads/${slotId}-${Date.now()}.${file.type.split("/")[1]}`;
-    const { error } = await ctx.supabase.storage.from("media-public").upload(path, file, { contentType: file.type });
+    const { error } = await ctx.supabase.storage
+      .from("media-public")
+      .upload(path, file, { contentType: file.type });
     if (error) return failure(`Envoi impossible : ${error.message}`, "STORAGE");
     config.image_path = path;
   }
   const enabled = formData.get("is_enabled") === "on";
-  if (enabled && (!config.image_path || !config.href)) return failure("Un emplacement actif nécessite une image et un lien.", "VALIDATION");
+  if (enabled && (!config.image_path || !config.href))
+    return failure("Un emplacement actif nécessite une image et un lien.", "VALIDATION");
   const { error } = await ctx.supabase
     .from("ad_slots")
-    .update({ is_enabled: enabled, audience: parsed.data.audience, provider: "house", config: config as never })
+    .update({
+      is_enabled: enabled,
+      audience: parsed.data.audience,
+      provider: "house",
+      config: config as never,
+    })
     .eq("id", slotId);
   if (error) return failureFromDb(error);
   revalidatePath("/admin/publicite");
@@ -152,24 +220,44 @@ export async function updateAdSlotAction(slotId: string, _prev: ActionResult | n
 
 // --- Messages --------------------------------------------------------------------------
 
-export async function updateContactMessageAction(messageId: string, _prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function updateContactMessageAction(
+  messageId: string,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("messages.read");
   if (!ctx.ok) return ctx.result;
   const status = z.enum(["new", "in_progress", "closed"]).safeParse(formData.get("status"));
-  if (!uuidPattern.test(messageId) || !status.success) return failure("Requête invalide.", "VALIDATION");
-  const reply = String(formData.get("reply") ?? "").trim().slice(0, 5000);
+  if (!uuidPattern.test(messageId) || !status.success)
+    return failure("Requête invalide.", "VALIDATION");
+  const reply = String(formData.get("reply") ?? "")
+    .trim()
+    .slice(0, 5000);
   const { data: message, error } = await ctx.supabase
     .from("contact_messages")
-    .update({ status: status.data, handled_by: ctx.viewer.user.id, handled_at: new Date().toISOString() })
+    .update({
+      status: status.data,
+      handled_by: ctx.viewer.user.id,
+      handled_at: new Date().toISOString(),
+    })
     .eq("id", messageId)
     .select("email, name, subject")
     .single();
   if (error) return failureFromDb(error);
   let note = "";
   if (reply) {
-    const result = await sendDirectEmail({ to: message.email, title: `Re : ${message.subject}`, body: `Bonjour ${message.name},\n\n${reply}` });
+    const result = await sendDirectEmail({
+      to: message.email,
+      title: `Re : ${message.subject}`,
+      body: `Bonjour ${message.name},\n\n${reply}`,
+    });
     note = result === "failed" ? " La réponse n'a pas pu être envoyée." : " Réponse envoyée.";
-    await logAudit({ actorId: ctx.viewer.user.id, action: "contact.replied", entityType: "contact_message", entityId: messageId });
+    await logAudit({
+      actorId: ctx.viewer.user.id,
+      action: "contact.replied",
+      entityType: "contact_message",
+      entityId: messageId,
+    });
   }
   revalidatePath("/admin/messages");
   return success(undefined, `Message mis à jour.${note}`);
@@ -178,19 +266,36 @@ export async function updateContactMessageAction(messageId: string, _prev: Actio
 // --- Tamurt HQ ---------------------------------------------------------------------------
 
 /** Crée une clé d'API pour Tamurt HQ. La clé n'est affichée qu'une fois ; seule son empreinte est stockée. */
-export async function createHqKeyAction(_prev: ActionResult<{ key: string }> | null, formData: FormData): Promise<ActionResult<{ key: string }>> {
+export async function createHqKeyAction(
+  _prev: ActionResult<{ key: string }> | null,
+  formData: FormData,
+): Promise<ActionResult<{ key: string }>> {
   const ctx = await adminContext("hq.manage");
   if (!ctx.ok) return ctx.result;
   const name = String(formData.get("name") ?? "").trim();
   const days = Number(formData.get("days") ?? 365);
-  if (name.length < 2 || name.length > 80) return failure("Nom de 2 à 80 caractères.", "VALIDATION");
-  if (!Number.isInteger(days) || days < 1 || days > 730) return failure("Durée de validité : 1 à 730 jours.", "VALIDATION");
+  if (name.length < 2 || name.length > 80)
+    return failure("Nom de 2 à 80 caractères.", "VALIDATION");
+  if (!Number.isInteger(days) || days < 1 || days > 730)
+    return failure("Durée de validité : 1 à 730 jours.", "VALIDATION");
   const { secret: key, hash, prefix } = generateHqKey();
   const { error } = await createSupabaseAdminClient()
     .from("hq_api_keys")
-    .insert({ name, key_hash: hash, key_prefix: prefix, scopes: ["metrics:read"], expires_at: new Date(Date.now() + days * 86_400_000).toISOString(), created_by: ctx.viewer.user.id });
+    .insert({
+      name,
+      key_hash: hash,
+      key_prefix: prefix,
+      scopes: ["metrics:read"],
+      expires_at: new Date(Date.now() + days * 86_400_000).toISOString(),
+      created_by: ctx.viewer.user.id,
+    });
   if (error) return failureFromDb(error);
-  await logAudit({ actorId: ctx.viewer.user.id, action: "hq.key_created", entityType: "hq_api_key", metadata: { name, prefix } });
+  await logAudit({
+    actorId: ctx.viewer.user.id,
+    action: "hq.key_created",
+    entityType: "hq_api_key",
+    metadata: { name, prefix },
+  });
   revalidatePath("/admin/hq");
   return success({ key }, "Clé créée : copiez-la maintenant, elle ne sera plus affichée.");
 }
@@ -198,9 +303,18 @@ export async function createHqKeyAction(_prev: ActionResult<{ key: string }> | n
 export async function revokeHqKeyAction(keyId: string): Promise<ActionResult> {
   const ctx = await adminContext("hq.manage");
   if (!ctx.ok) return ctx.result;
-  const { error } = await ctx.supabase.from("hq_api_keys").update({ revoked_at: new Date().toISOString() }).eq("id", keyId).is("revoked_at", null);
+  const { error } = await ctx.supabase
+    .from("hq_api_keys")
+    .update({ revoked_at: new Date().toISOString() })
+    .eq("id", keyId)
+    .is("revoked_at", null);
   if (error) return failureFromDb(error);
-  await logAudit({ actorId: ctx.viewer.user.id, action: "hq.key_revoked", entityType: "hq_api_key", entityId: keyId });
+  await logAudit({
+    actorId: ctx.viewer.user.id,
+    action: "hq.key_revoked",
+    entityType: "hq_api_key",
+    entityId: keyId,
+  });
   revalidatePath("/admin/hq");
   return success(undefined, "Clé révoquée.");
 }
@@ -216,14 +330,28 @@ const settingsSchema = z.object({
   support_email: z.email(),
 });
 
-export async function updatePlatformSettingsAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function updatePlatformSettingsAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("settings.write");
   if (!ctx.ok) return ctx.result;
   const parsed = settingsSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return fromZodError(parsed.error);
-  const { data: current } = await ctx.supabase.from("platform_settings").select("value").eq("key", "eur_to_dzd_rate").maybeSingle();
+  const { data: current } = await ctx.supabase
+    .from("platform_settings")
+    .select("value")
+    .eq("key", "eur_to_dzd_rate")
+    .maybeSingle();
   const rateChanged = Number(current?.value) !== parsed.data.eur_to_dzd_rate;
-  const alertDays = [...new Set(parsed.data.license_alert_days.split(",").map((d) => Number(d.trim())).filter((d) => d > 0))].sort((a, b) => b - a);
+  const alertDays = [
+    ...new Set(
+      parsed.data.license_alert_days
+        .split(",")
+        .map((d) => Number(d.trim()))
+        .filter((d) => d > 0),
+    ),
+  ].sort((a, b) => b - a);
   const error = await writeSettings(ctx, {
     founder_signups_open: formData.get("founder_signups_open") === "on",
     grace_period_days: parsed.data.grace_period_days,
@@ -244,39 +372,72 @@ export async function updatePlatformSettingsAction(_prev: ActionResult | null, f
   return success(undefined, "Paramètres enregistrés.");
 }
 
-export async function updateLegalEntityAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function updateLegalEntityAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("settings.write");
   if (!ctx.ok) return ctx.result;
-  const fields = ["name", "form", "address", "registration", "vat", "publication_director", "host"] as const;
+  const fields = [
+    "name",
+    "form",
+    "address",
+    "registration",
+    "vat",
+    "publication_director",
+    "host",
+  ] as const;
   const entity: Record<string, string> = {};
   for (const field of fields) {
-    const value = String(formData.get(field) ?? "").trim().slice(0, 300);
+    const value = String(formData.get(field) ?? "")
+      .trim()
+      .slice(0, 300);
     entity[field] = value || "À compléter";
   }
   const error = await writeSettings(ctx, { legal_entity: entity });
   if (error) return error;
   revalidatePath("/", "layout");
-  return success(undefined, "Informations légales enregistrées. Elles alimentent les pages légales (brouillons à faire valider).");
+  return success(
+    undefined,
+    "Informations légales enregistrées. Elles alimentent les pages légales (brouillons à faire valider).",
+  );
 }
 
 /**
  * Passage en phase commerciale (ou retour en phase fondateur). Les fondateurs
  * actifs accèdent alors au catalogue Standard à leur tarif, sans hausse.
  */
-export async function setLaunchPhaseAction(phase: "founder" | "commercial", confirmation?: string): Promise<ActionResult> {
+export async function setLaunchPhaseAction(
+  phase: "founder" | "commercial",
+  confirmation?: string,
+): Promise<ActionResult> {
   const ctx = await adminContext("settings.write");
   if (!ctx.ok) return ctx.result;
-  if (phase === "commercial" && confirmation?.trim().toUpperCase() !== "LANCEMENT") return failure("Saisissez LANCEMENT pour confirmer.", "CONFIRMATION_REQUIRED");
+  if (phase === "commercial" && confirmation?.trim().toUpperCase() !== "LANCEMENT")
+    return failure("Saisissez LANCEMENT pour confirmer.", "CONFIRMATION_REQUIRED");
   const error = await writeSettings(ctx, { launch_phase: phase });
   if (error) return error;
-  await logAudit({ actorId: ctx.viewer.user.id, action: "platform.launch_phase_changed", entityType: "platform_settings", entityId: "launch_phase", metadata: { phase } });
+  await logAudit({
+    actorId: ctx.viewer.user.id,
+    action: "platform.launch_phase_changed",
+    entityType: "platform_settings",
+    entityId: "launch_phase",
+    metadata: { phase },
+  });
   revalidatePath("/", "layout");
-  return success(undefined, phase === "commercial" ? "Phase commerciale activée." : "Retour en phase fondateur.");
+  return success(
+    undefined,
+    phase === "commercial" ? "Phase commerciale activée." : "Retour en phase fondateur.",
+  );
 }
 
 // --- Incidents --------------------------------------------------------------------------------
 
-export async function saveIncidentAction(incidentId: string | null, _prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function saveIncidentAction(
+  incidentId: string | null,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("settings.write");
   if (!ctx.ok) return ctx.result;
   const parsed = z

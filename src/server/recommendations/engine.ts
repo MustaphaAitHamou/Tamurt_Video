@@ -35,7 +35,13 @@ export type Recommendation = {
 
 export interface RecommendationEngine {
   readonly name: string;
-  recommend(input: { signals: ViewingSignal[]; candidates: Candidate[]; exclude: Set<string>; limit: number; now?: Date }): Recommendation[];
+  recommend(input: {
+    signals: ViewingSignal[];
+    candidates: Candidate[];
+    exclude: Set<string>;
+    limit: number;
+    now?: Date;
+  }): Recommendation[];
 }
 
 const HALF_LIFE_DAYS = 45;
@@ -49,7 +55,8 @@ function decay(ageDays: number) {
 export function genreAffinity(signals: ViewingSignal[]): Map<string, number> {
   const weights = new Map<string, number>();
   for (const signal of signals) {
-    const base = signal.source === "watchlist" ? 0.6 : 0.4 + 0.6 * Math.min(Math.max(signal.engagement, 0), 1);
+    const base =
+      signal.source === "watchlist" ? 0.6 : 0.4 + 0.6 * Math.min(Math.max(signal.engagement, 0), 1);
     const weight = base * decay(signal.ageDays);
     for (const genre of signal.genres) {
       weights.set(genre, (weights.get(genre) ?? 0) + weight);
@@ -104,7 +111,9 @@ export class GenreAffinityEngine implements RecommendationEngine {
       if (candidate.genres.length > 0) genreScore /= Math.sqrt(candidate.genres.length);
 
       const popularity = candidate.popularity / maxPopularity;
-      const ageDays = candidate.publishedAt ? (now.getTime() - new Date(candidate.publishedAt).getTime()) / 86_400_000 : Infinity;
+      const ageDays = candidate.publishedAt
+        ? (now.getTime() - new Date(candidate.publishedAt).getTime()) / 86_400_000
+        : Infinity;
       const isNew = ageDays >= 0 && ageDays <= NEW_RELEASE_DAYS;
       const kindScore = maxKind > 0 ? (kindWeights.get(candidate.kind) ?? 0) / maxKind : 0;
 

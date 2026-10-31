@@ -39,15 +39,27 @@ export function EpisodeList({
             {season.episodes.map((episode) => {
               const percent =
                 episode.progress?.durationSeconds && !episode.progress.completed
-                  ? Math.round((episode.progress.positionSeconds / episode.progress.durationSeconds) * 100)
+                  ? Math.round(
+                      (episode.progress.positionSeconds / episode.progress.durationSeconds) * 100,
+                    )
                   : episode.progress?.completed
                     ? 100
                     : 0;
               const content = (
                 <>
-                  <span className="w-6 shrink-0 text-center font-display text-lg text-muted-foreground">{episode.number}</span>
+                  <span className="w-6 shrink-0 text-center font-display text-lg text-muted-foreground">
+                    {episode.number}
+                  </span>
                   <span className="relative aspect-video w-32 shrink-0 overflow-hidden rounded-lg bg-muted sm:w-44">
-                    {episode.stillUrl && <Image src={episode.stillUrl} alt="" fill sizes="176px" className="object-cover" />}
+                    {episode.stillUrl && (
+                      <Image
+                        src={episode.stillUrl}
+                        alt=""
+                        fill
+                        sizes="176px"
+                        className="object-cover"
+                      />
+                    )}
                     {playable && (
                       <span className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition group-hover:opacity-100">
                         <PlayIcon className="size-7 fill-white text-white" />
@@ -55,14 +67,21 @@ export function EpisodeList({
                     )}
                     {percent > 0 && (
                       <span className="absolute inset-x-0 bottom-0 h-1 bg-white/20">
-                        <span className="block h-full bg-primary" style={{ width: `${percent}%` }} />
+                        <span
+                          className="block h-full bg-primary"
+                          style={{ width: `${percent}%` }}
+                        />
                       </span>
                     )}
                   </span>
                   <span className="min-w-0 flex-1 space-y-1">
                     <span className="flex items-baseline justify-between gap-3">
-                      <span dir="auto" className="truncate font-medium">{episode.name}</span>
-                      <span className="shrink-0 text-xs text-muted-foreground">{formatRuntime(episode.runtimeMinutes)}</span>
+                      <span dir="auto" className="truncate font-medium">
+                        {episode.name}
+                      </span>
+                      <span className="shrink-0 text-xs text-muted-foreground">
+                        {formatRuntime(episode.runtimeMinutes)}
+                      </span>
                     </span>
                     {episode.synopsis && (
                       <span dir="auto" className="line-clamp-2 text-sm text-muted-foreground">

@@ -12,7 +12,10 @@ export default async function WatchPage({ params, searchParams }: PageProps<"/re
   if (!title) notFound();
 
   const isTrailer = query["bande-annonce"] === "1";
-  const requestedEpisode = typeof query.episode === "string" && /^[0-9a-f-]{36}$/.test(query.episode) ? query.episode : null;
+  const requestedEpisode =
+    typeof query.episode === "string" && /^[0-9a-f-]{36}$/.test(query.episode)
+      ? query.episode
+      : null;
   const episodes = title.seasons.flatMap((season) =>
     season.episodes.map((episode) => ({
       id: episode.id,
@@ -20,7 +23,11 @@ export default async function WatchPage({ params, searchParams }: PageProps<"/re
       label: `S${season.number} · É${episode.number}`,
     })),
   );
-  const episodeId = isTrailer ? null : title.structure === "episodic" ? (requestedEpisode ?? episodes[0]?.id ?? null) : null;
+  const episodeId = isTrailer
+    ? null
+    : title.structure === "episodic"
+      ? (requestedEpisode ?? episodes[0]?.id ?? null)
+      : null;
   const current = episodes.find((e) => e.id === episodeId) ?? null;
   const path = `/regarder/${title.slug}${episodeId ? `?episode=${episodeId}` : ""}`;
 
@@ -32,7 +39,9 @@ export default async function WatchPage({ params, searchParams }: PageProps<"/re
       kind={isTrailer ? "trailer" : "main"}
       slug={title.slug}
       heading={title.title}
-      subheading={isTrailer ? "Bande-annonce" : current ? `${current.label} — ${current.name}` : null}
+      subheading={
+        isTrailer ? "Bande-annonce" : current ? `${current.label} — ${current.name}` : null
+      }
       backHref={`/titre/${title.slug}`}
       posterUrl={title.backdropUrl}
       episodes={isTrailer ? [] : episodes}

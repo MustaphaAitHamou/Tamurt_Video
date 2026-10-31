@@ -36,7 +36,14 @@ export function RequestForm() {
       <input ref={confirmRef} type="hidden" name="confirmed" value="0" />
       <TextField label={t("titleField")} name="title" required maxLength={200} />
       <div className="grid gap-5 sm:grid-cols-2">
-        <TextField label={t("year")} name="releaseYear" type="number" min={1888} max={2100} inputMode="numeric" />
+        <TextField
+          label={t("year")}
+          name="releaseYear"
+          type="number"
+          min={1888}
+          max={2100}
+          inputMode="numeric"
+        />
         <Field label={t("contentType")} name="contentType" required>
           <NativeSelect id="contentType" name="contentType" defaultValue="film">
             {(["film", "series", "documentary", "short", "show", "other"] as const).map((type) => (
@@ -52,7 +59,13 @@ export function RequestForm() {
       <Field label={t("comment")} name="comment">
         <Textarea id="comment" name="comment" maxLength={2000} />
       </Field>
-      <TextField label={t("infoUrl")} name="infoUrl" type="url" placeholder="https://" maxLength={500} />
+      <TextField
+        label={t("infoUrl")}
+        name="infoUrl"
+        type="url"
+        placeholder="https://"
+        maxLength={500}
+      />
 
       {similar && similar.length > 0 && (
         <div className="space-y-3 rounded-xl border border-gold/40 bg-gold/10 p-4" role="status">
@@ -62,7 +75,8 @@ export function RequestForm() {
               <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 text-sm">
                 <span>
                   {s.title}
-                  {s.releaseYear ? ` (${s.releaseYear})` : ""} — {ts(s.status as "received")} · {t("votes", { count: s.votes })}
+                  {s.releaseYear ? ` (${s.releaseYear})` : ""} — {ts(s.status as "received")} ·{" "}
+                  {t("votes", { count: s.votes })}
                 </span>
                 <Button asChild size="sm" variant="secondary">
                   <Link href={`/demandes/${s.id}`}>{t("voteInstead")}</Link>
@@ -85,7 +99,10 @@ export function RequestForm() {
       )}
       {existingId && (
         <p className="text-sm">
-          <Link href={`/demandes/${existingId}`} className="text-primary underline underline-offset-4">
+          <Link
+            href={`/demandes/${existingId}`}
+            className="text-primary underline underline-offset-4"
+          >
             {t("voteInstead")}
           </Link>
         </p>

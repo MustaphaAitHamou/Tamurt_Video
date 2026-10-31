@@ -9,7 +9,14 @@ import { TitleRow } from "@/components/catalog/title-row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { isLocale, localeIntlTag } from "@/i18n/config";
 import { formatDate, formatPrice } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -22,7 +29,12 @@ export const metadata: Metadata = { title: "Espace fondateur", robots: { index: 
 
 export default async function FounderSpacePage() {
   const viewer = await requireViewer("/espace-fondateur");
-  const [t, tn, ta, rawLocale] = await Promise.all([getTranslations("founder"), getTranslations("news"), getTranslations("account"), getLocale()]);
+  const [t, tn, ta, rawLocale] = await Promise.all([
+    getTranslations("founder"),
+    getTranslations("news"),
+    getTranslations("account"),
+    getLocale(),
+  ]);
   const locale = isLocale(rawLocale) ? localeIntlTag[rawLocale] : "fr-FR";
   const isActiveFounder = viewer.entitlements.planTier === "founder";
   const wasFounder = Boolean(viewer.profile.founderSince);
@@ -30,7 +42,11 @@ export default async function FounderSpacePage() {
   if (!isActiveFounder && !wasFounder) {
     return (
       <div className="mx-auto max-w-2xl px-4 pt-32 pb-16">
-        <EmptyState title={t("notFounder")} icon={CrownIcon} action={{ href: "/fondateurs", label: t("becomeFounder") }} />
+        <EmptyState
+          title={t("notFounder")}
+          icon={CrownIcon}
+          action={{ href: "/fondateurs", label: t("becomeFounder") }}
+        />
       </div>
     );
   }
@@ -43,13 +59,17 @@ export default async function FounderSpacePage() {
     getWatchlist(viewer, 20),
     supabase
       .from("invoices")
-      .select("id, number, amount_paid_cents, currency, paid_at, status, invoice_pdf_url, hosted_invoice_url")
+      .select(
+        "id, number, amount_paid_cents, currency, paid_at, status, invoice_pdf_url, hosted_invoice_url",
+      )
       .eq("user_id", viewer.user.id)
       .order("created_at", { ascending: false })
       .limit(24),
   ]);
   const since = viewer.profile.founderSince ? new Date(viewer.profile.founderSince) : null;
-  const months = since ? Math.max(0, Math.floor((nowMs() - since.getTime()) / (30.44 * 86_400_000))) : 0;
+  const months = since
+    ? Math.max(0, Math.floor((nowMs() - since.getTime()) / (30.44 * 86_400_000)))
+    : 0;
   const nextFeatures = roadmap.filter((r) => r.status !== "done").slice(0, 4);
 
   return (
@@ -61,19 +81,33 @@ export default async function FounderSpacePage() {
             <CrownIcon className="size-10" />
           </span>
           <div className="space-y-2">
-            <p className="text-sm font-semibold tracking-widest text-gold uppercase">{t("badge")}</p>
+            <p className="text-sm font-semibold tracking-widest text-gold uppercase">
+              {t("badge")}
+            </p>
             <h1 className="text-3xl font-bold sm:text-4xl">{t("title")}</h1>
             <div className="flex flex-wrap gap-2">
-              {viewer.profile.founderNumber && <Badge variant="gold">{t("memberNumber", { number: viewer.profile.founderNumber })}</Badge>}
-              <Badge variant={isActiveFounder ? "success" : "muted"}>{isActiveFounder ? t("active") : t("inactive")}</Badge>
-              {since && <Badge variant="outline">{t("memberSince", { date: formatDate(since, locale) })}</Badge>}
+              {viewer.profile.founderNumber && (
+                <Badge variant="gold">
+                  {t("memberNumber", { number: viewer.profile.founderNumber })}
+                </Badge>
+              )}
+              <Badge variant={isActiveFounder ? "success" : "muted"}>
+                {isActiveFounder ? t("active") : t("inactive")}
+              </Badge>
+              {since && (
+                <Badge variant="outline">
+                  {t("memberSince", { date: formatDate(since, locale) })}
+                </Badge>
+              )}
             </div>
             <p className="text-white/80">
               {t("supportDuration", { months })} — {t("thanks")}
             </p>
           </div>
         </div>
-        <p className="relative mt-6 max-w-3xl rounded-xl bg-black/30 p-4 text-sm leading-relaxed text-white/85">{t("launchPromise")}</p>
+        <p className="relative mt-6 max-w-3xl rounded-xl bg-black/30 p-4 text-sm leading-relaxed text-white/85">
+          {t("launchPromise")}
+        </p>
       </section>
 
       <div className="grid gap-8 lg:grid-cols-2">
@@ -82,8 +116,18 @@ export default async function FounderSpacePage() {
             {roadmap.map((item) => (
               <li key={item.id} className="space-y-2">
                 <div className="flex items-center justify-between gap-3 text-sm">
-                  <span dir="auto" className="font-medium">{item.title}</span>
-                  <Badge variant={item.status === "done" ? "success" : item.status === "in_progress" ? "gold" : "muted"}>
+                  <span dir="auto" className="font-medium">
+                    {item.title}
+                  </span>
+                  <Badge
+                    variant={
+                      item.status === "done"
+                        ? "success"
+                        : item.status === "in_progress"
+                          ? "gold"
+                          : "muted"
+                    }
+                  >
                     {t(`roadmapStatuses.${item.status}`)}
                   </Badge>
                 </div>
@@ -123,7 +167,9 @@ export default async function FounderSpacePage() {
               <RocketIcon className="mt-0.5 size-4 shrink-0 text-primary" />
               <span>
                 {item.title}
-                {item.targetLabel && <span className="block text-xs text-muted-foreground">{item.targetLabel}</span>}
+                {item.targetLabel && (
+                  <span className="block text-xs text-muted-foreground">{item.targetLabel}</span>
+                )}
               </span>
             </li>
           ))}
@@ -132,13 +178,29 @@ export default async function FounderSpacePage() {
 
       <section className="-mx-4 space-y-6 sm:-mx-6 lg:-mx-10">
         {announced.length > 0 ? (
-          <TitleRow title={t("announcedTitle")} items={announced} layout="poster" href="/prochainement" />
+          <TitleRow
+            title={t("announcedTitle")}
+            items={announced}
+            layout="poster"
+            href="/prochainement"
+          />
         ) : (
           <div className="px-4 sm:px-6 lg:px-10">
-            <EmptyState title={t("announcedTitle")} description={t("announcedEmpty")} icon={CalendarHeartIcon} />
+            <EmptyState
+              title={t("announcedTitle")}
+              description={t("announcedEmpty")}
+              icon={CalendarHeartIcon}
+            />
           </div>
         )}
-        {wishlist.length > 0 && <TitleRow title={t("wishlistTitle")} items={wishlist} layout="poster" href="/compte/ma-liste" />}
+        {wishlist.length > 0 && (
+          <TitleRow
+            title={t("wishlistTitle")}
+            items={wishlist}
+            layout="poster"
+            href="/compte/ma-liste"
+          />
+        )}
       </section>
 
       <AccountSection title={t("paymentsTitle")}>

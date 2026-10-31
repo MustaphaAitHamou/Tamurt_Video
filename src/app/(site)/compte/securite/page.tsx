@@ -21,7 +21,11 @@ export const metadata: Metadata = { title: "Sécurité", robots: { index: false 
 
 export default async function SecurityPage() {
   const viewer = await requireViewer("/compte/securite");
-  const [t, ta, rawLocale] = await Promise.all([getTranslations("account"), getTranslations("auth"), getLocale()]);
+  const [t, ta, rawLocale] = await Promise.all([
+    getTranslations("account"),
+    getTranslations("auth"),
+    getLocale(),
+  ]);
   const locale = isLocale(rawLocale) ? localeIntlTag[rawLocale] : "fr-FR";
   const supabase = await createSupabaseServerClient();
   const [{ data: factors }, { data: sessions }] = await Promise.all([
@@ -34,7 +38,10 @@ export default async function SecurityPage() {
       .limit(40),
   ]);
   const verified = factors?.totp.filter((f) => f.status === "verified") ?? [];
-  const devices = new Map<string, { label: string; country: string | null; lastSeen: string; active: boolean }>();
+  const devices = new Map<
+    string,
+    { label: string; country: string | null; lastSeen: string; active: boolean }
+  >();
   for (const s of sessions ?? []) {
     const label = s.device_label ?? "Appareil inconnu";
     if (!devices.has(label)) {
@@ -52,10 +59,34 @@ export default async function SecurityPage() {
     <>
       {isPasswordUser && (
         <AccountSection title={t("changePassword")}>
-          <ActionForm action={changePasswordAction} submitLabel={ta("updatePassword")} resetOnSuccess>
-            <TextField label={t("currentPassword")} name="currentPassword" type="password" autoComplete="current-password" required />
-            <TextField label={t("newPassword")} name="password" type="password" autoComplete="new-password" minLength={10} required hint={ta("passwordHint")} />
-            <TextField label={ta("confirmPassword")} name="confirmPassword" type="password" autoComplete="new-password" required />
+          <ActionForm
+            action={changePasswordAction}
+            submitLabel={ta("updatePassword")}
+            resetOnSuccess
+          >
+            <TextField
+              label={t("currentPassword")}
+              name="currentPassword"
+              type="password"
+              autoComplete="current-password"
+              required
+            />
+            <TextField
+              label={t("newPassword")}
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              minLength={10}
+              required
+              hint={ta("passwordHint")}
+            />
+            <TextField
+              label={ta("confirmPassword")}
+              name="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              required
+            />
           </ActionForm>
         </AccountSection>
       )}
@@ -64,12 +95,18 @@ export default async function SecurityPage() {
         {verified.length > 0 ? (
           <ul className="space-y-3">
             {verified.map((factor) => (
-              <li key={factor.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
+              <li
+                key={factor.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4"
+              >
                 <span className="flex items-center gap-2 text-sm">
-                  <ShieldCheckIcon className="size-4 text-success" /> {factor.friendly_name ?? "Application d'authentification"}
+                  <ShieldCheckIcon className="size-4 text-success" />{" "}
+                  {factor.friendly_name ?? "Application d'authentification"}
                   <Badge variant="success">{t("mfaEnabled")}</Badge>
                 </span>
-                {viewer.staff.roles.length === 0 || !viewer.staff.mfaRequired ? <RemoveMfaButton factorId={factor.id} /> : null}
+                {viewer.staff.roles.length === 0 || !viewer.staff.mfaRequired ? (
+                  <RemoveMfaButton factorId={factor.id} />
+                ) : null}
               </li>
             ))}
           </ul>
@@ -103,14 +140,23 @@ export default async function SecurityPage() {
             <h3 className="text-sm font-semibold">{t("recentDevices")}</h3>
             <ul className="divide-y rounded-xl border">
               {[...devices.values()].map((device) => (
-                <li key={device.label} className="flex items-center justify-between gap-3 p-3 text-sm">
+                <li
+                  key={device.label}
+                  className="flex items-center justify-between gap-3 p-3 text-sm"
+                >
                   <span className="flex items-center gap-2">
                     <MonitorSmartphoneIcon className="size-4 text-muted-foreground" />
                     {device.label}
-                    {device.country && device.country !== "XX" && <span className="text-muted-foreground">· {device.country}</span>}
+                    {device.country && device.country !== "XX" && (
+                      <span className="text-muted-foreground">· {device.country}</span>
+                    )}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {device.active ? <Badge variant="success">Lecture en cours</Badge> : formatDateTime(device.lastSeen, locale)}
+                    {device.active ? (
+                      <Badge variant="success">Lecture en cours</Badge>
+                    ) : (
+                      formatDateTime(device.lastSeen, locale)
+                    )}
                   </span>
                 </li>
               ))}

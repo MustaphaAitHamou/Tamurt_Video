@@ -26,9 +26,15 @@ export async function signMediaToken(claims: MediaTokenClaims, secret: string, t
     .sign(encoder.encode(secret));
 }
 
-export async function verifyMediaToken(token: string, secret: string): Promise<(MediaTokenClaims & { exp: number }) | null> {
+export async function verifyMediaToken(
+  token: string,
+  secret: string,
+): Promise<(MediaTokenClaims & { exp: number }) | null> {
   try {
-    const { payload } = await jwtVerify(token, encoder.encode(secret), { issuer: "tamurt-video", algorithms: ["HS256"] });
+    const { payload } = await jwtVerify(token, encoder.encode(secret), {
+      issuer: "tamurt-video",
+      algorithms: ["HS256"],
+    });
     if (typeof payload.sub !== "string" || typeof payload.exp !== "number") return null;
     return {
       sub: payload.sub,

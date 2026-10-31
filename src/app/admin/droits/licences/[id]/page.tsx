@@ -2,7 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BadgeCheckIcon } from "lucide-react";
 
-import { deleteLicenseDocumentAction, saveLicenseAction, verifyLicenseAction } from "@/actions/admin/rights";
+import {
+  deleteLicenseDocumentAction,
+  saveLicenseAction,
+  verifyLicenseAction,
+} from "@/actions/admin/rights";
 import { ActionButton } from "@/components/admin/action-button";
 import { ConfirmAction } from "@/components/admin/confirm-action";
 import { DocumentLink, DocumentUploader } from "@/components/admin/rights/document-uploader";
@@ -32,9 +36,21 @@ export default async function LicensePage({ params }: PageProps<"/admin/droits/l
   const canDocuments = viewer.staff.permissions.includes("rights.documents");
   const [options, documents, history] = await Promise.all([
     getLicenseFormOptions(),
-    canDocuments ? supabase.from("license_documents").select("id, document_type, file_name, size_bytes, created_at").eq("license_id", id).order("created_at", { ascending: false }) : Promise.resolve({ data: null }),
+    canDocuments
+      ? supabase
+          .from("license_documents")
+          .select("id, document_type, file_name, size_bytes, created_at")
+          .eq("license_id", id)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: null }),
     viewer.staff.permissions.includes("audit.read")
-      ? supabase.from("audit_logs").select("id, action, created_at, actor_id").eq("entity_type", "licenses").eq("entity_id", id).order("created_at", { ascending: false }).limit(20)
+      ? supabase
+          .from("audit_logs")
+          .select("id, action, created_at, actor_id")
+          .eq("entity_type", "licenses")
+          .eq("entity_id", id)
+          .order("created_at", { ascending: false })
+          .limit(20)
       : Promise.resolve({ data: null }),
   ]);
 
@@ -46,7 +62,10 @@ export default async function LicensePage({ params }: PageProps<"/admin/droits/l
         actions={
           <>
             {license.titles && (
-              <Link href={`/admin/catalogue/${license.titles.id}?onglet=droits`} className="text-sm text-muted-foreground underline">
+              <Link
+                href={`/admin/catalogue/${license.titles.id}?onglet=droits`}
+                className="text-sm text-muted-foreground underline"
+              >
                 Voir l&apos;œuvre
               </Link>
             )}
@@ -62,7 +81,11 @@ export default async function LicensePage({ params }: PageProps<"/admin/droits/l
         ) : (
           <span className="text-warning">Contrôle documentaire non effectué.</span>
         )}
-        {canWrite && <ActionButton action={verifyLicenseAction.bind(null, id)}>{license.verified_at ? "Renouveler la vérification" : "Marquer comme vérifiée"}</ActionButton>}
+        {canWrite && (
+          <ActionButton action={verifyLicenseAction.bind(null, id)}>
+            {license.verified_at ? "Renouveler la vérification" : "Marquer comme vérifiée"}
+          </ActionButton>
+        )}
       </div>
       <div className="grid gap-6 xl:grid-cols-[1fr_24rem]">
         <div className="rounded-xl border bg-card/60 p-6">
@@ -73,8 +96,12 @@ export default async function LicensePage({ params }: PageProps<"/admin/droits/l
               holders={options.holders}
               defaults={{
                 ...license,
-                territories: license.license_territories.filter((t) => !t.is_excluded).map((t) => t.country_code),
-                excluded: license.license_territories.filter((t) => t.is_excluded).map((t) => t.country_code),
+                territories: license.license_territories
+                  .filter((t) => !t.is_excluded)
+                  .map((t) => t.country_code),
+                excluded: license.license_territories
+                  .filter((t) => t.is_excluded)
+                  .map((t) => t.country_code),
               }}
             />
           ) : (
@@ -85,7 +112,10 @@ export default async function LicensePage({ params }: PageProps<"/admin/droits/l
           {canDocuments && (
             <section className="space-y-3 rounded-xl border bg-card/60 p-5">
               <h2 className="font-semibold">Justificatifs</h2>
-              <p className="text-xs text-muted-foreground">Stockage privé. Chaque consultation génère un lien de 60 secondes et une entrée au journal d&apos;audit.</p>
+              <p className="text-xs text-muted-foreground">
+                Stockage privé. Chaque consultation génère un lien de 60 secondes et une entrée au
+                journal d&apos;audit.
+              </p>
               {(documents.data ?? []).length === 0 ? (
                 <p className="text-sm text-muted-foreground">Aucun justificatif archivé.</p>
               ) : (
@@ -95,7 +125,9 @@ export default async function LicensePage({ params }: PageProps<"/admin/droits/l
                       <span className="min-w-0">
                         <DocumentLink documentId={document.id}>{document.file_name}</DocumentLink>
                         <span className="block text-xs text-muted-foreground">
-                          {DOCUMENT_TYPE_LABELS[document.document_type] ?? document.document_type} · {formatNumber(Math.round((document.size_bytes ?? 0) / 1024))} Ko · {formatDateTime(document.created_at)}
+                          {DOCUMENT_TYPE_LABELS[document.document_type] ?? document.document_type} ·{" "}
+                          {formatNumber(Math.round((document.size_bytes ?? 0) / 1024))} Ko ·{" "}
+                          {formatDateTime(document.created_at)}
                         </span>
                       </span>
                       <ConfirmAction

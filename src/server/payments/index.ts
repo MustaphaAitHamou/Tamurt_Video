@@ -19,11 +19,16 @@ export function getPaymentProvider(): PaymentProvider | null {
     return cached;
   }
   if (/^(sk|rk)_live_/.test(env.payments.stripeSecretKey) && !env.payments.liveModeAllowed) {
-    console.error("[payments] Clé Stripe live refusée : définir PAYMENTS_LIVE_MODE_ALLOWED=true après validation explicite.");
+    console.error(
+      "[payments] Clé Stripe live refusée : définir PAYMENTS_LIVE_MODE_ALLOWED=true après validation explicite.",
+    );
     cached = null;
     return cached;
   }
-  cached = new StripePaymentProvider(env.payments.stripeSecretKey, env.payments.stripeWebhookSecret);
+  cached = new StripePaymentProvider(
+    env.payments.stripeSecretKey,
+    env.payments.stripeWebhookSecret,
+  );
   return cached;
 }
 

@@ -1,7 +1,11 @@
 import Stripe from "stripe";
 
 import { mapStripeInvoice, mapStripeSubscription } from "@/server/payments/stripe-mappers";
-import { PaymentsUnavailableError, type PaymentProvider, type ProviderEvent } from "@/server/payments/types";
+import {
+  PaymentsUnavailableError,
+  type PaymentProvider,
+  type ProviderEvent,
+} from "@/server/payments/types";
 
 const STRIPE_LOCALES = new Set(["fr", "en", "ar"]);
 
@@ -16,7 +20,13 @@ export class StripePaymentProvider implements PaymentProvider {
     client?: Stripe,
   ) {
     this.testMode = !/^(sk|rk)_live_/.test(secretKey);
-    this.stripe = client ?? new Stripe(secretKey, { appInfo: { name: "Tamurt Video" }, maxNetworkRetries: 2, timeout: 20_000 });
+    this.stripe =
+      client ??
+      new Stripe(secretKey, {
+        appInfo: { name: "Tamurt Video" },
+        maxNetworkRetries: 2,
+        timeout: 20_000,
+      });
   }
 
   async createCheckout(input: Parameters<PaymentProvider["createCheckout"]>[0]) {
@@ -35,7 +45,9 @@ export class StripePaymentProvider implements PaymentProvider {
       line_items: [{ price: input.priceId, quantity: 1 }],
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,
-      locale: (STRIPE_LOCALES.has(input.locale) ? input.locale : "fr") as Stripe.Checkout.SessionCreateParams.Locale,
+      locale: (STRIPE_LOCALES.has(input.locale)
+        ? input.locale
+        : "fr") as Stripe.Checkout.SessionCreateParams.Locale,
       allow_promotion_codes: false,
       billing_address_collection: input.automaticTax ? "required" : "auto",
       automatic_tax: { enabled: input.automaticTax },
@@ -51,7 +63,9 @@ export class StripePaymentProvider implements PaymentProvider {
     const session = await this.stripe.billingPortal.sessions.create({
       customer: input.customerId,
       return_url: input.returnUrl,
-      locale: (STRIPE_LOCALES.has(input.locale) ? input.locale : "fr") as Stripe.BillingPortal.SessionCreateParams.Locale,
+      locale: (STRIPE_LOCALES.has(input.locale)
+        ? input.locale
+        : "fr") as Stripe.BillingPortal.SessionCreateParams.Locale,
     });
     return { url: session.url };
   }
@@ -65,7 +79,9 @@ export class StripePaymentProvider implements PaymentProvider {
   }
 
   async setCancelAtPeriodEnd(subscriptionId: string, cancel: boolean) {
-    return mapStripeSubscription(await this.stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: cancel }));
+    return mapStripeSubscription(
+      await this.stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: cancel }),
+    );
   }
 
   async changePlan(subscriptionId: string, newPriceId: string) {
@@ -88,7 +104,8 @@ export class StripePaymentProvider implements PaymentProvider {
     const payments = await this.stripe.invoicePayments.list({ invoice: input.invoiceId, limit: 1 });
     const paymentIntent = payments.data[0]?.payment?.payment_intent;
     const paymentIntentId = typeof paymentIntent === "string" ? paymentIntent : paymentIntent?.id;
-    if (!paymentIntentId) throw new PaymentsUnavailableError("Aucun paiement remboursable pour cette facture.");
+    if (!paymentIntentId)
+      throw new PaymentsUnavailableError("Aucun paiement remboursable pour cette facture.");
     const refund = await this.stripe.refunds.create({
       payment_intent: paymentIntentId,
       amount: input.amountCents,

@@ -55,10 +55,16 @@ export function UserMenu({ viewer }: { viewer: HeaderViewer }) {
         <DropdownMenuLabel className="flex items-center gap-3 py-2">
           <ProfileAvatar avatarKey={active?.avatarKey ?? viewer.avatarKey} className="size-10" />
           <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-foreground">{active?.name ?? viewer.displayName}</span>
+            <span className="block truncate text-sm font-semibold text-foreground">
+              {active?.name ?? viewer.displayName}
+            </span>
             <span className="block truncate text-xs font-normal">{viewer.email}</span>
             <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-foreground/80">
-              {viewer.isFounder ? <CrownIcon className="size-3 text-gold" /> : <GemIcon className="size-3" />}
+              {viewer.isFounder ? (
+                <CrownIcon className="size-3 text-gold" />
+              ) : (
+                <GemIcon className="size-3" />
+              )}
               {viewer.isFounder ? tt("founder") : tt(viewer.tier)}
             </span>
           </span>
@@ -103,7 +109,9 @@ export function UserMenu({ viewer }: { viewer: HeaderViewer }) {
             <Link href="/compte/notifications">
               <BellIcon /> {t("notifications")}
               {viewer.unreadCount > 0 && (
-                <span className="ms-auto rounded-full bg-primary px-1.5 text-[10px] font-bold">{viewer.unreadCount}</span>
+                <span className="ms-auto rounded-full bg-primary px-1.5 text-[10px] font-bold">
+                  {viewer.unreadCount}
+                </span>
               )}
             </Link>
           </DropdownMenuItem>

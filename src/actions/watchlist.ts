@@ -9,7 +9,9 @@ import { getViewer } from "@/server/auth/session";
 import { failure, failureFromDb, success, type ActionResult } from "@/server/errors";
 
 /** Ajoute ou retire une œuvre de la liste du profil actif. */
-export async function toggleWatchlistAction(titleId: string): Promise<ActionResult<{ inList: boolean }>> {
+export async function toggleWatchlistAction(
+  titleId: string,
+): Promise<ActionResult<{ inList: boolean }>> {
   const parsed = z.uuid().safeParse(titleId);
   if (!parsed.success) return failure("Œuvre invalide.", "VALIDATION");
   const viewer = await getViewer();

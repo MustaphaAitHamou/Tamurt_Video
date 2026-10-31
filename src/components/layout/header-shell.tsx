@@ -23,7 +23,15 @@ function isActive(link: NavLink, pathname: string, search: string) {
   return search.includes(query);
 }
 
-export function HeaderShell({ viewer, links, founderPhase }: { viewer: HeaderViewer | null; links: NavLink[]; founderPhase: boolean }) {
+export function HeaderShell({
+  viewer,
+  links,
+  founderPhase,
+}: {
+  viewer: HeaderViewer | null;
+  links: NavLink[];
+  founderPhase: boolean;
+}) {
   const t = useTranslations("nav");
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -80,7 +88,11 @@ export function HeaderShell({ viewer, links, founderPhase }: { viewer: HeaderVie
           </SheetContent>
         </Sheet>
 
-        <Link href="/" className="shrink-0 rounded-md text-foreground" aria-label="Tamurt Vidéo — accueil">
+        <Link
+          href="/"
+          className="shrink-0 rounded-md text-foreground"
+          aria-label="Tamurt Vidéo — accueil"
+        >
           <Logo className="hidden h-7 sm:block" />
           <LogoMark className="size-8 sm:hidden" />
         </Link>
@@ -124,7 +136,9 @@ export function HeaderShell({ viewer, links, founderPhase }: { viewer: HeaderVie
                 <Link href="/connexion">{t("signIn")}</Link>
               </Button>
               <Button asChild size="sm">
-                <Link href={founderPhase ? "/fondateurs" : "/inscription"}>{founderPhase ? t("founders") : t("signUp")}</Link>
+                <Link href={founderPhase ? "/fondateurs" : "/inscription"}>
+                  {founderPhase ? t("founders") : t("signUp")}
+                </Link>
               </Button>
             </>
           )}

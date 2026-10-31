@@ -27,24 +27,46 @@ export default async function ReportPage({ searchParams }: PageProps<"/signaleme
             <TextField label="Adresse email" name="claimantEmail" type="email" required />
           </div>
           <TextField label={t("organization")} name="organization" maxLength={200} />
-          <TextField label={t("titleReference")} name="titleReference" required maxLength={300} defaultValue={prefill} />
+          <TextField
+            label={t("titleReference")}
+            name="titleReference"
+            required
+            maxLength={300}
+            defaultValue={prefill}
+          />
           <Field label={t("claimType")} name="claimType">
             <NativeSelect id="claimType" name="claimType" defaultValue="copyright">
-              {(["copyright", "trademark", "privacy", "defamation", "other"] as const).map((type) => (
-                <option key={type} value={type}>
-                  {t(`types.${type}`)}
-                </option>
-              ))}
+              {(["copyright", "trademark", "privacy", "defamation", "other"] as const).map(
+                (type) => (
+                  <option key={type} value={type}>
+                    {t(`types.${type}`)}
+                  </option>
+                ),
+              )}
             </NativeSelect>
           </Field>
           <Field label={t("description")} name="description" required>
-            <Textarea id="description" name="description" required minLength={10} maxLength={5000} className="min-h-40" />
+            <Textarea
+              id="description"
+              name="description"
+              required
+              minLength={10}
+              maxLength={5000}
+              className="min-h-40"
+            />
           </Field>
           <label className="flex items-start gap-3 text-sm">
             <input type="checkbox" name="sworn" required className="mt-0.5 size-4 accent-primary" />
             {t("sworn")}
           </label>
-          <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
+          <input
+            type="text"
+            name="website"
+            tabIndex={-1}
+            autoComplete="off"
+            className="hidden"
+            aria-hidden
+          />
         </ActionForm>
       </div>
     </div>

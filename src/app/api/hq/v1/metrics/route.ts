@@ -12,7 +12,11 @@ import { rateLimit } from "@/server/rate-limit";
  */
 export async function GET(request: NextRequest) {
   const key = await authenticateHqRequest(request.headers.get("authorization"), "metrics:read");
-  if (!key) return NextResponse.json({ error: "unauthorized" }, { status: 401, headers: { "WWW-Authenticate": "Bearer" } });
+  if (!key)
+    return NextResponse.json(
+      { error: "unauthorized" },
+      { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
+    );
   const limit = await rateLimit(`hq:${key.id}`, 60, 3600);
   if (!limit.allowed) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
 

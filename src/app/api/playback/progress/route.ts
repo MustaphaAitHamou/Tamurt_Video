@@ -35,7 +35,9 @@ export async function POST(request: NextRequest) {
     .rpc("record_watch_progress", {
       p_session: parsed.data.sessionId,
       p_position_seconds: Math.floor(parsed.data.position),
-      p_duration_seconds: (parsed.data.duration ? Math.floor(parsed.data.duration) : null) as number,
+      p_duration_seconds: (parsed.data.duration
+        ? Math.floor(parsed.data.duration)
+        : null) as number,
       p_played_delta_seconds: Math.floor(parsed.data.delta),
       p_event: parsed.data.event,
     })

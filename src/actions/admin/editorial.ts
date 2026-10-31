@@ -7,7 +7,13 @@ import { parisInputToIso, slugify } from "@/lib/format";
 import { adminContext, uuidPattern } from "@/server/admin/guard";
 import { failure, failureFromDb, fromZodError, success, type ActionResult } from "@/server/errors";
 
-const optionalText = (max: number) => z.string().trim().max(max).optional().transform((v) => v || null);
+const optionalText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .optional()
+    .transform((v) => v || null);
 /** Champ date-heure saisi à l'heure de Paris. */
 const optionalDate = z
   .string()
@@ -21,11 +27,18 @@ function refreshPublic() {
   revalidatePath("/", "layout");
 }
 
-async function uploadImage(ctx: Extract<Awaited<ReturnType<typeof adminContext>>, { ok: true }>, folder: string, file: FormDataEntryValue | null) {
+async function uploadImage(
+  ctx: Extract<Awaited<ReturnType<typeof adminContext>>, { ok: true }>,
+  folder: string,
+  file: FormDataEntryValue | null,
+) {
   if (!(file instanceof File) || file.size === 0) return { path: null };
-  if (!IMAGE_TYPES.has(file.type) || file.size > 3_900_000) return { error: failure("Image JPEG, PNG, WebP ou AVIF de moins de 4 Mo.", "VALIDATION") };
+  if (!IMAGE_TYPES.has(file.type) || file.size > 3_900_000)
+    return { error: failure("Image JPEG, PNG, WebP ou AVIF de moins de 4 Mo.", "VALIDATION") };
   const path = `${folder}/${Date.now()}.${file.type.split("/")[1]}`;
-  const { error } = await ctx.supabase.storage.from("media-public").upload(path, file, { contentType: file.type });
+  const { error } = await ctx.supabase.storage
+    .from("media-public")
+    .upload(path, file, { contentType: file.type });
   if (error) return { error: failure(`Envoi impossible : ${error.message}`, "STORAGE") };
   return { path };
 }
@@ -38,7 +51,16 @@ const sectionSchema = z.object({
   title_en: optionalText(80),
   title_ar: optionalText(80),
   title_kab: optionalText(80),
-  source: z.enum(["popular", "new", "collection", "filter", "continue_watching", "watchlist", "recommended", "coming_soon"]),
+  source: z.enum([
+    "popular",
+    "new",
+    "collection",
+    "filter",
+    "continue_watching",
+    "watchlist",
+    "recommended",
+    "coming_soon",
+  ]),
   layout: z.enum(["poster", "landscape", "top10", "large"]),
   max_items: z.coerce.number().int().min(1).max(50),
   audience: z.enum(AUDIENCES),
@@ -54,13 +76,20 @@ const sectionSchema = z.object({
   cfg_sort: z.enum(["popular", "new", "title", "year"]).optional(),
 });
 
-export async function saveHomeSectionAction(sectionId: string | null, _prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function saveHomeSectionAction(
+  sectionId: string | null,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("editorial.write");
   if (!ctx.ok) return ctx.result;
   const parsed = sectionSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return fromZodError(parsed.error);
   const d = parsed.data;
-  if (d.source === "collection" && !d.cfg_collection) return failure("Choisissez la collection à afficher.", "VALIDATION", { cfg_collection: ["Requis"] });
+  if (d.source === "collection" && !d.cfg_collection)
+    return failure("Choisissez la collection à afficher.", "VALIDATION", {
+      cfg_collection: ["Requis"],
+    });
   const config: Record<string, string | boolean> = {};
   if (d.cfg_kind) config.kind = d.cfg_kind;
   if (d.cfg_collection) config.collection = d.cfg_collection;
@@ -88,17 +117,27 @@ export async function saveHomeSectionAction(sectionId: string | null, _prev: Act
     starts_at: d.starts_at,
     ends_at: d.ends_at,
   };
-  const { error } = sectionId ? await ctx.supabase.from("home_sections").update(values).eq("id", sectionId) : await ctx.supabase.from("home_sections").insert(values);
-  if (error) return failureFromDb(error, error.code === "23505" ? "Ce slug est déjà utilisé." : undefined);
+  const { error } = sectionId
+    ? await ctx.supabase.from("home_sections").update(values).eq("id", sectionId)
+    : await ctx.supabase.from("home_sections").insert(values);
+  if (error)
+    return failureFromDb(error, error.code === "23505" ? "Ce slug est déjà utilisé." : undefined);
   revalidatePath("/admin/editorial");
   refreshPublic();
   return success(undefined, sectionId ? "Section mise à jour." : "Section ajoutée.");
 }
 
-export async function moveHomeSectionAction(sectionId: string, direction: "up" | "down"): Promise<ActionResult> {
+export async function moveHomeSectionAction(
+  sectionId: string,
+  direction: "up" | "down",
+): Promise<ActionResult> {
   const ctx = await adminContext("editorial.write");
   if (!ctx.ok) return ctx.result;
-  const { data: sections } = await ctx.supabase.from("home_sections").select("id, position").order("position").order("created_at");
+  const { data: sections } = await ctx.supabase
+    .from("home_sections")
+    .select("id, position")
+    .order("position")
+    .order("created_at");
   const list = sections ?? [];
   const index = list.findIndex((s) => s.id === sectionId);
   const swap = direction === "up" ? index - 1 : index + 1;
@@ -107,17 +146,27 @@ export async function moveHomeSectionAction(sectionId: string, direction: "up" |
   const reordered = [...list];
   [reordered[index], reordered[swap]] = [reordered[swap]!, reordered[index]!];
   for (const [i, section] of reordered.entries()) {
-    if (section.position !== (i + 1) * 10) await ctx.supabase.from("home_sections").update({ position: (i + 1) * 10 }).eq("id", section.id);
+    if (section.position !== (i + 1) * 10)
+      await ctx.supabase
+        .from("home_sections")
+        .update({ position: (i + 1) * 10 })
+        .eq("id", section.id);
   }
   revalidatePath("/admin/editorial");
   refreshPublic();
   return success(undefined, "Ordre mis à jour.");
 }
 
-export async function toggleHomeSectionAction(sectionId: string, active: boolean): Promise<ActionResult> {
+export async function toggleHomeSectionAction(
+  sectionId: string,
+  active: boolean,
+): Promise<ActionResult> {
   const ctx = await adminContext("editorial.write");
   if (!ctx.ok) return ctx.result;
-  const { error } = await ctx.supabase.from("home_sections").update({ is_active: active }).eq("id", sectionId);
+  const { error } = await ctx.supabase
+    .from("home_sections")
+    .update({ is_active: active })
+    .eq("id", sectionId);
   if (error) return failureFromDb(error);
   revalidatePath("/admin/editorial");
   refreshPublic();
@@ -145,7 +194,10 @@ const bannerSchema = z.object({
     .trim()
     .optional()
     .transform((v) => v || null)
-    .refine((v) => v === null || /^\/[^/]/.test(v) || v.startsWith("https://"), "Lien interne (/…) ou https:// uniquement"),
+    .refine(
+      (v) => v === null || /^\/[^/]/.test(v) || v.startsWith("https://"),
+      "Lien interne (/…) ou https:// uniquement",
+    ),
   title_id: z.union([z.uuid(), z.literal("")]).transform((v) => v || null),
   audience: z.enum(AUDIENCES),
   position: z.coerce.number().int().min(0).max(1000),
@@ -153,15 +205,25 @@ const bannerSchema = z.object({
   ends_at: optionalDate,
 });
 
-export async function saveBannerAction(bannerId: string | null, _prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function saveBannerAction(
+  bannerId: string | null,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("editorial.write");
   if (!ctx.ok) return ctx.result;
   const parsed = bannerSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return fromZodError(parsed.error);
   const image = await uploadImage(ctx, "banners", formData.get("image"));
   if (image.error) return image.error;
-  const values = { ...parsed.data, is_active: formData.get("is_active") === "on", ...(image.path ? { image_path: image.path } : {}) };
-  const { error } = bannerId ? await ctx.supabase.from("home_banners").update(values).eq("id", bannerId) : await ctx.supabase.from("home_banners").insert(values);
+  const values = {
+    ...parsed.data,
+    is_active: formData.get("is_active") === "on",
+    ...(image.path ? { image_path: image.path } : {}),
+  };
+  const { error } = bannerId
+    ? await ctx.supabase.from("home_banners").update(values).eq("id", bannerId)
+    : await ctx.supabase.from("home_banners").insert(values);
   if (error) return failureFromDb(error);
   revalidatePath("/admin/editorial");
   refreshPublic();
@@ -180,38 +242,75 @@ export async function deleteBannerAction(bannerId: string): Promise<ActionResult
 
 // --- Collections -----------------------------------------------------------------
 
-export async function saveCollectionAction(collectionId: string | null, _prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function saveCollectionAction(
+  collectionId: string | null,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("editorial.write");
   if (!ctx.ok) return ctx.result;
   const parsed = z
-    .object({ name: z.string().trim().min(1).max(120), slug: z.string().trim().max(80).optional(), description: optionalText(1000) })
+    .object({
+      name: z.string().trim().min(1).max(120),
+      slug: z.string().trim().max(80).optional(),
+      description: optionalText(1000),
+    })
     .safeParse(Object.fromEntries(formData));
   if (!parsed.success) return fromZodError(parsed.error);
-  const values = { name: parsed.data.name, slug: slugify(parsed.data.slug || parsed.data.name), description: parsed.data.description, is_public: formData.get("is_public") === "on" };
-  const { error } = collectionId ? await ctx.supabase.from("collections").update(values).eq("id", collectionId) : await ctx.supabase.from("collections").insert(values);
-  if (error) return failureFromDb(error, error.code === "23505" ? "Ce slug est déjà utilisé." : undefined);
+  const values = {
+    name: parsed.data.name,
+    slug: slugify(parsed.data.slug || parsed.data.name),
+    description: parsed.data.description,
+    is_public: formData.get("is_public") === "on",
+  };
+  const { error } = collectionId
+    ? await ctx.supabase.from("collections").update(values).eq("id", collectionId)
+    : await ctx.supabase.from("collections").insert(values);
+  if (error)
+    return failureFromDb(error, error.code === "23505" ? "Ce slug est déjà utilisé." : undefined);
   revalidatePath("/admin/editorial/collections");
   refreshPublic();
   return success(undefined, collectionId ? "Collection mise à jour." : "Collection créée.");
 }
 
-export async function addCollectionItemAction(collectionId: string, _prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function addCollectionItemAction(
+  collectionId: string,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("editorial.write");
   if (!ctx.ok) return ctx.result;
   const titleId = String(formData.get("title_id") ?? "");
-  if (!uuidPattern.test(collectionId) || !uuidPattern.test(titleId)) return failure("Choisissez une œuvre.", "VALIDATION");
-  const { count } = await ctx.supabase.from("collection_items").select("title_id", { count: "exact", head: true }).eq("collection_id", collectionId);
-  const { error } = await ctx.supabase.from("collection_items").insert({ collection_id: collectionId, title_id: titleId, position: (count ?? 0) + 1 });
-  if (error) return failureFromDb(error, error.code === "23505" ? "Cette œuvre figure déjà dans la collection." : undefined);
+  if (!uuidPattern.test(collectionId) || !uuidPattern.test(titleId))
+    return failure("Choisissez une œuvre.", "VALIDATION");
+  const { count } = await ctx.supabase
+    .from("collection_items")
+    .select("title_id", { count: "exact", head: true })
+    .eq("collection_id", collectionId);
+  const { error } = await ctx.supabase
+    .from("collection_items")
+    .insert({ collection_id: collectionId, title_id: titleId, position: (count ?? 0) + 1 });
+  if (error)
+    return failureFromDb(
+      error,
+      error.code === "23505" ? "Cette œuvre figure déjà dans la collection." : undefined,
+    );
   revalidatePath("/admin/editorial/collections");
   refreshPublic();
   return success(undefined, "Œuvre ajoutée.");
 }
 
-export async function removeCollectionItemAction(collectionId: string, titleId: string): Promise<ActionResult> {
+export async function removeCollectionItemAction(
+  collectionId: string,
+  titleId: string,
+): Promise<ActionResult> {
   const ctx = await adminContext("editorial.write");
   if (!ctx.ok) return ctx.result;
-  const { error } = await ctx.supabase.from("collection_items").delete().eq("collection_id", collectionId).eq("title_id", titleId);
+  const { error } = await ctx.supabase
+    .from("collection_items")
+    .delete()
+    .eq("collection_id", collectionId)
+    .eq("title_id", titleId);
   if (error) return failureFromDb(error);
   revalidatePath("/admin/editorial/collections");
   refreshPublic();
@@ -241,7 +340,11 @@ const announcementSchema = z.object({
   published_at: optionalDate,
 });
 
-export async function saveAnnouncementAction(announcementId: string | null, _prev: ActionResult<{ id: string }> | null, formData: FormData): Promise<ActionResult<{ id: string }>> {
+export async function saveAnnouncementAction(
+  announcementId: string | null,
+  _prev: ActionResult<{ id: string }> | null,
+  formData: FormData,
+): Promise<ActionResult<{ id: string }>> {
   const ctx = await adminContext("editorial.write");
   if (!ctx.ok) return ctx.result;
   const parsed = announcementSchema.safeParse(Object.fromEntries(formData));
@@ -249,7 +352,11 @@ export async function saveAnnouncementAction(announcementId: string | null, _pre
   const d = parsed.data;
   const partnershipAuthorized = formData.get("partnership_authorized") === "on";
   if (d.category === "partnership" && d.status === "published" && !partnershipAuthorized) {
-    return failure("Un partenariat ne peut être annoncé qu'avec l'accord écrit du partenaire : cochez la confirmation d'autorisation.", "PARTNERSHIP_NOT_AUTHORIZED", { partnership_authorized: ["Requis"] });
+    return failure(
+      "Un partenariat ne peut être annoncé qu'avec l'accord écrit du partenaire : cochez la confirmation d'autorisation.",
+      "PARTNERSHIP_NOT_AUTHORIZED",
+      { partnership_authorized: ["Requis"] },
+    );
   }
   const cover = await uploadImage(ctx, "announcements", formData.get("cover"));
   if (cover.error) return cover.error as ActionResult<never>;
@@ -261,20 +368,37 @@ export async function saveAnnouncementAction(announcementId: string | null, _pre
     category: d.category,
     audience: d.audience,
     status: d.status,
-    published_at: d.status === "published" ? (d.published_at ?? new Date().toISOString()) : d.published_at,
+    published_at:
+      d.status === "published" ? (d.published_at ?? new Date().toISOString()) : d.published_at,
     pinned: formData.get("pinned") === "on",
     partnership_authorized: partnershipAuthorized,
     updated_by: ctx.viewer.user.id,
     ...(cover.path ? { cover_path: cover.path } : {}),
   };
   const result = announcementId
-    ? await ctx.supabase.from("announcements").update(values).eq("id", announcementId).select("id").single()
-    : await ctx.supabase.from("announcements").insert({ ...values, created_by: ctx.viewer.user.id }).select("id").single();
-  if (result.error) return failureFromDb(result.error, result.error.code === "23505" ? "Ce slug est déjà utilisé." : undefined);
+    ? await ctx.supabase
+        .from("announcements")
+        .update(values)
+        .eq("id", announcementId)
+        .select("id")
+        .single()
+    : await ctx.supabase
+        .from("announcements")
+        .insert({ ...values, created_by: ctx.viewer.user.id })
+        .select("id")
+        .single();
+  if (result.error)
+    return failureFromDb(
+      result.error,
+      result.error.code === "23505" ? "Ce slug est déjà utilisé." : undefined,
+    );
   revalidatePath("/admin/editorial/actualites");
   revalidatePath("/actualites");
   refreshPublic();
-  return success({ id: result.data.id }, announcementId ? "Actualité enregistrée." : "Actualité créée.");
+  return success(
+    { id: result.data.id },
+    announcementId ? "Actualité enregistrée." : "Actualité créée.",
+  );
 }
 
 export async function deleteAnnouncementAction(announcementId: string): Promise<ActionResult> {
@@ -299,7 +423,11 @@ const roadmapSchema = z.object({
   position: z.coerce.number().int().min(0).max(1000),
 });
 
-export async function saveRoadmapItemAction(itemId: string | null, _prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function saveRoadmapItemAction(
+  itemId: string | null,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const ctx = await adminContext("editorial.write");
   if (!ctx.ok) return ctx.result;
   const parsed = roadmapSchema.safeParse(Object.fromEntries(formData));
@@ -310,7 +438,9 @@ export async function saveRoadmapItemAction(itemId: string | null, _prev: Action
     is_public: formData.get("is_public") === "on",
     completed_at: parsed.data.status === "done" ? new Date().toISOString() : null,
   };
-  const { error } = itemId ? await ctx.supabase.from("roadmap_items").update(values).eq("id", itemId) : await ctx.supabase.from("roadmap_items").insert(values);
+  const { error } = itemId
+    ? await ctx.supabase.from("roadmap_items").update(values).eq("id", itemId)
+    : await ctx.supabase.from("roadmap_items").insert(values);
   if (error) return failureFromDb(error);
   revalidatePath("/admin/editorial/feuille-de-route");
   revalidatePath("/feuille-de-route");

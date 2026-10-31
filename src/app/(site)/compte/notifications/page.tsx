@@ -18,7 +18,11 @@ export const metadata: Metadata = { title: "Notifications", robots: { index: fal
 
 export default async function NotificationsPage() {
   const viewer = await requireViewer("/compte/notifications");
-  const [t, tc, rawLocale] = await Promise.all([getTranslations("account"), getTranslations("common"), getLocale()]);
+  const [t, tc, rawLocale] = await Promise.all([
+    getTranslations("account"),
+    getTranslations("common"),
+    getLocale(),
+  ]);
   const locale = isLocale(rawLocale) ? localeIntlTag[rawLocale] : "fr-FR";
   const supabase = await createSupabaseServerClient();
   const { data: notifications } = await supabase
@@ -47,7 +51,9 @@ export default async function NotificationsPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
                     <p className="flex items-center gap-2 text-sm font-medium">
-                      {!n.read_at && <span className="size-2 rounded-full bg-primary" aria-label="Non lue" />}
+                      {!n.read_at && (
+                        <span className="size-2 rounded-full bg-primary" aria-label="Non lue" />
+                      )}
                       {n.link ? (
                         <Link href={n.link} className="hover:underline">
                           {n.title}
@@ -76,8 +82,19 @@ export default async function NotificationsPage() {
           </label>
           {(["email_requests", "email_catalog", "email_news"] as const).map((key) => (
             <label key={key} className="flex items-center gap-3 text-sm">
-              <input type="checkbox" name={key} defaultChecked={prefs[key] ?? key !== "email_news"} className="size-4 accent-primary" />
-              {t(key === "email_requests" ? "emailRequests" : key === "email_catalog" ? "emailCatalog" : "emailNews")}
+              <input
+                type="checkbox"
+                name={key}
+                defaultChecked={prefs[key] ?? key !== "email_news"}
+                className="size-4 accent-primary"
+              />
+              {t(
+                key === "email_requests"
+                  ? "emailRequests"
+                  : key === "email_catalog"
+                    ? "emailCatalog"
+                    : "emailNews",
+              )}
             </label>
           ))}
         </ActionForm>

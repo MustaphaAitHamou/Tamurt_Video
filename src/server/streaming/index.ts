@@ -3,7 +3,11 @@ import "server-only";
 import { getEnv } from "@/lib/env";
 import { CloudflareStreamProvider } from "@/server/streaming/cloudflare-provider";
 import { DevStreamingProvider } from "@/server/streaming/dev-provider";
-import { StreamingUnavailableError, type StreamingProvider, type StreamingProviderId } from "@/server/streaming/types";
+import {
+  StreamingUnavailableError,
+  type StreamingProvider,
+  type StreamingProviderId,
+} from "@/server/streaming/types";
 
 const cache = new Map<StreamingProviderId, StreamingProvider>();
 
@@ -15,13 +19,23 @@ export function getStreamingProvider(id: StreamingProviderId): StreamingProvider
   let provider: StreamingProvider;
   if (id === "dev_local") {
     if (env.isProductionDeployment && !env.streaming.allowDevInProduction) {
-      throw new StreamingUnavailableError("Le fournisseur de développement est désactivé en production.");
+      throw new StreamingUnavailableError(
+        "Le fournisseur de développement est désactivé en production.",
+      );
     }
     provider = new DevStreamingProvider(env.streaming.devSecret, env.streaming.geoLock);
   } else {
     const cf = env.streaming.cloudflare;
-    if (!cf.accountId || !cf.apiToken || !cf.customerCode || !cf.signingKeyId || !cf.signingKeyPem) {
-      throw new StreamingUnavailableError("Cloudflare Stream n'est pas configuré (voir docs/SERVICES_SETUP.md).");
+    if (
+      !cf.accountId ||
+      !cf.apiToken ||
+      !cf.customerCode ||
+      !cf.signingKeyId ||
+      !cf.signingKeyPem
+    ) {
+      throw new StreamingUnavailableError(
+        "Cloudflare Stream n'est pas configuré (voir docs/SERVICES_SETUP.md).",
+      );
     }
     provider = new CloudflareStreamProvider({
       accountId: cf.accountId,
@@ -38,5 +52,7 @@ export function getStreamingProvider(id: StreamingProviderId): StreamingProvider
 
 /** Fournisseur utilisé pour les nouveaux envois de vidéos. */
 export function getUploadProvider(): StreamingProvider {
-  return getStreamingProvider(getEnv().streaming.provider === "cloudflare" ? "cloudflare_stream" : "dev_local");
+  return getStreamingProvider(
+    getEnv().streaming.provider === "cloudflare" ? "cloudflare_stream" : "dev_local",
+  );
 }

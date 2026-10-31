@@ -26,7 +26,14 @@ export function SubmitButton({
 }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending || disabled} aria-busy={pending} className={className} variant={variant} size={size}>
+    <Button
+      type="submit"
+      disabled={pending || disabled}
+      aria-busy={pending}
+      className={className}
+      variant={variant}
+      size={size}
+    >
       {pending && <Loader2Icon className="animate-spin" />}
       {pending && pendingLabel ? pendingLabel : children}
     </Button>
@@ -34,7 +41,13 @@ export function SubmitButton({
 }
 
 /** Message de résultat d'une action serveur, annoncé aux lecteurs d'écran. */
-export function FormMessage({ state, className }: { state: ActionResult<unknown> | null | undefined; className?: string }) {
+export function FormMessage({
+  state,
+  className,
+}: {
+  state: ActionResult<unknown> | null | undefined;
+  className?: string;
+}) {
   if (!state) return null;
   const message = state.ok ? state.message : state.error;
   if (!message) return null;
@@ -44,11 +57,17 @@ export function FormMessage({ state, className }: { state: ActionResult<unknown>
       aria-live="polite"
       className={cn(
         "flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm",
-        state.ok ? "border-success/30 bg-success/10 text-success" : "border-destructive/30 bg-destructive/10 text-destructive",
+        state.ok
+          ? "border-success/30 bg-success/10 text-success"
+          : "border-destructive/30 bg-destructive/10 text-destructive",
         className,
       )}
     >
-      {state.ok ? <CheckCircle2Icon className="mt-0.5 size-4 shrink-0" /> : <AlertCircleIcon className="mt-0.5 size-4 shrink-0" />}
+      {state.ok ? (
+        <CheckCircle2Icon className="mt-0.5 size-4 shrink-0" />
+      ) : (
+        <AlertCircleIcon className="mt-0.5 size-4 shrink-0" />
+      )}
       <span>{message}</span>
     </p>
   );
@@ -77,7 +96,11 @@ export function Field({
     <div className={cn("space-y-2", className)}>
       <Label htmlFor={name}>
         {label}
-        {required && <span aria-hidden className="text-primary">*</span>}
+        {required && (
+          <span aria-hidden className="text-primary">
+            *
+          </span>
+        )}
       </Label>
       {children}
       {hint && (
@@ -101,14 +124,30 @@ export function TextField({
   error,
   className,
   ...props
-}: React.ComponentProps<typeof Input> & { label: string; name: string; hint?: string; error?: string[] }) {
+}: React.ComponentProps<typeof Input> & {
+  label: string;
+  name: string;
+  hint?: string;
+  error?: string[];
+}) {
   return (
-    <Field label={label} name={name} hint={hint} error={error} className={className} required={props.required}>
+    <Field
+      label={label}
+      name={name}
+      hint={hint}
+      error={error}
+      className={className}
+      required={props.required}
+    >
       <Input
         id={name}
         name={name}
         aria-invalid={error?.length ? true : undefined}
-        aria-describedby={[hint ? `${name}-hint` : null, error?.length ? `${name}-error` : null].filter(Boolean).join(" ") || undefined}
+        aria-describedby={
+          [hint ? `${name}-hint` : null, error?.length ? `${name}-error` : null]
+            .filter(Boolean)
+            .join(" ") || undefined
+        }
         {...props}
       />
     </Field>

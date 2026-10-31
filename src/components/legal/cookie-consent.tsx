@@ -112,7 +112,11 @@ export function CookieConsent() {
               <p className="text-sm font-medium">{t("analytics")}</p>
               <p className="text-xs text-muted-foreground">{t("analyticsText")}</p>
             </div>
-            <Switch checked={analytics} onCheckedChange={setAnalytics} aria-label={t("analytics")} />
+            <Switch
+              checked={analytics}
+              onCheckedChange={setAnalytics}
+              aria-label={t("analytics")}
+            />
           </div>
           <div className="flex items-start justify-between gap-4">
             <div>

@@ -15,7 +15,11 @@ export const metadata: Metadata = {
 const COLUMNS = ["in_progress", "planned", "done", "paused"] as const;
 
 export default async function RoadmapPage() {
-  const [t, tf, items] = await Promise.all([getTranslations("roadmap"), getTranslations("founder"), getRoadmap()]);
+  const [t, tf, items] = await Promise.all([
+    getTranslations("roadmap"),
+    getTranslations("founder"),
+    getRoadmap(),
+  ]);
   return (
     <div className="mx-auto max-w-6xl px-4 pt-28 pb-16 sm:px-6">
       <div className="mb-10 max-w-2xl space-y-3">
@@ -28,7 +32,10 @@ export default async function RoadmapPage() {
         <div className="grid gap-6 md:grid-cols-3">
           {COLUMNS.filter((c) => items.some((i) => i.status === c)).map((column) => (
             <section key={column} aria-labelledby={`col-${column}`} className="space-y-4">
-              <h2 id={`col-${column}`} className="text-sm font-semibold tracking-widest text-muted-foreground uppercase">
+              <h2
+                id={`col-${column}`}
+                className="text-sm font-semibold tracking-widest text-muted-foreground uppercase"
+              >
                 {tf(`roadmapStatuses.${column}`)}
               </h2>
               <ul className="space-y-3">
@@ -37,7 +44,9 @@ export default async function RoadmapPage() {
                   .map((item) => (
                     <li key={item.id} className="space-y-3 rounded-2xl border bg-card/60 p-5">
                       <div className="flex items-start justify-between gap-3">
-                        <p dir="auto" className="font-medium">{item.title}</p>
+                        <p dir="auto" className="font-medium">
+                          {item.title}
+                        </p>
                         {item.targetLabel && <Badge variant="outline">{item.targetLabel}</Badge>}
                       </div>
                       {item.description && (
@@ -45,7 +54,10 @@ export default async function RoadmapPage() {
                           {item.description}
                         </p>
                       )}
-                      <Progress value={item.progress} aria-label={`${item.title} : ${item.progress} %`} />
+                      <Progress
+                        value={item.progress}
+                        aria-label={`${item.title} : ${item.progress} %`}
+                      />
                     </li>
                   ))}
               </ul>

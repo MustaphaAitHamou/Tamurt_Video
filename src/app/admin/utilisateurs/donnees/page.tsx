@@ -21,12 +21,21 @@ const TYPES: Record<string, string> = {
   restriction: "Limitation",
   objection: "Opposition",
 };
-const STATUS: Record<string, string> = { received: "Reçue", in_progress: "En cours", completed: "Traitée", rejected: "Refusée" };
+const STATUS: Record<string, string> = {
+  received: "Reçue",
+  in_progress: "En cours",
+  completed: "Traitée",
+  rejected: "Refusée",
+};
 
 export default async function DataRequestsPage() {
   await requireStaff("users.manage", "/admin/utilisateurs/donnees");
   const supabase = await createSupabaseServerClient();
-  const { data: requests } = await supabase.from("data_requests").select("*").order("created_at", { ascending: false }).limit(200);
+  const { data: requests } = await supabase
+    .from("data_requests")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(200);
   return (
     <>
       <AdminPageHeader
@@ -35,7 +44,9 @@ export default async function DataRequestsPage() {
       />
       <UsersNav active="/admin/utilisateurs/donnees" />
       <ul className="space-y-3">
-        {(requests ?? []).length === 0 && <li className="text-sm text-muted-foreground">Aucune demande.</li>}
+        {(requests ?? []).length === 0 && (
+          <li className="text-sm text-muted-foreground">Aucune demande.</li>
+        )}
         {(requests ?? []).map((request) => {
           const deadline = new Date(Date.parse(request.created_at) + 30 * 86_400_000);
           const remaining = daysUntil(deadline);
@@ -44,7 +55,8 @@ export default async function DataRequestsPage() {
             <li key={request.id} className="rounded-xl border bg-card/60 p-5">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm">
                 <span>
-                  <span className="font-medium">{TYPES[request.request_type]}</span> · reçue le {formatDateTime(request.created_at)} ·{" "}
+                  <span className="font-medium">{TYPES[request.request_type]}</span> · reçue le{" "}
+                  {formatDateTime(request.created_at)} ·{" "}
                   {request.user_id ? (
                     <Link href={`/admin/utilisateurs/${request.user_id}`} className="underline">
                       voir le compte
@@ -54,14 +66,46 @@ export default async function DataRequestsPage() {
                   )}
                 </span>
                 <span className="flex items-center gap-2">
-                  {open && <span className={remaining < 7 ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>Échéance J{remaining >= 0 ? `-${remaining}` : `+${-remaining}`}</span>}
-                  <StatusBadge status={request.status === "completed" ? "resolved" : request.status === "rejected" ? "rejected" : request.status === "in_progress" ? "reviewing" : "received"} label={STATUS[request.status]} />
+                  {open && (
+                    <span
+                      className={
+                        remaining < 7 ? "text-xs text-destructive" : "text-xs text-muted-foreground"
+                      }
+                    >
+                      Échéance J{remaining >= 0 ? `-${remaining}` : `+${-remaining}`}
+                    </span>
+                  )}
+                  <StatusBadge
+                    status={
+                      request.status === "completed"
+                        ? "resolved"
+                        : request.status === "rejected"
+                          ? "rejected"
+                          : request.status === "in_progress"
+                            ? "reviewing"
+                            : "received"
+                    }
+                    label={STATUS[request.status]}
+                  />
                 </span>
               </div>
-              {request.details && <p className="mb-3 whitespace-pre-wrap rounded-lg border bg-background/40 p-3 text-sm">{request.details}</p>}
-              <ActionForm action={handleDataRequestAction.bind(null, request.id)} submitLabel="Enregistrer" submitVariant="secondary" className="grid gap-3 space-y-0 md:grid-cols-[14rem_1fr_auto] md:items-end">
+              {request.details && (
+                <p className="mb-3 rounded-lg border bg-background/40 p-3 text-sm whitespace-pre-wrap">
+                  {request.details}
+                </p>
+              )}
+              <ActionForm
+                action={handleDataRequestAction.bind(null, request.id)}
+                submitLabel="Enregistrer"
+                submitVariant="secondary"
+                className="grid gap-3 space-y-0 md:grid-cols-[14rem_1fr_auto] md:items-end"
+              >
                 <Field label="Statut" name={`st-${request.id.slice(0, 8)}`}>
-                  <NativeSelect id={`st-${request.id.slice(0, 8)}`} name="status" defaultValue={request.status}>
+                  <NativeSelect
+                    id={`st-${request.id.slice(0, 8)}`}
+                    name="status"
+                    defaultValue={request.status}
+                  >
                     {Object.entries(STATUS).map(([value, label]) => (
                       <option key={value} value={value}>
                         {label}
@@ -69,8 +113,17 @@ export default async function DataRequestsPage() {
                     ))}
                   </NativeSelect>
                 </Field>
-                <Field label="Réponse (envoyée à l'utilisateur à la clôture)" name={`re-${request.id.slice(0, 8)}`}>
-                  <Textarea id={`re-${request.id.slice(0, 8)}`} name="response" defaultValue={request.response ?? ""} maxLength={4000} className="min-h-16" />
+                <Field
+                  label="Réponse (envoyée à l'utilisateur à la clôture)"
+                  name={`re-${request.id.slice(0, 8)}`}
+                >
+                  <Textarea
+                    id={`re-${request.id.slice(0, 8)}`}
+                    name="response"
+                    defaultValue={request.response ?? ""}
+                    maxLength={4000}
+                    className="min-h-16"
+                  />
                 </Field>
               </ActionForm>
             </li>

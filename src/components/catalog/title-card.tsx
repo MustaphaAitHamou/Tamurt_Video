@@ -9,12 +9,25 @@ import type { TitleCardData } from "@/server/catalog/types";
 
 type Variant = "poster" | "landscape" | "large";
 
-function Artwork({ title, variant, priority }: { title: TitleCardData; variant: Variant; priority?: boolean }) {
-  const src = variant === "poster" ? title.posterUrl ?? title.backdropUrl : title.backdropUrl ?? title.posterUrl;
+function Artwork({
+  title,
+  variant,
+  priority,
+}: {
+  title: TitleCardData;
+  variant: Variant;
+  priority?: boolean;
+}) {
+  const src =
+    variant === "poster"
+      ? (title.posterUrl ?? title.backdropUrl)
+      : (title.backdropUrl ?? title.posterUrl);
   if (!src) {
     return (
       <div className="bg-tamurt-pattern flex size-full items-end bg-gradient-to-br from-zinc-800 to-zinc-950 p-3">
-        <span dir="auto" className="font-display text-sm font-semibold text-white/80">{title.title}</span>
+        <span dir="auto" className="font-display text-sm font-semibold text-white/80">
+          {title.title}
+        </span>
       </div>
     );
   }
@@ -54,7 +67,9 @@ export function TitleCard({
   const th = useTranslations("home");
   const progress = title.progress;
   const percent =
-    progress && progress.durationSeconds ? Math.min(100, Math.round((progress.positionSeconds / progress.durationSeconds) * 100)) : 0;
+    progress && progress.durationSeconds
+      ? Math.min(100, Math.round((progress.positionSeconds / progress.durationSeconds) * 100))
+      : 0;
   const href = progress
     ? `/regarder/${title.slug}${progress.episodeId ? `?episode=${progress.episodeId}` : ""}`
     : `/titre/${title.slug}`;
@@ -63,7 +78,10 @@ export function TitleCard({
   return (
     <Link
       href={href}
-      className={cn("group relative block shrink-0 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring", className)}
+      className={cn(
+        "group relative block shrink-0 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        className,
+      )}
       aria-label={`${title.title}${progress?.episodeLabel ? ` — ${progress.episodeLabel}` : ""}`}
     >
       <div className="flex items-end">
@@ -93,9 +111,16 @@ export function TitleCard({
           </div>
           {variant !== "poster" && (
             <div className="absolute inset-x-0 bottom-0 p-3">
-              <p dir="auto" className="line-clamp-1 font-display text-base font-semibold text-white">{title.title}</p>
+              <p
+                dir="auto"
+                className="line-clamp-1 font-display text-base font-semibold text-white"
+              >
+                {title.title}
+              </p>
               <p className="text-xs text-white/70">
-                {progress?.isNextEpisode ? th("nextEpisode") : progress?.episodeLabel ?? tk(title.kind)}
+                {progress?.isNextEpisode
+                  ? th("nextEpisode")
+                  : (progress?.episodeLabel ?? tk(title.kind))}
                 {!progress && title.releaseYear ? ` · ${title.releaseYear}` : ""}
               </p>
             </div>
@@ -109,7 +134,9 @@ export function TitleCard({
       </div>
       {variant === "poster" && typeof rank !== "number" && (
         <div className="mt-2 px-0.5">
-          <p dir="auto" className="line-clamp-1 text-sm font-medium text-white/90">{title.title}</p>
+          <p dir="auto" className="line-clamp-1 text-sm font-medium text-white/90">
+            {title.title}
+          </p>
           <p className="text-xs text-muted-foreground">
             {tk(title.kind)}
             {title.releaseYear ? ` · ${title.releaseYear}` : ""}

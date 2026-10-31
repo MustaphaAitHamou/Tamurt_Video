@@ -16,7 +16,9 @@ const profileSchema = z.object({
   name: z.string().trim().min(1).max(30),
   avatarKey: z.enum(avatarKeys),
   isKids: z.boolean(),
-  maxAgeRating: z.union([z.literal(0), z.literal(10), z.literal(12), z.literal(16), z.literal(18)]).nullable(),
+  maxAgeRating: z
+    .union([z.literal(0), z.literal(10), z.literal(12), z.literal(16), z.literal(18)])
+    .nullable(),
 });
 
 function parseProfileForm(formData: FormData) {
@@ -47,7 +49,10 @@ export async function switchProfileAction(profileId: string): Promise<ActionResu
   return success(undefined);
 }
 
-export async function createProfileAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function createProfileAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const viewer = await getViewer();
   if (!viewer) return failure("Connexion requise.", "UNAUTHENTICATED");
   const parsed = parseProfileForm(formData);
@@ -67,7 +72,11 @@ export async function createProfileAction(_prev: ActionResult | null, formData: 
   return success(undefined, t("saved"));
 }
 
-export async function updateProfileAction(profileId: string, _prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function updateProfileAction(
+  profileId: string,
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const viewer = await getViewer();
   if (!viewer) return failure("Connexion requise.", "UNAUTHENTICATED");
   const parsed = parseProfileForm(formData);
@@ -103,7 +112,8 @@ export async function deleteProfileAction(profileId: string): Promise<ActionResu
   if (error) return failureFromDb(error);
   if (!count) return failure("Le profil principal ne peut pas être supprimé.", "DEFAULT_PROFILE");
   const cookieStore = await cookies();
-  if (cookieStore.get(VIEWER_PROFILE_COOKIE)?.value === profileId) cookieStore.delete(VIEWER_PROFILE_COOKIE);
+  if (cookieStore.get(VIEWER_PROFILE_COOKIE)?.value === profileId)
+    cookieStore.delete(VIEWER_PROFILE_COOKIE);
   revalidatePath("/", "layout");
   return success(undefined);
 }

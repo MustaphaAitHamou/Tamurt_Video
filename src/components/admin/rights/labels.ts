@@ -24,7 +24,12 @@ export const MODE_LABELS: Record<string, string> = {
   promo: "Extraits promotionnels",
 };
 
-export const SUPPORT_LABELS: Record<string, string> = { web: "Web", mobile_app: "Application mobile", tv_app: "Application TV", download: "Téléchargement hors ligne" };
+export const SUPPORT_LABELS: Record<string, string> = {
+  web: "Web",
+  mobile_app: "Application mobile",
+  tv_app: "Application TV",
+  download: "Téléchargement hors ligne",
+};
 
 export const DOCUMENT_TYPE_LABELS: Record<string, string> = {
   contract: "Contrat",

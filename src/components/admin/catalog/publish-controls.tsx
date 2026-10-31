@@ -31,8 +31,19 @@ export function PublishControls({ titleId, canPublish }: { titleId: string; canP
         <label htmlFor="publish-at" className="sr-only">
           Date de publication
         </label>
-        <Input id="publish-at" type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} className="h-8 w-52" />
-        <Button size="sm" variant="outline" disabled={pending || !date} onClick={() => run(new Date(date).toISOString())}>
+        <Input
+          id="publish-at"
+          type="datetime-local"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="h-8 w-52"
+        />
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={pending || !date}
+          onClick={() => run(new Date(date).toISOString())}
+        >
           <CalendarClockIcon /> Programmer
         </Button>
       </div>

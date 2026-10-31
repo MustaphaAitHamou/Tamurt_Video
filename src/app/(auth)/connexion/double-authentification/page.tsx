@@ -8,7 +8,9 @@ import { getSessionUser } from "@/server/auth/session";
 
 export const metadata: Metadata = { title: "Double authentification", robots: { index: false } };
 
-export default async function MfaChallengePage({ searchParams }: PageProps<"/connexion/double-authentification">) {
+export default async function MfaChallengePage({
+  searchParams,
+}: PageProps<"/connexion/double-authentification">) {
   const params = await searchParams;
   const next = safeNextPath(params.next, "/");
   const user = await getSessionUser();
@@ -21,7 +23,9 @@ export default async function MfaChallengePage({ searchParams }: PageProps<"/con
       </span>
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">Double authentification</h1>
-        <p className="text-sm text-muted-foreground">Saisissez le code généré par votre application d&apos;authentification.</p>
+        <p className="text-sm text-muted-foreground">
+          Saisissez le code généré par votre application d&apos;authentification.
+        </p>
       </div>
       <MfaLoginForm next={next} />
     </div>

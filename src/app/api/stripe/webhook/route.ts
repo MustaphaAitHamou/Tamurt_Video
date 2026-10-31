@@ -49,7 +49,11 @@ export async function POST(request: NextRequest) {
 
   // Un événement « live » ne doit jamais être appliqué tant que le mode réel n'est pas validé.
   if (event.livemode && !env.payments.liveModeAllowed) {
-    await admin.rpc("complete_payment_event", { p_event_row_id: claim.event_row_id, p_status: "ignored", p_error: "Événement live refusé (mode test)." });
+    await admin.rpc("complete_payment_event", {
+      p_event_row_id: claim.event_row_id,
+      p_status: "ignored",
+      p_error: "Événement live refusé (mode test).",
+    });
     return NextResponse.json({ status: "ignored" });
   }
 
@@ -70,7 +74,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("[stripe-webhook]", event.type, message);
-    await admin.rpc("complete_payment_event", { p_event_row_id: claim.event_row_id, p_status: "failed", p_error: message });
+    await admin.rpc("complete_payment_event", {
+      p_event_row_id: claim.event_row_id,
+      p_status: "failed",
+      p_error: message,
+    });
     return NextResponse.json({ error: "processing_failed" }, { status: 500 });
   }
 }

@@ -14,9 +14,17 @@ export function AccountSection({
   tone?: "danger";
 }) {
   return (
-    <section className={cn("rounded-2xl border bg-card/60 p-6", tone === "danger" && "border-destructive/40", className)}>
+    <section
+      className={cn(
+        "rounded-2xl border bg-card/60 p-6",
+        tone === "danger" && "border-destructive/40",
+        className,
+      )}
+    >
       <div className="mb-5 space-y-1">
-        <h2 className={cn("text-lg font-semibold", tone === "danger" && "text-destructive")}>{title}</h2>
+        <h2 className={cn("text-lg font-semibold", tone === "danger" && "text-destructive")}>
+          {title}
+        </h2>
         {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
       {children}

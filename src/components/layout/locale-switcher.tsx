@@ -26,7 +26,12 @@ export function LocaleSwitcher({ compact = false }: { compact?: boolean }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size={compact ? "icon-sm" : "sm"} aria-label={t("language")} disabled={pending}>
+        <Button
+          variant="ghost"
+          size={compact ? "icon-sm" : "sm"}
+          aria-label={t("language")}
+          disabled={pending}
+        >
           <LanguagesIcon />
           {!compact && <span className="uppercase">{locale}</span>}
         </Button>

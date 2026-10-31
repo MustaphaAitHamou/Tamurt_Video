@@ -19,11 +19,20 @@ export type RenderedEmail = { subject: string; html: string; text: string; previ
 const escapeHtml = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-const EXTERNAL_FOOTER = "Vous recevez cet email en réponse à une démarche effectuée auprès de Tamurt Vidéo. Répondez simplement à ce message pour toute question.";
+const EXTERNAL_FOOTER =
+  "Vous recevez cet email en réponse à une démarche effectuée auprès de Tamurt Vidéo. Répondez simplement à ce message pour toute question.";
 
-function layout(input: { heading: string; paragraphs: string[]; cta?: { label: string; url: string }; footerNote?: string }) {
+function layout(input: {
+  heading: string;
+  paragraphs: string[];
+  cta?: { label: string; url: string };
+  footerNote?: string;
+}) {
   const body = input.paragraphs
-    .map((p) => `<p style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#c4c4cc;">${escapeHtml(p)}</p>`)
+    .map(
+      (p) =>
+        `<p style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#c4c4cc;">${escapeHtml(p)}</p>`,
+    )
     .join("");
   const cta = input.cta
     ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 6px 0;"><tr><td style="border-radius:999px;background:#e3263a;"><a href="${escapeHtml(input.cta.url)}" style="display:inline-block;padding:13px 26px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:999px;">${escapeHtml(input.cta.label)}</a></td></tr></table>`
@@ -38,12 +47,28 @@ function layout(input: { heading: string; paragraphs: string[]; cta?: { label: s
 </table></td></tr></table></body></html>`;
 }
 
-function text(input: { heading: string; paragraphs: string[]; cta?: { label: string; url: string } }) {
-  return [input.heading, "", ...input.paragraphs, ...(input.cta ? ["", `${input.cta.label} : ${input.cta.url}`] : []), "", "— Tamurt Vidéo"].join("\n");
+function text(input: {
+  heading: string;
+  paragraphs: string[];
+  cta?: { label: string; url: string };
+}) {
+  return [
+    input.heading,
+    "",
+    ...input.paragraphs,
+    ...(input.cta ? ["", `${input.cta.label} : ${input.cta.url}`] : []),
+    "",
+    "— Tamurt Vidéo",
+  ].join("\n");
 }
 
-export function renderEmail(template: EmailTemplate, data: { title: string; body?: string | null; link?: string | null; siteUrl: string }): RenderedEmail {
-  const url = data.link ? `${data.siteUrl}${data.link.startsWith("/") ? data.link : `/${data.link}`}` : data.siteUrl;
+export function renderEmail(
+  template: EmailTemplate,
+  data: { title: string; body?: string | null; link?: string | null; siteUrl: string },
+): RenderedEmail {
+  const url = data.link
+    ? `${data.siteUrl}${data.link.startsWith("/") ? data.link : `/${data.link}`}`
+    : data.siteUrl;
   const paragraphs: string[] = [];
   let cta: { label: string; url: string } | undefined;
   let subject = data.title;
@@ -52,18 +77,24 @@ export function renderEmail(template: EmailTemplate, data: { title: string; body
     case "billing.subscription_confirmed":
       subject = "Votre abonnement Tamurt Vidéo est confirmé";
       paragraphs.push(data.body ?? "Merci ! Votre abonnement est actif.");
-      paragraphs.push("Il se renouvelle automatiquement chaque mois. Vous pouvez le résilier à tout moment depuis votre compte.");
+      paragraphs.push(
+        "Il se renouvelle automatiquement chaque mois. Vous pouvez le résilier à tout moment depuis votre compte.",
+      );
       cta = { label: "Gérer mon abonnement", url: `${data.siteUrl}/compte/abonnement` };
       break;
     case "billing.payment_failed":
       subject = "Échec du paiement de votre abonnement";
       paragraphs.push(data.body ?? "Le dernier paiement de votre abonnement n'a pas abouti.");
-      paragraphs.push("Mettez à jour votre moyen de paiement pour conserver votre accès. Aucune donnée de carte n'est stockée par Tamurt Vidéo.");
+      paragraphs.push(
+        "Mettez à jour votre moyen de paiement pour conserver votre accès. Aucune donnée de carte n'est stockée par Tamurt Vidéo.",
+      );
       cta = { label: "Mettre à jour le paiement", url: `${data.siteUrl}/compte/abonnement` };
       break;
     case "billing.cancellation_scheduled":
       subject = "Résiliation de votre abonnement programmée";
-      paragraphs.push(data.body ?? "Votre abonnement prendra fin à l'échéance de la période en cours.");
+      paragraphs.push(
+        data.body ?? "Votre abonnement prendra fin à l'échéance de la période en cours.",
+      );
       cta = { label: "Réactiver mon abonnement", url: `${data.siteUrl}/compte/abonnement` };
       break;
     case "billing.subscription_canceled":
@@ -90,7 +121,8 @@ export function renderEmail(template: EmailTemplate, data: { title: string; body
       cta = { label: "Ouvrir l'administration", url };
       break;
     case "external.notice":
-      for (const paragraph of (data.body ?? "").split(/\n{2,}/)) if (paragraph.trim()) paragraphs.push(paragraph.trim());
+      for (const paragraph of (data.body ?? "").split(/\n{2,}/))
+        if (paragraph.trim()) paragraphs.push(paragraph.trim());
       if (data.link) cta = { label: "Ouvrir", url };
       break;
     default:
@@ -101,7 +133,12 @@ export function renderEmail(template: EmailTemplate, data: { title: string; body
   const heading = template.startsWith("billing.") ? subject : data.title;
   return {
     subject,
-    html: layout({ heading, paragraphs, cta, footerNote: template === "external.notice" ? EXTERNAL_FOOTER : undefined }),
+    html: layout({
+      heading,
+      paragraphs,
+      cta,
+      footerNote: template === "external.notice" ? EXTERNAL_FOOTER : undefined,
+    }),
     text: text({ heading, paragraphs, cta }),
     preview: paragraphs[0] ?? heading,
   };
@@ -124,7 +161,9 @@ export function templateForNotificationType(type: string): EmailTemplate {
 }
 
 /** Préférence utilisateur gouvernant l'envoi par email d'un type de notification. */
-export function preferenceKeyForType(type: string): "email_billing" | "email_requests" | "email_catalog" | "email_news" | null {
+export function preferenceKeyForType(
+  type: string,
+): "email_billing" | "email_requests" | "email_catalog" | "email_news" | null {
   if (type.startsWith("billing.")) return "email_billing";
   if (type.startsWith("request.")) return "email_requests";
   if (type.startsWith("catalog.")) return "email_catalog";

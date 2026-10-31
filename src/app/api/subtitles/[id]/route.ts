@@ -9,7 +9,8 @@ import { verifyMediaToken } from "@/server/streaming/tokens";
 export async function GET(request: NextRequest, ctx: RouteContext<"/api/subtitles/[id]">) {
   const { id } = await ctx.params;
   const token = request.nextUrl.searchParams.get("token");
-  if (!token || !/^[0-9a-f-]{36}$/.test(id)) return new NextResponse("Non autorisé", { status: 401 });
+  if (!token || !/^[0-9a-f-]{36}$/.test(id))
+    return new NextResponse("Non autorisé", { status: 401 });
 
   const claims = await verifyMediaToken(token, getEnv().streaming.mediaTokenSecret);
   if (!claims) return new NextResponse("Jeton invalide ou expiré", { status: 401 });
@@ -19,10 +20,17 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/api/subtitle
   }
 
   const admin = createSupabaseAdminClient();
-  const { data: subtitle } = await admin.from("subtitles").select("media_asset_id, storage_path").eq("id", id).maybeSingle();
-  if (!subtitle || subtitle.media_asset_id !== claims.sub) return new NextResponse("Introuvable", { status: 404 });
+  const { data: subtitle } = await admin
+    .from("subtitles")
+    .select("media_asset_id, storage_path")
+    .eq("id", id)
+    .maybeSingle();
+  if (!subtitle || subtitle.media_asset_id !== claims.sub)
+    return new NextResponse("Introuvable", { status: 404 });
 
-  const { data: file, error } = await admin.storage.from("subtitles").download(subtitle.storage_path);
+  const { data: file, error } = await admin.storage
+    .from("subtitles")
+    .download(subtitle.storage_path);
   if (error || !file) return new NextResponse("Introuvable", { status: 404 });
 
   return new NextResponse(await file.text(), {

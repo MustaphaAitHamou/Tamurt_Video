@@ -72,7 +72,10 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 fill
                 priority={i === 0}
                 sizes="100vw"
-                className={cn("object-cover transition-transform duration-[12000ms] ease-out", isActive && "scale-105")}
+                className={cn(
+                  "object-cover transition-transform duration-[12000ms] ease-out",
+                  isActive && "scale-105",
+                )}
               />
             ) : (
               <div className="bg-tamurt-pattern absolute inset-0 bg-gradient-to-br from-red-950 via-zinc-950 to-black" />
@@ -89,7 +92,9 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                       {tc("demo")}
                     </Badge>
                   )}
-                  {title?.status === "announced" && <Badge variant="gold">{tt("comingSoon")}</Badge>}
+                  {title?.status === "announced" && (
+                    <Badge variant="gold">{tt("comingSoon")}</Badge>
+                  )}
                   {title && (
                     <span className="text-sm font-medium text-white/80">
                       {tk(title.kind)}
@@ -97,11 +102,17 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                     </span>
                   )}
                 </div>
-                <h1 dir="auto" className="text-shadow-hero text-4xl leading-[1.05] font-extrabold sm:text-6xl lg:text-7xl">
+                <h1
+                  dir="auto"
+                  className="text-shadow-hero text-4xl leading-[1.05] font-extrabold sm:text-6xl lg:text-7xl"
+                >
                   {slide.headline}
                 </h1>
                 {slide.subheadline && (
-                  <p dir="auto" className="text-shadow-hero line-clamp-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+                  <p
+                    dir="auto"
+                    className="text-shadow-hero line-clamp-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg"
+                  >
                     {slide.subheadline}
                   </p>
                 )}
@@ -109,7 +120,8 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                   <Button asChild size="lg" variant="light" tabIndex={isActive ? 0 : -1}>
                     <Link href={watchHref}>
                       <PlayIcon className="fill-current" />
-                      {slide.ctaLabel ?? (title?.status === "announced" ? t("moreInfo") : t("watchNow"))}
+                      {slide.ctaLabel ??
+                        (title?.status === "announced" ? t("moreInfo") : t("watchNow"))}
                     </Link>
                   </Button>
                   {title && (

@@ -35,7 +35,9 @@ const notoTifinagh = localFont({
   preload: false,
 });
 
-const isIndexable = process.env.VERCEL_ENV ? process.env.VERCEL_ENV === "production" : process.env.NODE_ENV === "production";
+const isIndexable = process.env.VERCEL_ENV
+  ? process.env.VERCEL_ENV === "production"
+  : process.env.NODE_ENV === "production";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("footer");
@@ -74,7 +76,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang={locale}
       dir={directionFor(locale)}
       data-intl={localeIntlTag[locale]}
-      className={cn(GeistSans.variable, GeistMono.variable, outfit.variable, notoArabic.variable, notoTifinagh.variable)}
+      className={cn(
+        GeistSans.variable,
+        GeistMono.variable,
+        outfit.variable,
+        notoArabic.variable,
+        notoTifinagh.variable,
+      )}
       suppressHydrationWarning
     >
       <body>

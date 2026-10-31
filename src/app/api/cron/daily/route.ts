@@ -88,10 +88,18 @@ export async function GET(request: NextRequest) {
     return { count: data?.length ?? 0 };
   });
 
-  await step("due_publications", async () => ({ notified: (await admin.rpc("notify_due_publications")).data ?? 0 }));
-  await step("popularity", async () => ({ updated: (await admin.rpc("refresh_popularity")).data ?? 0 }));
-  await step("stale_sessions", async () => ({ closed: (await admin.rpc("close_stale_watch_sessions")).data ?? 0 }));
-  await step("rate_limits", async () => ({ purged: (await admin.rpc("purge_rate_limits")).data ?? 0 }));
+  await step("due_publications", async () => ({
+    notified: (await admin.rpc("notify_due_publications")).data ?? 0,
+  }));
+  await step("popularity", async () => ({
+    updated: (await admin.rpc("refresh_popularity")).data ?? 0,
+  }));
+  await step("stale_sessions", async () => ({
+    closed: (await admin.rpc("close_stale_watch_sessions")).data ?? 0,
+  }));
+  await step("rate_limits", async () => ({
+    purged: (await admin.rpc("purge_rate_limits")).data ?? 0,
+  }));
 
   await step("subscription_reconciliation", async () => {
     const provider = getPaymentProvider();
@@ -115,5 +123,8 @@ export async function GET(request: NextRequest) {
       severity: "minor",
     });
   }
-  return NextResponse.json({ ok: errors.length === 0, report, errors }, { status: errors.length ? 207 : 200 });
+  return NextResponse.json(
+    { ok: errors.length === 0, report, errors },
+    { status: errors.length ? 207 : 200 },
+  );
 }

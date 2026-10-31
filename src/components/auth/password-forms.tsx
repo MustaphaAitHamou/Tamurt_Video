@@ -47,7 +47,13 @@ export function UpdatePasswordForm() {
         minLength={10}
         hint={t("passwordHint")}
       />
-      <TextField label={t("confirmPassword")} name="confirmPassword" type="password" autoComplete="new-password" required />
+      <TextField
+        label={t("confirmPassword")}
+        name="confirmPassword"
+        type="password"
+        autoComplete="new-password"
+        required
+      />
       <FormMessage state={state} />
       <SubmitButton className="w-full" size="lg">
         {t("updatePassword")}

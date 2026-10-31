@@ -6,7 +6,14 @@ import { z } from "zod";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getViewer } from "@/server/auth/session";
-import { dbErrorCode, failure, failureFromDb, fromZodError, success, type ActionResult } from "@/server/errors";
+import {
+  dbErrorCode,
+  failure,
+  failureFromDb,
+  fromZodError,
+  success,
+  type ActionResult,
+} from "@/server/errors";
 import { rateLimit } from "@/server/rate-limit";
 
 const requestSchema = z.object({
@@ -20,11 +27,20 @@ const requestSchema = z.object({
   confirmed: z.string().optional(),
 });
 
-export type SimilarRequest = { id: string; title: string; releaseYear: number | null; votes: number; status: string };
+export type SimilarRequest = {
+  id: string;
+  title: string;
+  releaseYear: number | null;
+  votes: number;
+  status: string;
+};
 export type CreateRequestResult = ActionResult<{ id?: string; similar?: SimilarRequest[] }>;
 
 /** Nouvelle demande (Premium). Les doublons approchants sont proposés avant envoi. */
-export async function createRequestAction(_prev: CreateRequestResult | null, formData: FormData): Promise<CreateRequestResult> {
+export async function createRequestAction(
+  _prev: CreateRequestResult | null,
+  formData: FormData,
+): Promise<CreateRequestResult> {
   const t = await getTranslations("requests");
   const viewer = await getViewer();
   if (!viewer) return failure("Connexion requise.", "UNAUTHENTICATED");
@@ -46,7 +62,13 @@ export async function createRequestAction(_prev: CreateRequestResult | null, for
     if (similar?.length) {
       return success(
         {
-          similar: similar.map((s) => ({ id: s.id, title: s.title, releaseYear: s.release_year, votes: s.vote_count, status: s.status })),
+          similar: similar.map((s) => ({
+            id: s.id,
+            title: s.title,
+            releaseYear: s.release_year,
+            votes: s.vote_count,
+            status: s.status,
+          })),
         },
         t("similarFound"),
       );
@@ -69,7 +91,12 @@ export async function createRequestAction(_prev: CreateRequestResult | null, for
     .single();
   if (error) {
     if (dbErrorCode(error) === "DUPLICATE_REQUEST" && error.details) {
-      return { ok: false, error: t("similarFound"), code: "DUPLICATE_REQUEST", fieldErrors: { existing: [error.details] } };
+      return {
+        ok: false,
+        error: t("similarFound"),
+        code: "DUPLICATE_REQUEST",
+        fieldErrors: { existing: [error.details] },
+      };
     }
     return failureFromDb(error);
   }
@@ -77,7 +104,9 @@ export async function createRequestAction(_prev: CreateRequestResult | null, for
   return success({ id: data.id }, t("submitted"));
 }
 
-export async function toggleVoteAction(requestId: string): Promise<ActionResult<{ voted: boolean }>> {
+export async function toggleVoteAction(
+  requestId: string,
+): Promise<ActionResult<{ voted: boolean }>> {
   if (!/^[0-9a-f-]{36}$/.test(requestId)) return failure("Demande invalide.", "VALIDATION");
   const t = await getTranslations("requests");
   const viewer = await getViewer();
@@ -91,12 +120,18 @@ export async function toggleVoteAction(requestId: string): Promise<ActionResult<
     .eq("user_id", viewer.user.id)
     .maybeSingle();
   if (existing) {
-    const { error } = await supabase.from("content_request_votes").delete().eq("request_id", requestId).eq("user_id", viewer.user.id);
+    const { error } = await supabase
+      .from("content_request_votes")
+      .delete()
+      .eq("request_id", requestId)
+      .eq("user_id", viewer.user.id);
     if (error) return failureFromDb(error);
     revalidatePath("/demandes");
     return success({ voted: false });
   }
-  const { error } = await supabase.from("content_request_votes").insert({ request_id: requestId, user_id: viewer.user.id });
+  const { error } = await supabase
+    .from("content_request_votes")
+    .insert({ request_id: requestId, user_id: viewer.user.id });
   if (error) return failureFromDb(error, "Vote impossible pour cette demande.");
   revalidatePath("/demandes");
   return success({ voted: true });
@@ -104,7 +139,8 @@ export async function toggleVoteAction(requestId: string): Promise<ActionResult<
 
 export async function withdrawRequestAction(requestId: string): Promise<ActionResult> {
   const viewer = await getViewer();
-  if (!viewer || !/^[0-9a-f-]{36}$/.test(requestId)) return failure("Requête invalide.", "VALIDATION");
+  if (!viewer || !/^[0-9a-f-]{36}$/.test(requestId))
+    return failure("Requête invalide.", "VALIDATION");
   const supabase = await createSupabaseServerClient();
   const { error, count } = await supabase
     .from("content_requests")

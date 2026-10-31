@@ -4,7 +4,15 @@ import type { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export function AdminPageHeader({ title, description, actions }: { title: string; description?: string; actions?: React.ReactNode }) {
+export function AdminPageHeader({
+  title,
+  description,
+  actions,
+}: {
+  title: string;
+  description?: string;
+  actions?: React.ReactNode;
+}) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="space-y-1">
@@ -93,16 +101,33 @@ export function StatusBadge({ status, label }: { status: string; label?: string 
   return <Badge variant={STATUS_TONES[status] ?? "outline"}>{label ?? status}</Badge>;
 }
 
-export function AdminPagination({ basePath, page, pageSize, total, params }: { basePath: string; page: number; pageSize: number; total: number; params: Record<string, string | undefined> }) {
+export function AdminPagination({
+  basePath,
+  page,
+  pageSize,
+  total,
+  params,
+}: {
+  basePath: string;
+  page: number;
+  pageSize: number;
+  total: number;
+  params: Record<string, string | undefined>;
+}) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (pages <= 1) return null;
   const href = (p: number) => {
-    const search = new URLSearchParams(Object.entries(params).filter((entry): entry is [string, string] => Boolean(entry[1])));
+    const search = new URLSearchParams(
+      Object.entries(params).filter((entry): entry is [string, string] => Boolean(entry[1])),
+    );
     search.set("page", String(p));
     return `${basePath}?${search.toString()}`;
   };
   return (
-    <nav aria-label="Pagination" className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+    <nav
+      aria-label="Pagination"
+      className="mt-4 flex items-center justify-between text-sm text-muted-foreground"
+    >
       <span>
         Page {page} / {pages} · {total} élément{total > 1 ? "s" : ""}
       </span>

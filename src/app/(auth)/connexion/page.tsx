@@ -21,12 +21,19 @@ export default async function SignInPage({ searchParams }: PageProps<"/connexion
         <h1 className="text-2xl font-bold">{t("signInTitle")}</h1>
         <p className="text-sm text-muted-foreground">{t("signInSubtitle")}</p>
       </div>
-      {params.erreur === "lien" && <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{t("linkInvalid")}</p>}
+      {params.erreur === "lien" && (
+        <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+          {t("linkInvalid")}
+        </p>
+      )}
       <GoogleButton next={next} />
       <SignInForm next={next} />
       <p className="text-center text-sm text-muted-foreground">
         {t("noAccount")}{" "}
-        <Link href={`/inscription${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`} className="font-medium text-foreground underline-offset-4 hover:underline">
+        <Link
+          href={`/inscription${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`}
+          className="font-medium text-foreground underline-offset-4 hover:underline"
+        >
           {t("signUp")}
         </Link>
       </p>

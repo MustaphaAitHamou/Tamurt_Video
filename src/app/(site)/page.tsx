@@ -26,7 +26,10 @@ export default async function HomePage() {
     getTranslations("founderLanding"),
   ]);
   const showFounderCta =
-    settings.launchPhase === "founder" && settings.founderSignupsOpen && viewer && viewer.entitlements.tier === "free";
+    settings.launchPhase === "founder" &&
+    settings.founderSignupsOpen &&
+    viewer &&
+    viewer.entitlements.tier === "free";
 
   if (slides.length === 0 && sections.length === 0) {
     return (
@@ -43,7 +46,13 @@ export default async function HomePage() {
   return (
     <div className="pb-10">
       {slides.length > 0 ? <HeroCarousel slides={slides} /> : <div className="h-24" />}
-      <div className={slides.length > 0 ? "relative z-10 -mt-20 space-y-8 sm:-mt-28 sm:space-y-10" : "space-y-10"}>
+      <div
+        className={
+          slides.length > 0
+            ? "relative z-10 -mt-20 space-y-8 sm:-mt-28 sm:space-y-10"
+            : "space-y-10"
+        }
+      >
         {showFounderCta && (
           <div className="px-4 sm:px-6 lg:px-10">
             <div className="flex flex-col items-start gap-4 rounded-2xl border border-gold/30 bg-gradient-to-r from-gold/15 via-card to-card p-5 sm:flex-row sm:items-center sm:justify-between">

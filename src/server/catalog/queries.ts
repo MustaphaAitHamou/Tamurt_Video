@@ -20,7 +20,11 @@ import {
   type TitleDetail,
   type TitleKind,
 } from "@/server/catalog/types";
-import { defaultRecommendationEngine, type Candidate, type ViewingSignal } from "@/server/recommendations/engine";
+import {
+  defaultRecommendationEngine,
+  type Candidate,
+  type ViewingSignal,
+} from "@/server/recommendations/engine";
 
 type ListArgs = Database["public"]["Functions"]["list_catalog"]["Args"];
 
@@ -82,7 +86,11 @@ export async function listCatalog(filters: CatalogFilters = {}): Promise<TitleCa
 export const getGenres = cache(async () => {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.from("genres").select("id, slug, labels").order("position");
-  return (data ?? []).map((g) => ({ id: g.id, slug: g.slug, labels: g.labels as Record<string, string> }));
+  return (data ?? []).map((g) => ({
+    id: g.id,
+    slug: g.slug,
+    labels: g.labels as Record<string, string>,
+  }));
 });
 
 export function genreLabel(labels: Record<string, string>, locale: string) {
@@ -146,7 +154,11 @@ export async function getWatchlist(viewer: Viewer, limit = 50): Promise<TitleCar
     .map((row) => row.titles)
     .filter((t): t is NonNullable<typeof t> => Boolean(t))
     .map(toTitleCard)
-    .filter((t) => viewer.activeProfile.maxAgeRating === null || t.ageRating <= viewer.activeProfile.maxAgeRating);
+    .filter(
+      (t) =>
+        viewer.activeProfile.maxAgeRating === null ||
+        t.ageRating <= viewer.activeProfile.maxAgeRating,
+    );
 }
 
 export async function getWatchlistIds(viewer: Viewer | null): Promise<Set<string>> {
@@ -171,13 +183,19 @@ export async function getRecommendations(viewer: Viewer, limit = 20): Promise<Ti
       .eq("viewer_profile_id", profileId)
       .order("updated_at", { ascending: false })
       .limit(100),
-    supabase.from("watchlist_items").select("title_id, created_at").eq("viewer_profile_id", profileId).limit(100),
+    supabase
+      .from("watchlist_items")
+      .select("title_id, created_at")
+      .eq("viewer_profile_id", profileId)
+      .limit(100),
     listCatalog({ sort: "popular", limit: 100 }),
   ]);
 
   const historyRows = history.data ?? [];
   const listRows = list.data ?? [];
-  const signalTitleIds = [...new Set([...historyRows.map((r) => r.title_id), ...listRows.map((r) => r.title_id)])];
+  const signalTitleIds = [
+    ...new Set([...historyRows.map((r) => r.title_id), ...listRows.map((r) => r.title_id)]),
+  ];
   const allIds = [...new Set([...signalTitleIds, ...candidatesRaw.map((c) => c.id)])];
 
   const genreMap = new Map<string, string[]>();
@@ -185,7 +203,13 @@ export async function getRecommendations(viewer: Viewer, limit = 20): Promise<Ti
   if (allIds.length) {
     const [{ data: genreRows }, { data: kindRows }] = await Promise.all([
       supabase.from("title_genres").select("title_id, genres(slug)").in("title_id", allIds),
-      supabase.from("titles").select("id, kind").in("id", signalTitleIds.length ? signalTitleIds : ["00000000-0000-0000-0000-000000000000"]),
+      supabase
+        .from("titles")
+        .select("id, kind")
+        .in(
+          "id",
+          signalTitleIds.length ? signalTitleIds : ["00000000-0000-0000-0000-000000000000"],
+        ),
     ]);
     for (const row of genreRows ?? []) {
       const slug = (row.genres as { slug: string } | null)?.slug;
@@ -201,7 +225,11 @@ export async function getRecommendations(viewer: Viewer, limit = 20): Promise<Ti
       titleId: row.title_id,
       genres: genreMap.get(row.title_id) ?? [],
       kind: kindMap.get(row.title_id) ?? "film",
-      engagement: row.completed ? 1 : row.duration_seconds ? row.position_seconds / row.duration_seconds : 0.2,
+      engagement: row.completed
+        ? 1
+        : row.duration_seconds
+          ? row.position_seconds / row.duration_seconds
+          : 0.2,
       ageDays: (now - new Date(row.updated_at).getTime()) / 86_400_000,
       source: "history" as const,
     })),
@@ -236,7 +264,11 @@ export async function getRecommendations(viewer: Viewer, limit = 20): Promise<Ti
   const result: TitleCardData[] = [];
   for (const rec of recommendations) {
     const card = byId.get(rec.titleId);
-    if (card) result.push({ ...card, reason: rec.reason.type === "genre" ? rec.reason.genre : rec.reason.type });
+    if (card)
+      result.push({
+        ...card,
+        reason: rec.reason.type === "genre" ? rec.reason.genre : rec.reason.type,
+      });
   }
   return result;
 }
@@ -279,7 +311,9 @@ export async function getHomeSections(): Promise<HomeSectionData[]> {
   const supabase = await createSupabaseServerClient();
   const { data: sections, error } = await supabase
     .from("home_sections")
-    .select("id, slug, title, title_i18n, source, config, layout, max_items, audience, starts_at, ends_at")
+    .select(
+      "id, slug, title, title_i18n, source, config, layout, max_items, audience, starts_at, ends_at",
+    )
     .eq("is_active", true)
     .order("position");
   if (error) {
@@ -289,7 +323,9 @@ export async function getHomeSections(): Promise<HomeSectionData[]> {
 
   // La RLS applique déjà la fenêtre de diffusion aux visiteurs ; le filtre est répété
   // ici pour que l'équipe éditoriale voie l'accueil tel que le public le voit.
-  const visible = (sections ?? []).filter((s) => audienceAllowed(s.audience, viewer) && withinWindow(s.starts_at, s.ends_at));
+  const visible = (sections ?? []).filter(
+    (s) => audienceAllowed(s.audience, viewer) && withinWindow(s.starts_at, s.ends_at),
+  );
   const results = await Promise.all(
     visible.map(async (section): Promise<HomeSectionData | null> => {
       const config = (section.config ?? {}) as Record<string, unknown>;
@@ -306,10 +342,18 @@ export async function getHomeSections(): Promise<HomeSectionData[]> {
           items = viewer ? await getRecommendations(viewer, limit) : [];
           break;
         case "new":
-          items = await listCatalog({ sort: "new", limit, kind: config.kind as TitleKind | undefined });
+          items = await listCatalog({
+            sort: "new",
+            limit,
+            kind: config.kind as TitleKind | undefined,
+          });
           break;
         case "popular":
-          items = await listCatalog({ sort: "popular", limit, kind: config.kind as TitleKind | undefined });
+          items = await listCatalog({
+            sort: "popular",
+            limit,
+            kind: config.kind as TitleKind | undefined,
+          });
           break;
         case "coming_soon":
           items = await listCatalog({ status: "announced", sort: "new", limit });
@@ -354,7 +398,9 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("home_banners")
-    .select(`id, headline, subheadline, cta_label, cta_href, image_path, audience, starts_at, ends_at, titles(${TITLE_CARD_COLUMNS})`)
+    .select(
+      `id, headline, subheadline, cta_label, cta_href, image_path, audience, starts_at, ends_at, titles(${TITLE_CARD_COLUMNS})`,
+    )
     .eq("is_active", true)
     .order("position")
     .limit(12);
@@ -427,7 +473,8 @@ export async function getTitleDetail(slug: string): Promise<TitleDetail | null> 
     .maybeSingle();
   if (!row) return null;
 
-  const isVisible = row.status === "announced" || (row.status === "published" && row.published_at !== null);
+  const isVisible =
+    row.status === "announced" || (row.status === "published" && row.published_at !== null);
   if (!isVisible && !viewer?.staff.permissions.includes("catalog.read_all")) return null;
 
   const [availableResult, seasonsResult, progressResult] = await Promise.all([
@@ -447,41 +494,61 @@ export async function getTitleDetail(slug: string): Promise<TitleDetail | null> 
           .select("episode_id, position_seconds, duration_seconds, completed")
           .eq("viewer_profile_id", viewer.activeProfile.id)
           .eq("title_id", row.id)
-      : Promise.resolve({ data: [] as { episode_id: string | null; position_seconds: number; duration_seconds: number | null; completed: boolean }[] }),
+      : Promise.resolve({
+          data: [] as {
+            episode_id: string | null;
+            position_seconds: number;
+            duration_seconds: number | null;
+            completed: boolean;
+          }[],
+        }),
   ]);
 
   const progressByEpisode = new Map(
     (progressResult.data ?? []).map((p) => [p.episode_id ?? "title", p]),
   );
   const now = Date.now();
-  const seasons: SeasonData[] = (seasonsResult.data ?? []).map((season) => ({
-    id: season.id,
-    number: season.season_number,
-    name: season.name,
-    episodes: (season.episodes ?? [])
-      .filter(
-        (e) => e.deleted_at === null && e.status === "published" && e.published_at !== null && new Date(e.published_at).getTime() <= now,
-      )
-      .sort((a, b) => a.episode_number - b.episode_number)
-      .map((e) => {
-        const p = progressByEpisode.get(e.id);
-        return {
-          id: e.id,
-          number: e.episode_number,
-          name: e.name,
-          synopsis: e.synopsis,
-          runtimeMinutes: e.runtime_minutes,
-          stillUrl: resolveImageUrl(e.still_path),
-          progress: p ? { positionSeconds: p.position_seconds, durationSeconds: p.duration_seconds, completed: p.completed } : null,
-        };
-      }),
-  })).filter((s) => s.episodes.length > 0);
+  const seasons: SeasonData[] = (seasonsResult.data ?? [])
+    .map((season) => ({
+      id: season.id,
+      number: season.season_number,
+      name: season.name,
+      episodes: (season.episodes ?? [])
+        .filter(
+          (e) =>
+            e.deleted_at === null &&
+            e.status === "published" &&
+            e.published_at !== null &&
+            new Date(e.published_at).getTime() <= now,
+        )
+        .sort((a, b) => a.episode_number - b.episode_number)
+        .map((e) => {
+          const p = progressByEpisode.get(e.id);
+          return {
+            id: e.id,
+            number: e.episode_number,
+            name: e.name,
+            synopsis: e.synopsis,
+            runtimeMinutes: e.runtime_minutes,
+            stillUrl: resolveImageUrl(e.still_path),
+            progress: p
+              ? {
+                  positionSeconds: p.position_seconds,
+                  durationSeconds: p.duration_seconds,
+                  completed: p.completed,
+                }
+              : null,
+          };
+        }),
+    }))
+    .filter((s) => s.episodes.length > 0);
 
   // Langues de sous-titres : lecture via le rôle serveur (table réservée à l'équipe).
   const assetIds = [
     row.main_asset_id,
-    ...((seasonsResult.data ?? []) as { episodes: { main_asset_id: string | null }[] }[])
-      .flatMap((s) => s.episodes.map((e) => e.main_asset_id)),
+    ...((seasonsResult.data ?? []) as { episodes: { main_asset_id: string | null }[] }[]).flatMap(
+      (s) => s.episodes.map((e) => e.main_asset_id),
+    ),
   ].filter((id): id is string => Boolean(id));
   let subtitleLanguages: string[] = [];
   if (assetIds.length) {

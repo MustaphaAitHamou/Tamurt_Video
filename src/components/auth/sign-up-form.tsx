@@ -22,7 +22,9 @@ export function SignUpForm() {
           <MailCheckIcon className="size-7" />
         </span>
         <h2 className="text-xl font-semibold">{t("checkEmailTitle")}</h2>
-        <p className="text-sm leading-relaxed text-muted-foreground">{t("checkEmailText", { email: state.data.email })}</p>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {t("checkEmailText", { email: state.data.email })}
+        </p>
         <p className="text-xs text-muted-foreground">{t("checkEmailSpam")}</p>
       </div>
     );
@@ -31,8 +33,21 @@ export function SignUpForm() {
   return (
     <form action={action} className="space-y-5" noValidate>
       <input type="hidden" name="locale" value={locale} />
-      <TextField label={t("displayName")} name="displayName" autoComplete="given-name" required maxLength={60} />
-      <TextField label={t("email")} name="email" type="email" autoComplete="email" required inputMode="email" />
+      <TextField
+        label={t("displayName")}
+        name="displayName"
+        autoComplete="given-name"
+        required
+        maxLength={60}
+      />
+      <TextField
+        label={t("email")}
+        name="email"
+        type="email"
+        autoComplete="email"
+        required
+        inputMode="email"
+      />
       <TextField
         label={t("password")}
         name="password"
@@ -42,18 +57,41 @@ export function SignUpForm() {
         minLength={10}
         hint={t("passwordHint")}
       />
-      <TextField label={t("confirmPassword")} name="confirmPassword" type="password" autoComplete="new-password" required />
+      <TextField
+        label={t("confirmPassword")}
+        name="confirmPassword"
+        type="password"
+        autoComplete="new-password"
+        required
+      />
       <div className="flex items-start gap-3">
-        <Checkbox id="acceptTerms" name="acceptTerms" required aria-required="true" className="mt-0.5" />
-        <Label htmlFor="acceptTerms" className="block text-sm leading-relaxed font-normal text-muted-foreground">
+        <Checkbox
+          id="acceptTerms"
+          name="acceptTerms"
+          required
+          aria-required="true"
+          className="mt-0.5"
+        />
+        <Label
+          htmlFor="acceptTerms"
+          className="block text-sm leading-relaxed font-normal text-muted-foreground"
+        >
           {t.rich("acceptTerms", {
             terms: (chunks) => (
-              <Link href="/legal/cgu" target="_blank" className="text-foreground underline underline-offset-4">
+              <Link
+                href="/legal/cgu"
+                target="_blank"
+                className="text-foreground underline underline-offset-4"
+              >
                 {chunks}
               </Link>
             ),
             privacy: (chunks) => (
-              <Link href="/legal/confidentialite" target="_blank" className="text-foreground underline underline-offset-4">
+              <Link
+                href="/legal/confidentialite"
+                target="_blank"
+                className="text-foreground underline underline-offset-4"
+              >
                 {chunks}
               </Link>
             ),
@@ -62,7 +100,10 @@ export function SignUpForm() {
       </div>
       <div className="flex items-start gap-3">
         <Checkbox id="marketingOptIn" name="marketingOptIn" className="mt-0.5" />
-        <Label htmlFor="marketingOptIn" className="block text-sm leading-relaxed font-normal text-muted-foreground">
+        <Label
+          htmlFor="marketingOptIn"
+          className="block text-sm leading-relaxed font-normal text-muted-foreground"
+        >
           {t("marketingOptIn")}
         </Label>
       </div>

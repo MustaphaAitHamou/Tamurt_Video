@@ -14,28 +14,82 @@ export async function GET() {
   if (!limit.allowed) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
 
   const supabase = await createSupabaseServerClient();
-  const [profile, viewerProfiles, watchlist, progress, history, searches, requests, votes, notifications, subscriptions, invoices, consents, dataRequests] =
-    await Promise.all([
-      supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-      supabase.from("viewer_profiles").select("*").eq("account_id", user.id),
-      supabase.from("watchlist_items").select("viewer_profile_id, created_at, titles(slug, title)").eq("account_id", user.id),
-      supabase.from("watch_progress").select("viewer_profile_id, position_seconds, duration_seconds, completed, updated_at, titles(slug, title)").eq("account_id", user.id),
-      supabase.from("watch_history").select("started_at, ended_at, watched_seconds, country_code, device_label, titles(slug, title)").eq("account_id", user.id),
-      supabase.from("search_history").select("query, created_at").eq("account_id", user.id),
-      supabase.from("content_requests").select("title, release_year, country, director, content_type, comment, info_url, status, created_at").eq("user_id", user.id),
-      supabase.from("content_request_votes").select("request_id, created_at").eq("user_id", user.id),
-      supabase.from("notifications").select("type, title, body, created_at, read_at").eq("user_id", user.id),
-      supabase.from("subscriptions").select("status, unit_amount_cents, currency, current_period_start, current_period_end, cancel_at_period_end, created_at, subscription_plans(name)").eq("user_id", user.id),
-      supabase.from("invoices").select("number, status, currency, amount_paid_cents, paid_at, period_start, period_end").eq("user_id", user.id),
-      supabase.from("consent_logs").select("choices, policy_version, created_at").eq("user_id", user.id),
-      supabase.from("data_requests").select("request_type, status, created_at, completed_at").eq("user_id", user.id),
-    ]);
+  const [
+    profile,
+    viewerProfiles,
+    watchlist,
+    progress,
+    history,
+    searches,
+    requests,
+    votes,
+    notifications,
+    subscriptions,
+    invoices,
+    consents,
+    dataRequests,
+  ] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+    supabase.from("viewer_profiles").select("*").eq("account_id", user.id),
+    supabase
+      .from("watchlist_items")
+      .select("viewer_profile_id, created_at, titles(slug, title)")
+      .eq("account_id", user.id),
+    supabase
+      .from("watch_progress")
+      .select(
+        "viewer_profile_id, position_seconds, duration_seconds, completed, updated_at, titles(slug, title)",
+      )
+      .eq("account_id", user.id),
+    supabase
+      .from("watch_history")
+      .select(
+        "started_at, ended_at, watched_seconds, country_code, device_label, titles(slug, title)",
+      )
+      .eq("account_id", user.id),
+    supabase.from("search_history").select("query, created_at").eq("account_id", user.id),
+    supabase
+      .from("content_requests")
+      .select(
+        "title, release_year, country, director, content_type, comment, info_url, status, created_at",
+      )
+      .eq("user_id", user.id),
+    supabase.from("content_request_votes").select("request_id, created_at").eq("user_id", user.id),
+    supabase
+      .from("notifications")
+      .select("type, title, body, created_at, read_at")
+      .eq("user_id", user.id),
+    supabase
+      .from("subscriptions")
+      .select(
+        "status, unit_amount_cents, currency, current_period_start, current_period_end, cancel_at_period_end, created_at, subscription_plans(name)",
+      )
+      .eq("user_id", user.id),
+    supabase
+      .from("invoices")
+      .select("number, status, currency, amount_paid_cents, paid_at, period_start, period_end")
+      .eq("user_id", user.id),
+    supabase
+      .from("consent_logs")
+      .select("choices, policy_version, created_at")
+      .eq("user_id", user.id),
+    supabase
+      .from("data_requests")
+      .select("request_type, status, created_at, completed_at")
+      .eq("user_id", user.id),
+  ]);
   const { data: authUser } = await createSupabaseAdminClient().auth.admin.getUserById(user.id);
 
-  await logAudit({ actorId: user.id, action: "account.data_exported", entityType: "user", entityId: user.id });
+  await logAudit({
+    actorId: user.id,
+    action: "account.data_exported",
+    entityType: "user",
+    entityId: user.id,
+  });
   const payload = {
     generated_at: new Date().toISOString(),
-    notice: "Export des données personnelles de votre compte Tamurt Vidéo. Les données de carte bancaire ne sont jamais stockées par Tamurt Vidéo.",
+    notice:
+      "Export des données personnelles de votre compte Tamurt Vidéo. Les données de carte bancaire ne sont jamais stockées par Tamurt Vidéo.",
     account: {
       email: authUser?.user?.email ?? user.email,
       created_at: authUser?.user?.created_at ?? null,

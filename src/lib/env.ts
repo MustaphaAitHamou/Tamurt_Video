@@ -86,7 +86,9 @@ export type ServerEnv = ReturnType<typeof buildEnv>;
 function buildEnv(source: NodeJS.ProcessEnv) {
   const parsed = serverSchema.safeParse(source);
   if (!parsed.success) {
-    const details = parsed.error.issues.map((issue) => `- ${issue.path.join(".")}: ${issue.message}`).join("\n");
+    const details = parsed.error.issues
+      .map((issue) => `- ${issue.path.join(".")}: ${issue.message}`)
+      .join("\n");
     throw new Error(`Configuration invalide :\n${details}\nVoir .env.example.`);
   }
   const raw = parsed.data;
@@ -109,7 +111,8 @@ function buildEnv(source: NodeJS.ProcessEnv) {
     siteUrl: raw.NEXT_PUBLIC_SITE_URL.replace(/\/$/, ""),
     supabase: {
       url: raw.NEXT_PUBLIC_SUPABASE_URL,
-      publishableKey: (raw.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? raw.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string,
+      publishableKey: (raw.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+        raw.NEXT_PUBLIC_SUPABASE_ANON_KEY) as string,
       secretKey: supabaseSecret,
     },
     payments: {

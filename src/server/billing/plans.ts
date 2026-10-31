@@ -57,7 +57,12 @@ export const getPublicPlans = cache(async (): Promise<PublicPlan[]> => {
 /** Nombre de soutiens fondateurs actifs (statistique publique agrégée). */
 export const getActiveFounderCount = cache(async (): Promise<number> => {
   const admin = createSupabaseAdminClient();
-  const { data: plan } = await admin.from("subscription_plans").select("id").eq("tier", "founder").limit(1).maybeSingle();
+  const { data: plan } = await admin
+    .from("subscription_plans")
+    .select("id")
+    .eq("tier", "founder")
+    .limit(1)
+    .maybeSingle();
   if (!plan) return 0;
   const { count } = await admin
     .from("subscriptions")

@@ -16,7 +16,12 @@ export const metadata: Metadata = { title: "Mon compte", robots: { index: false 
 export default async function AccountOverviewPage({ searchParams }: PageProps<"/compte">) {
   const params = await searchParams;
   const viewer = await requireViewer("/compte");
-  const [t, tt, tf, rawLocale] = await Promise.all([getTranslations("account"), getTranslations("tiers"), getTranslations("founder"), getLocale()]);
+  const [t, tt, tf, rawLocale] = await Promise.all([
+    getTranslations("account"),
+    getTranslations("tiers"),
+    getTranslations("founder"),
+    getLocale(),
+  ]);
   const locale = isLocale(rawLocale) ? localeIntlTag[rawLocale] : "fr-FR";
   const e = viewer.entitlements;
   const isFounder = e.planTier === "founder";
@@ -24,21 +29,33 @@ export default async function AccountOverviewPage({ searchParams }: PageProps<"/
   return (
     <>
       {params.bienvenue === "1" && (
-        <p role="status" className="rounded-xl border border-success/40 bg-success/10 p-4 text-sm text-success">
+        <p
+          role="status"
+          className="rounded-xl border border-success/40 bg-success/10 p-4 text-sm text-success"
+        >
           {(await getTranslations("auth"))("verifiedText")}
         </p>
       )}
       <div className="flex flex-wrap items-center gap-5 rounded-2xl border bg-gradient-to-br from-card to-card/40 p-6">
         <ProfileAvatar avatarKey={viewer.activeProfile.avatarKey} className="size-16 text-3xl" />
         <div className="min-w-0 flex-1 space-y-1">
-          <p className="text-xl font-semibold">{t("welcome", { name: viewer.profile.displayName ?? viewer.user.email })}</p>
+          <p className="text-xl font-semibold">
+            {t("welcome", { name: viewer.profile.displayName ?? viewer.user.email })}
+          </p>
           <p className="text-sm text-muted-foreground">{viewer.user.email}</p>
           <div className="flex flex-wrap gap-2 pt-1">
-            <Badge variant={isFounder ? "gold" : e.tier === "free" ? "muted" : "default"} className="gap-1">
+            <Badge
+              variant={isFounder ? "gold" : e.tier === "free" ? "muted" : "default"}
+              className="gap-1"
+            >
               {isFounder ? <CrownIcon /> : <GemIcon />}
               {isFounder ? tf("badge") : tt(e.tier)}
             </Badge>
-            {viewer.profile.founderNumber && <Badge variant="outline">{tf("memberNumber", { number: viewer.profile.founderNumber })}</Badge>}
+            {viewer.profile.founderNumber && (
+              <Badge variant="outline">
+                {tf("memberNumber", { number: viewer.profile.founderNumber })}
+              </Badge>
+            )}
           </div>
         </div>
       </div>
@@ -50,10 +67,14 @@ export default async function AccountOverviewPage({ searchParams }: PageProps<"/
               <p className="text-base font-semibold">{e.planName}</p>
               {e.currentPeriodEnd && (
                 <p className="text-muted-foreground">
-                  {e.cancelAtPeriodEnd ? t("endsOn", { date: formatDate(e.currentPeriodEnd, locale) }) : t("renewsOn", { date: formatDate(e.currentPeriodEnd, locale) })}
+                  {e.cancelAtPeriodEnd
+                    ? t("endsOn", { date: formatDate(e.currentPeriodEnd, locale) })
+                    : t("renewsOn", { date: formatDate(e.currentPeriodEnd, locale) })}
                 </p>
               )}
-              {e.launchPhase === "commercial" && isFounder && <p className="text-gold">{t("founderRate")}</p>}
+              {e.launchPhase === "commercial" && isFounder && (
+                <p className="text-gold">{t("founderRate")}</p>
+              )}
             </div>
             <Button asChild variant="secondary">
               <Link href="/compte/abonnement">{t("manageBilling")}</Link>
@@ -75,7 +96,11 @@ export default async function AccountOverviewPage({ searchParams }: PageProps<"/
           { href: "/compte/ma-liste", icon: ListVideoIcon, label: t("myList") },
           { href: "/demandes", icon: MessageSquarePlusIcon, label: t("requests") },
         ].map(({ href, icon: Icon, label }) => (
-          <Link key={href} href={href} className="flex items-center gap-3 rounded-2xl border bg-card/60 p-5 text-sm font-medium transition hover:border-white/20 hover:bg-card">
+          <Link
+            key={href}
+            href={href}
+            className="flex items-center gap-3 rounded-2xl border bg-card/60 p-5 text-sm font-medium transition hover:border-white/20 hover:bg-card"
+          >
             <Icon className="size-5 text-primary" /> {label}
           </Link>
         ))}

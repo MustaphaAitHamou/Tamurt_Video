@@ -17,7 +17,8 @@ import { getPublicSettings } from "@/server/settings";
 
 export const metadata: Metadata = {
   title: "Offres et tarifs",
-  description: "Les formules Tamurt Vidéo : Fondateur, Standard et Premium. Sans engagement, résiliables à tout moment.",
+  description:
+    "Les formules Tamurt Vidéo : Fondateur, Standard et Premium. Sans engagement, résiliables à tout moment.",
 };
 
 const ERRORS: Record<string, string> = {
@@ -44,7 +45,8 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
   // Les textes des formules sont rédigés en français dans l'administration : hors français,
   // le nom vient des traductions et les descriptifs restent balisés comme texte français.
   const isFrench = rawLocale === "fr";
-  const planName = (plan: { name: string; tier: "free" | "founder" | "standard" | "premium" }) => (isFrench ? plan.name : tTiers(plan.tier));
+  const planName = (plan: { name: string; tier: "free" | "founder" | "standard" | "premium" }) =>
+    isFrench ? plan.name : tTiers(plan.tier);
   const frenchText = isFrench ? {} : ({ lang: "fr", dir: "auto" } as const);
   const provider = getPaymentProvider();
   const highlighted = typeof params.formule === "string" ? params.formule : null;
@@ -70,12 +72,18 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
       </div>
 
       {errorKey && ERRORS[errorKey] && (
-        <p role="alert" className="mx-auto mb-8 flex max-w-2xl items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+        <p
+          role="alert"
+          className="mx-auto mb-8 flex max-w-2xl items-center gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+        >
           <AlertCircleIcon className="size-4 shrink-0" /> {ERRORS[errorKey]}
         </p>
       )}
       {params.paiement === "annule" && (
-        <p role="status" className="mx-auto mb-8 max-w-2xl rounded-xl border bg-card p-4 text-center text-sm text-muted-foreground">
+        <p
+          role="status"
+          className="mx-auto mb-8 max-w-2xl rounded-xl border bg-card p-4 text-center text-sm text-muted-foreground"
+        >
           Paiement annulé : aucun montant n&apos;a été débité.
         </p>
       )}
@@ -86,7 +94,9 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
           const founderClosed = plan.tier === "founder" && !settings.founderSignupsOpen;
           const isCurrent = currentPlanCode === plan.code;
           const isFounder = plan.tier === "founder";
-          const dzd = settings.dzdDisplayEnabled ? formatIndicativeDzd(plan.priceCents, settings.eurToDzdRate, locale) : null;
+          const dzd = settings.dzdDisplayEnabled
+            ? formatIndicativeDzd(plan.priceCents, settings.eurToDzdRate, locale)
+            : null;
           return (
             <article
               key={plan.id}
@@ -94,13 +104,17 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
               className={cn(
                 "relative flex flex-col rounded-3xl border bg-card/80 p-7 transition",
                 highlighted === plan.code && "ring-2 ring-primary",
-                isFounder && settings.launchPhase === "founder" && "border-gold/40 bg-gradient-to-b from-gold/10 to-card/80",
+                isFounder &&
+                  settings.launchPhase === "founder" &&
+                  "border-gold/40 bg-gradient-to-b from-gold/10 to-card/80",
                 !available && "opacity-80",
               )}
             >
               <div className="mb-5 space-y-2">
                 <div className="flex min-h-6 flex-wrap gap-2">
-                  {isFounder && settings.launchPhase === "founder" && <Badge variant="gold">{t("founderBadge")}</Badge>}
+                  {isFounder && settings.launchPhase === "founder" && (
+                    <Badge variant="gold">{t("founderBadge")}</Badge>
+                  )}
                   {!isFounder && !available && <Badge variant="muted">{t("unavailable")}</Badge>}
                 </div>
                 <h2 className="flex items-center gap-2 text-2xl font-bold">
@@ -114,7 +128,9 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
                 )}
               </div>
               <p className="flex items-baseline gap-1.5">
-                <span className="font-display text-5xl font-extrabold">{formatPrice(plan.priceCents, plan.currency, locale)}</span>
+                <span className="font-display text-5xl font-extrabold">
+                  {formatPrice(plan.priceCents, plan.currency, locale)}
+                </span>
                 <span className="text-muted-foreground">{t("perMonth")}</span>
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -122,7 +138,11 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
                 {dzd && (
                   <>
                     {" · "}
-                    <span title={t("indicativeNote", { date: formatDate(settings.eurToDzdRateUpdatedAt, locale) })}>
+                    <span
+                      title={t("indicativeNote", {
+                        date: formatDate(settings.eurToDzdRateUpdatedAt, locale),
+                      })}
+                    >
                       {dzd} ({t("indicative").toLowerCase()})
                     </span>
                   </>
@@ -136,7 +156,12 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
               <ul className="mt-6 mb-8 space-y-2.5">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex gap-2.5 text-sm leading-relaxed">
-                    <CheckIcon className={cn("mt-0.5 size-4 shrink-0", isFounder ? "text-gold" : "text-primary")} />
+                    <CheckIcon
+                      className={cn(
+                        "mt-0.5 size-4 shrink-0",
+                        isFounder ? "text-gold" : "text-primary",
+                      )}
+                    />
                     <span {...frenchText}>{feature}</span>
                   </li>
                 ))}
@@ -155,8 +180,17 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
                     {t("founderClosed")}
                   </Button>
                 ) : !viewer ? (
-                  <Button asChild className="w-full" size="lg" variant={isFounder ? "gold" : "default"}>
-                    <Link href={`/inscription?next=${encodeURIComponent(`/offres?formule=${plan.code}`)}`}>{t("signInToSubscribe")}</Link>
+                  <Button
+                    asChild
+                    className="w-full"
+                    size="lg"
+                    variant={isFounder ? "gold" : "default"}
+                  >
+                    <Link
+                      href={`/inscription?next=${encodeURIComponent(`/offres?formule=${plan.code}`)}`}
+                    >
+                      {t("signInToSubscribe")}
+                    </Link>
                   </Button>
                 ) : hasStripeSubscription ? (
                   <Button asChild variant="outline" className="w-full" size="lg">
@@ -169,7 +203,11 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
                 ) : (
                   <form action={startCheckoutAction}>
                     <input type="hidden" name="plan" value={plan.code} />
-                    <SubmitButton className="w-full" size="lg" variant={isFounder ? "gold" : "default"}>
+                    <SubmitButton
+                      className="w-full"
+                      size="lg"
+                      variant={isFounder ? "gold" : "default"}
+                    >
                       {t("choose", { plan: planName(plan) })}
                     </SubmitButton>
                   </form>
@@ -190,7 +228,10 @@ export default async function PricingPage({ searchParams }: PageProps<"/offres">
             CGA
           </Link>{" "}
           ·{" "}
-          <Link href="/legal/remboursement" className="text-foreground underline underline-offset-4">
+          <Link
+            href="/legal/remboursement"
+            className="text-foreground underline underline-offset-4"
+          >
             Remboursements
           </Link>
         </p>

@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { UploadCloudIcon } from "lucide-react";
 import { toast } from "sonner";
 
-import { attachDevMediaAction, createVideoUploadAction, refreshMediaStatusAction } from "@/actions/admin/media";
+import {
+  attachDevMediaAction,
+  createVideoUploadAction,
+  refreshMediaStatusAction,
+} from "@/actions/admin/media";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
@@ -19,12 +23,19 @@ async function tusUpload(url: string, file: File, onProgress: (ratio: number) =>
     const chunk = file.slice(offset, offset + CHUNK_SIZE);
     const response = await fetch(url, {
       method: "PATCH",
-      headers: { "Tus-Resumable": "1.0.0", "Upload-Offset": String(offset), "Content-Type": "application/offset+octet-stream" },
+      headers: {
+        "Tus-Resumable": "1.0.0",
+        "Upload-Offset": String(offset),
+        "Content-Type": "application/offset+octet-stream",
+      },
       body: chunk,
     }).catch(() => null);
     if (!response || !response.ok) {
       if (retries++ >= 5) throw new Error("Envoi interrompu.");
-      const head = await fetch(url, { method: "HEAD", headers: { "Tus-Resumable": "1.0.0" } }).catch(() => null);
+      const head = await fetch(url, {
+        method: "HEAD",
+        headers: { "Tus-Resumable": "1.0.0" },
+      }).catch(() => null);
       offset = Number(head?.headers.get("Upload-Offset") ?? offset);
       await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
       continue;
@@ -55,7 +66,14 @@ export function VideoUploader({
   const start = () =>
     startTransition(async () => {
       if (!file) return;
-      const prepared = await createVideoUploadAction({ titleId, episodeId, kind, fileName: file.name, sizeBytes: file.size, attestation });
+      const prepared = await createVideoUploadAction({
+        titleId,
+        episodeId,
+        kind,
+        fileName: file.name,
+        sizeBytes: file.size,
+        attestation,
+      });
       if (!prepared.ok) {
         toast.error(prepared.error);
         return;
@@ -106,10 +124,19 @@ export function VideoUploader({
             className="block w-full text-sm file:me-3 file:rounded-full file:border-0 file:bg-secondary file:px-4 file:py-2 file:text-foreground"
           />
           <label className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">
-            <input type="checkbox" checked={attestation} onChange={(event) => setAttestation(event.target.checked)} className="mt-0.5 size-4 accent-primary" />
-            J&apos;atteste que Tamurt Vidéo dispose des droits de diffusion de ce fichier, couverts par une licence enregistrée. La simple possession d&apos;une copie ne vaut pas autorisation.
+            <input
+              type="checkbox"
+              checked={attestation}
+              onChange={(event) => setAttestation(event.target.checked)}
+              className="mt-0.5 size-4 accent-primary"
+            />
+            J&apos;atteste que Tamurt Vidéo dispose des droits de diffusion de ce fichier, couverts
+            par une licence enregistrée. La simple possession d&apos;une copie ne vaut pas
+            autorisation.
           </label>
-          {progress !== null && <Progress value={progress * 100} aria-label="Progression de l'envoi" />}
+          {progress !== null && (
+            <Progress value={progress * 100} aria-label="Progression de l'envoi" />
+          )}
           <Button size="sm" disabled={!file || !attestation || pending} onClick={start}>
             <UploadCloudIcon /> Importer la vidéo
           </Button>

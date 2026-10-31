@@ -19,7 +19,12 @@ export default async function PrivacyPage() {
   const [t, tc] = await Promise.all([getTranslations("account"), getTranslations("common")]);
   const checkbox = (name: string, label: string, checked: boolean) => (
     <label className="flex items-center gap-3 text-sm">
-      <input type="checkbox" name={name} defaultChecked={checked} className="size-4 accent-primary" />
+      <input
+        type="checkbox"
+        name={name}
+        defaultChecked={checked}
+        className="size-4 accent-primary"
+      />
       {label}
     </label>
   );
@@ -28,8 +33,16 @@ export default async function PrivacyPage() {
       <AccountSection title={t("privacyTitle")}>
         <ActionForm action={updatePrivacyAction} submitLabel={tc("save")}>
           {checkbox("marketingOptIn", t("marketingOptIn"), viewer.profile.marketingOptIn)}
-          {checkbox("personalizedRecommendations", t("personalizedRecommendations"), viewer.profile.personalizedRecommendations)}
-          {checkbox("searchHistoryEnabled", t("searchHistory"), viewer.profile.searchHistoryEnabled)}
+          {checkbox(
+            "personalizedRecommendations",
+            t("personalizedRecommendations"),
+            viewer.profile.personalizedRecommendations,
+          )}
+          {checkbox(
+            "searchHistoryEnabled",
+            t("searchHistory"),
+            viewer.profile.searchHistoryEnabled,
+          )}
         </ActionForm>
       </AccountSection>
 
@@ -45,7 +58,16 @@ export default async function PrivacyPage() {
         <ActionForm action={submitDataRequestAction} submitLabel={tc("send")} resetOnSuccess>
           <Field label={t("dataRequestType")} name="requestType">
             <NativeSelect id="requestType" name="requestType" defaultValue="access">
-              {(["access", "export", "rectification", "erasure", "restriction", "objection"] as const).map((type) => (
+              {(
+                [
+                  "access",
+                  "export",
+                  "rectification",
+                  "erasure",
+                  "restriction",
+                  "objection",
+                ] as const
+              ).map((type) => (
                 <option key={type} value={type}>
                   {t(`dataRequestTypes.${type}`)}
                 </option>
@@ -59,7 +81,9 @@ export default async function PrivacyPage() {
       </AccountSection>
 
       <AccountSection title={t("deleteAccount")} description={t("deleteAccountText")} tone="danger">
-        <DeleteAccountForm requirePassword={viewer.user.provider === "email" || viewer.user.provider === undefined} />
+        <DeleteAccountForm
+          requirePassword={viewer.user.provider === "email" || viewer.user.provider === undefined}
+        />
       </AccountSection>
     </>
   );

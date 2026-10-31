@@ -18,17 +18,25 @@ export function StatusPage({
   className?: string;
 }) {
   return (
-    <div className={cn("relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden px-6 py-16 text-center", className)}>
+    <div
+      className={cn(
+        "relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden px-6 py-16 text-center",
+        className,
+      )}
+    >
       <div className="bg-tamurt-pattern absolute inset-0 -z-10" aria-hidden />
       <div
-        className="absolute top-1/3 start-1/2 -z-10 size-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(227,38,58,0.22),transparent)] rtl:translate-x-1/2"
+        className="absolute start-1/2 top-1/3 -z-10 size-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(227,38,58,0.22),transparent)] rtl:translate-x-1/2"
         aria-hidden
       />
       <Link href="/" className="mb-12" aria-label="Tamurt Vidéo — accueil">
         <Logo className="h-8" />
       </Link>
       {code && (
-        <p className="mb-4 font-display text-8xl font-black tracking-tight text-transparent [-webkit-text-stroke:2px_rgba(255,255,255,0.25)] sm:text-9xl" aria-hidden>
+        <p
+          className="mb-4 font-display text-8xl font-black tracking-tight text-transparent [-webkit-text-stroke:2px_rgba(255,255,255,0.25)] sm:text-9xl"
+          aria-hidden
+        >
           {code}
         </p>
       )}

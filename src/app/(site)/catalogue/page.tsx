@@ -70,7 +70,11 @@ export default async function CataloguePage({ searchParams }: PageProps<"/catalo
   return (
     <div className="mx-auto max-w-[1600px] px-4 pt-28 pb-10 sm:px-6 lg:px-10">
       <h1 className="mb-6 text-3xl font-bold sm:text-4xl">{heading}</h1>
-      <form method="get" className="mb-10 grid grid-cols-2 gap-3 rounded-2xl border bg-card/60 p-4 md:grid-cols-3 lg:grid-cols-6" aria-label={t("filters")}>
+      <form
+        method="get"
+        className="mb-10 grid grid-cols-2 gap-3 rounded-2xl border bg-card/60 p-4 md:grid-cols-3 lg:grid-cols-6"
+        aria-label={t("filters")}
+      >
         <div className="space-y-1.5">
           <Label htmlFor="f-type">{t("type")}</Label>
           <AutoSubmitSelect id="f-type" name="type" defaultValue={filters.kind ?? ""}>

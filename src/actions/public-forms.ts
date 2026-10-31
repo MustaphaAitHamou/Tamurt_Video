@@ -19,13 +19,17 @@ const contactSchema = z.object({
   website: z.string().max(0).optional(),
 });
 
-export async function submitContactAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function submitContactAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const t = await getTranslations("contact");
   const parsed = contactSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return fromZodError(parsed.error);
   const ipHash = hashIp(await getClientIp());
   const limit = await rateLimit(`contact:${ipHash ?? "unknown"}`, 5, 3600);
-  if (!limit.allowed) return failure("Trop de messages envoyés. Réessayez plus tard.", "RATE_LIMITED");
+  if (!limit.allowed)
+    return failure("Trop de messages envoyés. Réessayez plus tard.", "RATE_LIMITED");
   const user = await getSessionUser();
   const admin = createSupabaseAdminClient();
   const { error } = await admin.from("contact_messages").insert({
@@ -60,13 +64,21 @@ const claimSchema = z.object({
 });
 
 /** Signalement d'un contenu : transmis immédiatement à l'équipe chargée des droits. */
-export async function submitClaimAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function submitClaimAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const t = await getTranslations("report");
   const parsed = claimSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return fromZodError(parsed.error, "Vérifiez les champs obligatoires et la déclaration sur l'honneur.");
+  if (!parsed.success)
+    return fromZodError(
+      parsed.error,
+      "Vérifiez les champs obligatoires et la déclaration sur l'honneur.",
+    );
   const ipHash = hashIp(await getClientIp());
   const limit = await rateLimit(`claim:${ipHash ?? "unknown"}`, 5, 3600);
-  if (!limit.allowed) return failure("Trop de signalements envoyés. Réessayez plus tard.", "RATE_LIMITED");
+  if (!limit.allowed)
+    return failure("Trop de signalements envoyés. Réessayez plus tard.", "RATE_LIMITED");
 
   const admin = createSupabaseAdminClient();
   const slugMatch = parsed.data.titleReference.match(/\/titre\/([a-z0-9-]+)/);
@@ -86,7 +98,8 @@ export async function submitClaimAction(_prev: ActionResult | null, formData: Fo
     sworn_statement: true,
     ip_hash: ipHash ?? null,
   });
-  if (error) return failure("Envoi impossible. Écrivez-nous via le formulaire de contact.", "STORAGE");
+  if (error)
+    return failure("Envoi impossible. Écrivez-nous via le formulaire de contact.", "STORAGE");
   await sendDirectEmail({
     to: parsed.data.claimantEmail,
     title: "Nous avons bien reçu votre signalement",

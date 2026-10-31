@@ -1,7 +1,14 @@
 import { AdminPageHeader, AdminPagination } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { formatDateTime } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/server/auth/session";
@@ -21,7 +28,9 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
   const supabase = await createSupabaseServerClient();
   let query = supabase
     .from("audit_logs")
-    .select("id, actor_id, action, entity_type, entity_id, metadata, created_at", { count: "exact" })
+    .select("id, actor_id, action, entity_type, entity_id, metadata, created_at", {
+      count: "exact",
+    })
     .order("created_at", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (action) query = query.ilike("action", `${action}%`);
@@ -37,9 +46,24 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
         description="Actions sensibles et modifications des données de référence (catalogue, droits, rôles, abonnements, paramètres). Le journal est immuable : aucune entrée ne peut être modifiée ni supprimée."
       />
       <form className="mb-4 flex flex-wrap gap-3">
-        <Input name="action" defaultValue={action} placeholder="Action (ex. billing., update)" className="w-56" />
-        <Input name="objet" defaultValue={entity} placeholder="Objet (ex. licenses, titles)" className="w-56" />
-        <Input name="id" defaultValue={entityId} placeholder="Identifiant de l'objet" className="w-72" />
+        <Input
+          name="action"
+          defaultValue={action}
+          placeholder="Action (ex. billing., update)"
+          className="w-56"
+        />
+        <Input
+          name="objet"
+          defaultValue={entity}
+          placeholder="Objet (ex. licenses, titles)"
+          className="w-56"
+        />
+        <Input
+          name="id"
+          defaultValue={entityId}
+          placeholder="Identifiant de l'objet"
+          className="w-72"
+        />
         <Button type="submit" variant="secondary">
           Filtrer
         </Button>
@@ -59,18 +83,30 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
             const metadata = JSON.stringify(log.metadata);
             return (
               <TableRow key={log.id}>
-                <TableCell className="whitespace-nowrap text-sm">{formatDateTime(log.created_at)}</TableCell>
-                <TableCell className="text-sm">{log.actor_id ? (emails.get(log.actor_id) ?? log.actor_id.slice(0, 8)) : "Système"}</TableCell>
+                <TableCell className="text-sm whitespace-nowrap">
+                  {formatDateTime(log.created_at)}
+                </TableCell>
+                <TableCell className="text-sm">
+                  {log.actor_id
+                    ? (emails.get(log.actor_id) ?? log.actor_id.slice(0, 8))
+                    : "Système"}
+                </TableCell>
                 <TableCell className="font-mono text-xs">{log.action}</TableCell>
                 <TableCell className="font-mono text-xs">
                   {log.entity_type}
-                  {log.entity_id && <span className="block text-muted-foreground">{log.entity_id}</span>}
+                  {log.entity_id && (
+                    <span className="block text-muted-foreground">{log.entity_id}</span>
+                  )}
                 </TableCell>
                 <TableCell className="max-w-md">
                   {metadata !== "{}" && (
                     <details>
-                      <summary className="cursor-pointer text-xs text-muted-foreground">Voir</summary>
-                      <pre className="mt-1 max-h-60 overflow-auto whitespace-pre-wrap break-all rounded bg-background/60 p-2 text-[11px]">{JSON.stringify(log.metadata, null, 2)}</pre>
+                      <summary className="cursor-pointer text-xs text-muted-foreground">
+                        Voir
+                      </summary>
+                      <pre className="mt-1 max-h-60 overflow-auto rounded bg-background/60 p-2 text-[11px] break-all whitespace-pre-wrap">
+                        {JSON.stringify(log.metadata, null, 2)}
+                      </pre>
                     </details>
                   )}
                 </TableCell>
@@ -79,7 +115,13 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
           })}
         </TableBody>
       </Table>
-      <AdminPagination basePath="/admin/audit" page={page} pageSize={PAGE_SIZE} total={count ?? 0} params={{ action, objet: entity, id: entityId }} />
+      <AdminPagination
+        basePath="/admin/audit"
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={count ?? 0}
+        params={{ action, objet: entity, id: entityId }}
+      />
     </>
   );
 }

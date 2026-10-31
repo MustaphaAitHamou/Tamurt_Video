@@ -19,7 +19,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 
-export function CancelSubscriptionButton({ cancelScheduled, endDate }: { cancelScheduled: boolean; endDate: string | null }) {
+export function CancelSubscriptionButton({
+  cancelScheduled,
+  endDate,
+}: {
+  cancelScheduled: boolean;
+  endDate: string | null;
+}) {
   const t = useTranslations("billing");
   const ta = useTranslations("account");
   const router = useRouter();
@@ -49,11 +55,16 @@ export function CancelSubscriptionButton({ cancelScheduled, endDate }: { cancelS
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{t("cancelTitle")}</AlertDialogTitle>
-          <AlertDialogDescription>{endDate ? t("cancelText", { date: endDate }) : t("cancelTextNoDate")}</AlertDialogDescription>
+          <AlertDialogDescription>
+            {endDate ? t("cancelText", { date: endDate }) : t("cancelTextNoDate")}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t("keep")}</AlertDialogCancel>
-          <AlertDialogAction onClick={() => run(true)} className="bg-destructive hover:bg-destructive/90">
+          <AlertDialogAction
+            onClick={() => run(true)}
+            className="bg-destructive hover:bg-destructive/90"
+          >
             {t("confirmCancel")}
           </AlertDialogAction>
         </AlertDialogFooter>

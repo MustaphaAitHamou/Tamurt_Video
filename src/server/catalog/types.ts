@@ -71,7 +71,13 @@ export type SeasonData = {
   episodes: EpisodeData[];
 };
 
-export type CreditData = { personId: string; name: string; slug: string; role: string; character: string | null };
+export type CreditData = {
+  personId: string;
+  name: string;
+  slug: string;
+  role: string;
+  character: string | null;
+};
 
 export type TitleDetail = TitleCardData & {
   originalTitle: string | null;

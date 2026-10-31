@@ -38,11 +38,18 @@ export function formatClock(totalSeconds: number) {
   return `${h > 0 ? `${h}:` : ""}${mm}:${sec.toString().padStart(2, "0")}`;
 }
 
-export function formatDate(value: string | Date | null | undefined, locale = "fr-FR", options?: Intl.DateTimeFormatOptions) {
+export function formatDate(
+  value: string | Date | null | undefined,
+  locale = "fr-FR",
+  options?: Intl.DateTimeFormatOptions,
+) {
   if (!value) return "";
   const date = typeof value === "string" ? new Date(value) : value;
   if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat(locale, options ?? { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" }).format(date);
+  return new Intl.DateTimeFormat(
+    locale,
+    options ?? { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Paris" },
+  ).format(date);
 }
 
 export function formatDateTime(value: string | Date | null | undefined, locale = "fr-FR") {
@@ -93,14 +100,26 @@ function zonedParts(date: Date, timeZone: string) {
     minute: "2-digit",
     second: "2-digit",
   }).formatToParts(date);
-  const get = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((p) => p.type === type)?.value ?? 0);
-  return { year: get("year"), month: get("month"), day: get("day"), hour: get("hour"), minute: get("minute"), second: get("second") };
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((p) => p.type === type)?.value ?? 0);
+  return {
+    year: get("year"),
+    month: get("month"),
+    day: get("day"),
+    hour: get("hour"),
+    minute: get("minute"),
+    second: get("second"),
+  };
 }
 
 /** Décalage (minutes) d'un fuseau par rapport à UTC à un instant donné. */
 export function timeZoneOffsetMinutes(date: Date, timeZone = PARIS) {
   const p = zonedParts(date, timeZone);
-  return (Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(date.getTime() / 1000) * 1000) / 60_000;
+  return (
+    (Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) -
+      Math.floor(date.getTime() / 1000) * 1000) /
+    60_000
+  );
 }
 
 /** Valeur d'un champ « datetime-local » exprimée à l'heure de Paris. */

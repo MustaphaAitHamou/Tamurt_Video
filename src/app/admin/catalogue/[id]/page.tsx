@@ -54,7 +54,13 @@ const STATUS_LABELS: Record<string, string> = {
   unpublished: "Dépubliée",
   archived: "Archivée",
 };
-const MEDIA_STATUS: Record<string, string> = { pending_upload: "Envoi en attente", processing: "Traitement", ready: "Prête", error: "Erreur", deleted: "Supprimée" };
+const MEDIA_STATUS: Record<string, string> = {
+  pending_upload: "Envoi en attente",
+  processing: "Traitement",
+  ready: "Prête",
+  error: "Erreur",
+  deleted: "Supprimée",
+};
 const CREDIT_ROLES: Record<string, string> = {
   director: "Réalisation",
   actor: "Interprétation",
@@ -75,7 +81,10 @@ const TABS = [
   { key: "droits", label: "Droits" },
 ] as const;
 
-export default async function AdminTitlePage({ params, searchParams }: PageProps<"/admin/catalogue/[id]">) {
+export default async function AdminTitlePage({
+  params,
+  searchParams,
+}: PageProps<"/admin/catalogue/[id]">) {
   const { id } = await params;
   if (!uuidPattern.test(id)) notFound();
   const viewer = await requireStaff("catalog.read_all", `/admin/catalogue/${id}`);
@@ -85,7 +94,8 @@ export default async function AdminTitlePage({ params, searchParams }: PageProps
   const { title } = detail;
   const tabs = TABS.filter((t) => !("episodic" in t) || title.structure === "episodic");
   const tab = tabs.find((t) => t.key === tabParam)?.key ?? "informations";
-  const can = (permission: Parameters<typeof viewer.staff.permissions.includes>[0]) => viewer.staff.permissions.includes(permission);
+  const can = (permission: Parameters<typeof viewer.staff.permissions.includes>[0]) =>
+    viewer.staff.permissions.includes(permission);
 
   return (
     <>
@@ -103,11 +113,16 @@ export default async function AdminTitlePage({ params, searchParams }: PageProps
         }
       />
 
-      <section aria-label="Statut et publication" className="mb-6 space-y-4 rounded-xl border bg-card/60 p-5">
+      <section
+        aria-label="Statut et publication"
+        className="mb-6 space-y-4 rounded-xl border bg-card/60 p-5"
+      >
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={title.status} label={STATUS_LABELS[title.status]} />
           {title.is_demo && <Badge variant="muted">Contenu de démonstration fictif</Badge>}
-          {title.takedown_at && <Badge variant="destructive">Retirée le {formatDate(title.takedown_at)}</Badge>}
+          {title.takedown_at && (
+            <Badge variant="destructive">Retirée le {formatDate(title.takedown_at)}</Badge>
+          )}
           {title.deleted_at && <Badge variant="destructive">Supprimée</Badge>}
           {title.status === "published" && isFuture(title.published_at) && (
             <Badge variant="gold">Programmée le {formatDateTime(title.published_at)}</Badge>
@@ -115,30 +130,50 @@ export default async function AdminTitlePage({ params, searchParams }: PageProps
         </div>
         {detail.hasValidLicense ? (
           <p className="flex items-center gap-2 text-sm text-success">
-            <ShieldCheckIcon className="size-4" /> Une licence signée et en cours de validité couvre cette œuvre.
+            <ShieldCheckIcon className="size-4" /> Une licence signée et en cours de validité couvre
+            cette œuvre.
           </p>
         ) : (
           <Alert variant="warning">
             <ShieldAlertIcon />
             <AlertTitle>Aucune licence valide</AlertTitle>
             <AlertDescription>
-              La publication et l&apos;annonce sont bloquées par la base de données tant qu&apos;aucune licence signée, en cours de validité et couvrant au moins un territoire n&apos;est enregistrée.{" "}
+              La publication et l&apos;annonce sont bloquées par la base de données tant
+              qu&apos;aucune licence signée, en cours de validité et couvrant au moins un territoire
+              n&apos;est enregistrée.{" "}
               {can("rights.write") && (
-                <Link href={`/admin/droits/licences/nouvelle?titre=${title.id}`} className="underline">
+                <Link
+                  href={`/admin/droits/licences/nouvelle?titre=${title.id}`}
+                  className="underline"
+                >
                   Enregistrer une licence
                 </Link>
               )}
             </AlertDescription>
           </Alert>
         )}
-        {title.takedown_at && title.takedown_reason && <p className="text-sm text-muted-foreground">Motif du retrait : {title.takedown_reason}</p>}
+        {title.takedown_at && title.takedown_reason && (
+          <p className="text-sm text-muted-foreground">
+            Motif du retrait : {title.takedown_reason}
+          </p>
+        )}
         {!title.deleted_at && (
           <div className="flex flex-wrap items-center gap-2">
-            {can("catalog.publish") && !title.takedown_at && title.status !== "published" && <PublishControls titleId={title.id} canPublish />}
-            {can("catalog.publish") && !title.takedown_at && !["announced", "published"].includes(title.status) && (
-              <ActionButton action={setTitleStatusAction.bind(null, title.id, "announced")}>Annoncer (« Prochainement »)</ActionButton>
+            {can("catalog.publish") && !title.takedown_at && title.status !== "published" && (
+              <PublishControls titleId={title.id} canPublish />
             )}
-            {can("catalog.write") && title.status === "draft" && <ActionButton action={setTitleStatusAction.bind(null, title.id, "in_review")}>Envoyer en relecture</ActionButton>}
+            {can("catalog.publish") &&
+              !title.takedown_at &&
+              !["announced", "published"].includes(title.status) && (
+                <ActionButton action={setTitleStatusAction.bind(null, title.id, "announced")}>
+                  Annoncer (« Prochainement »)
+                </ActionButton>
+              )}
+            {can("catalog.write") && title.status === "draft" && (
+              <ActionButton action={setTitleStatusAction.bind(null, title.id, "in_review")}>
+                Envoyer en relecture
+              </ActionButton>
+            )}
             {can("catalog.write") && ["published", "announced"].includes(title.status) && (
               <ConfirmAction
                 action={setTitleStatusAction.bind(null, title.id, "unpublished")}
@@ -148,7 +183,12 @@ export default async function AdminTitlePage({ params, searchParams }: PageProps
               />
             )}
             {can("catalog.write") && title.status !== "archived" && (
-              <ConfirmAction action={setTitleStatusAction.bind(null, title.id, "archived")} label="Archiver" title="Archiver cette œuvre ?" description="Elle n'est plus visible et reste consultable dans l'administration." />
+              <ConfirmAction
+                action={setTitleStatusAction.bind(null, title.id, "archived")}
+                label="Archiver"
+                title="Archiver cette œuvre ?"
+                description="Elle n'est plus visible et reste consultable dans l'administration."
+              />
             )}
             {can("takedown.execute") &&
               (title.takedown_at ? (
@@ -182,10 +222,17 @@ export default async function AdminTitlePage({ params, searchParams }: PageProps
             )}
           </div>
         )}
-        {title.deleted_at && can("catalog.write") && <ActionButton action={restoreTitleAction.bind(null, title.id)}>Restaurer en brouillon</ActionButton>}
+        {title.deleted_at && can("catalog.write") && (
+          <ActionButton action={restoreTitleAction.bind(null, title.id)}>
+            Restaurer en brouillon
+          </ActionButton>
+        )}
       </section>
 
-      <nav aria-label="Sections de la fiche" className="mb-6 flex gap-1 overflow-x-auto border-b scrollbar-none">
+      <nav
+        aria-label="Sections de la fiche"
+        className="mb-6 flex scrollbar-none gap-1 overflow-x-auto border-b"
+      >
         {tabs.map((t) => (
           <Link
             key={t.key}
@@ -193,7 +240,9 @@ export default async function AdminTitlePage({ params, searchParams }: PageProps
             aria-current={tab === t.key ? "page" : undefined}
             className={cn(
               "shrink-0 border-b-2 px-3 py-2 text-sm transition",
-              tab === t.key ? "border-primary font-medium text-foreground" : "border-transparent text-muted-foreground hover:text-foreground",
+              tab === t.key
+                ? "border-primary font-medium text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground",
             )}
           >
             {t.label}
@@ -205,7 +254,9 @@ export default async function AdminTitlePage({ params, searchParams }: PageProps
       {tab === "visuels" && <VisualsTab detail={detail} editable={can("catalog.write")} />}
       {tab === "distribution" && <CreditsTab detail={detail} editable={can("catalog.write")} />}
       {tab === "episodes" && <EpisodesTab detail={detail} editable={can("catalog.write")} />}
-      {tab === "medias" && <MediaTab detail={detail} canUpload={can("media.upload")} editable={can("catalog.write")} />}
+      {tab === "medias" && (
+        <MediaTab detail={detail} canUpload={can("media.upload")} editable={can("catalog.write")} />
+      )}
       {tab === "droits" && <RightsTab detail={detail} canWrite={can("rights.write")} />}
     </>
   );
@@ -223,7 +274,9 @@ async function InformationTab({ detail, editable }: { detail: AdminTitle; editab
           defaults={{ ...title, genreIds: detail.genreIds }}
         />
       ) : (
-        <p className="text-sm text-muted-foreground">Lecture seule : votre rôle ne permet pas de modifier le catalogue.</p>
+        <p className="text-sm text-muted-foreground">
+          Lecture seule : votre rôle ne permet pas de modifier le catalogue.
+        </p>
       )}
     </div>
   );
@@ -232,9 +285,24 @@ async function InformationTab({ detail, editable }: { detail: AdminTitle; editab
 function VisualsTab({ detail, editable }: { detail: AdminTitle; editable: boolean }) {
   const { title } = detail;
   const fields = [
-    { field: "poster_path" as const, label: "Affiche (2:3)", aspect: "aspect-[2/3] w-40", value: title.poster_path },
-    { field: "backdrop_path" as const, label: "Image de fond (16:9)", aspect: "aspect-video w-72", value: title.backdrop_path },
-    { field: "logo_path" as const, label: "Logo du titre (PNG transparent)", aspect: "aspect-[3/1] w-72", value: title.logo_path },
+    {
+      field: "poster_path" as const,
+      label: "Affiche (2:3)",
+      aspect: "aspect-[2/3] w-40",
+      value: title.poster_path,
+    },
+    {
+      field: "backdrop_path" as const,
+      label: "Image de fond (16:9)",
+      aspect: "aspect-video w-72",
+      value: title.backdrop_path,
+    },
+    {
+      field: "logo_path" as const,
+      label: "Logo du titre (PNG transparent)",
+      aspect: "aspect-[3/1] w-72",
+      value: title.logo_path,
+    },
   ];
   return (
     <div className="grid gap-6 lg:grid-cols-3">
@@ -244,10 +312,21 @@ function VisualsTab({ detail, editable }: { detail: AdminTitle; editable: boolea
           <div key={field} className="space-y-4 rounded-xl border bg-card/60 p-5">
             <h2 className="font-semibold">{label}</h2>
             <div className={cn("relative overflow-hidden rounded-lg border bg-muted", aspect)}>
-              {src ? <Image src={src} alt="" fill sizes="300px" className="object-cover" /> : <span className="absolute inset-0 grid place-items-center text-xs text-muted-foreground">Aucune image</span>}
+              {src ? (
+                <Image src={src} alt="" fill sizes="300px" className="object-cover" />
+              ) : (
+                <span className="absolute inset-0 grid place-items-center text-xs text-muted-foreground">
+                  Aucune image
+                </span>
+              )}
             </div>
             {editable && (
-              <ActionForm action={uploadTitleImageAction.bind(null, title.id, field)} submitLabel="Envoyer" submitVariant="secondary" resetOnSuccess>
+              <ActionForm
+                action={uploadTitleImageAction.bind(null, title.id, field)}
+                submitLabel="Envoyer"
+                submitVariant="secondary"
+                resetOnSuccess
+              >
                 <input
                   type="file"
                   name="file"
@@ -256,7 +335,10 @@ function VisualsTab({ detail, editable }: { detail: AdminTitle; editable: boolea
                   aria-label={`Fichier : ${label}`}
                   className="block w-full text-sm file:me-3 file:rounded-full file:border-0 file:bg-secondary file:px-4 file:py-2 file:text-foreground"
                 />
-                <p className="text-xs text-muted-foreground">JPEG, PNG, WebP ou AVIF, 4 Mo maximum. Utilisez uniquement des visuels dont les droits sont acquis.</p>
+                <p className="text-xs text-muted-foreground">
+                  JPEG, PNG, WebP ou AVIF, 4 Mo maximum. Utilisez uniquement des visuels dont les
+                  droits sont acquis.
+                </p>
               </ActionForm>
             )}
           </div>
@@ -277,7 +359,10 @@ function CreditsTab({ detail, editable }: { detail: AdminTitle; editable: boolea
         ) : (
           <ul className="divide-y">
             {credits.map((credit) => (
-              <li key={credit.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+              <li
+                key={credit.id}
+                className="flex items-center justify-between gap-3 py-2.5 text-sm"
+              >
                 <span>
                   <span className="font-medium">{credit.people?.full_name}</span>
                   <span className="text-muted-foreground">
@@ -287,7 +372,13 @@ function CreditsTab({ detail, editable }: { detail: AdminTitle; editable: boolea
                   </span>
                 </span>
                 {editable && (
-                  <ConfirmAction action={removeCreditAction.bind(null, credit.id, title.id)} label="Retirer" title="Retirer ce crédit ?" description="La fiche de la personne est conservée." variant="ghost" />
+                  <ConfirmAction
+                    action={removeCreditAction.bind(null, credit.id, title.id)}
+                    label="Retirer"
+                    title="Retirer ce crédit ?"
+                    description="La fiche de la personne est conservée."
+                    variant="ghost"
+                  />
                 )}
               </li>
             ))}
@@ -297,7 +388,11 @@ function CreditsTab({ detail, editable }: { detail: AdminTitle; editable: boolea
       {editable && (
         <div className="rounded-xl border bg-card/60 p-5">
           <h2 className="mb-4 font-semibold">Ajouter un crédit</h2>
-          <ActionForm action={addCreditAction.bind(null, title.id)} submitLabel="Ajouter" resetOnSuccess>
+          <ActionForm
+            action={addCreditAction.bind(null, title.id)}
+            submitLabel="Ajouter"
+            resetOnSuccess
+          >
             <TextField label="Nom" name="name" required maxLength={160} />
             <Field label="Fonction" name="role">
               <NativeSelect id="role" name="role" defaultValue="actor">
@@ -316,13 +411,23 @@ function CreditsTab({ detail, editable }: { detail: AdminTitle; editable: boolea
   );
 }
 
-function EpisodeFields({ seasons, episode }: { seasons: AdminTitle["seasons"]; episode?: AdminTitle["episodes"][number] }) {
+function EpisodeFields({
+  seasons,
+  episode,
+}: {
+  seasons: AdminTitle["seasons"];
+  episode?: AdminTitle["episodes"][number];
+}) {
   const prefix = episode ? `ep-${episode.id.slice(0, 8)}-` : "ep-new-";
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label="Saison" name={`${prefix}season`}>
-          <NativeSelect id={`${prefix}season`} name="season_id" defaultValue={episode?.season_id ?? seasons.at(-1)?.id}>
+          <NativeSelect
+            id={`${prefix}season`}
+            name="season_id"
+            defaultValue={episode?.season_id ?? seasons.at(-1)?.id}
+          >
             {seasons.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name ?? `Saison ${s.season_number}`}
@@ -331,10 +436,28 @@ function EpisodeFields({ seasons, episode }: { seasons: AdminTitle["seasons"]; e
           </NativeSelect>
         </Field>
         <Field label="Numéro" name={`${prefix}number`}>
-          <input id={`${prefix}number`} name="episode_number" type="number" min={0} required defaultValue={episode?.episode_number} className="h-9 w-full rounded-md border bg-transparent px-3 text-sm" />
+          <input
+            id={`${prefix}number`}
+            name="episode_number"
+            type="number"
+            min={0}
+            required
+            defaultValue={episode?.episode_number}
+            className="h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+          />
         </Field>
         <Field label="Statut" name={`${prefix}status`}>
-          <NativeSelect id={`${prefix}status`} name="status" defaultValue={episode?.status === "published" ? "published" : episode?.status === "unpublished" ? "unpublished" : "draft"}>
+          <NativeSelect
+            id={`${prefix}status`}
+            name="status"
+            defaultValue={
+              episode?.status === "published"
+                ? "published"
+                : episode?.status === "unpublished"
+                  ? "unpublished"
+                  : "draft"
+            }
+          >
             <option value="draft">Brouillon</option>
             <option value="published">Publié</option>
             <option value="unpublished">Dépublié</option>
@@ -342,10 +465,22 @@ function EpisodeFields({ seasons, episode }: { seasons: AdminTitle["seasons"]; e
         </Field>
       </div>
       <Field label="Titre de l'épisode" name={`${prefix}name`}>
-        <input id={`${prefix}name`} name="name" required maxLength={200} defaultValue={episode?.name} className="h-9 w-full rounded-md border bg-transparent px-3 text-sm" />
+        <input
+          id={`${prefix}name`}
+          name="name"
+          required
+          maxLength={200}
+          defaultValue={episode?.name}
+          className="h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+        />
       </Field>
       <Field label="Synopsis" name={`${prefix}synopsis`}>
-        <Textarea id={`${prefix}synopsis`} name="synopsis" maxLength={2000} defaultValue={episode?.synopsis ?? ""} />
+        <Textarea
+          id={`${prefix}synopsis`}
+          name="synopsis"
+          maxLength={2000}
+          defaultValue={episode?.synopsis ?? ""}
+        />
       </Field>
       <div className="grid gap-4 sm:grid-cols-4">
         {(
@@ -357,7 +492,14 @@ function EpisodeFields({ seasons, episode }: { seasons: AdminTitle["seasons"]; e
           ] as const
         ).map(([name, label]) => (
           <Field key={name} label={label} name={`${prefix}${name}`}>
-            <input id={`${prefix}${name}`} name={name} type="number" min={0} defaultValue={episode?.[name] ?? ""} className="h-9 w-full rounded-md border bg-transparent px-3 text-sm" />
+            <input
+              id={`${prefix}${name}`}
+              name={name}
+              type="number"
+              min={0}
+              defaultValue={episode?.[name] ?? ""}
+              className="h-9 w-full rounded-md border bg-transparent px-3 text-sm"
+            />
           </Field>
         ))}
       </div>
@@ -369,12 +511,16 @@ function EpisodesTab({ detail, editable }: { detail: AdminTitle; editable: boole
   const { title, seasons, episodes, assets } = detail;
   return (
     <div className="space-y-6">
-      {seasons.length === 0 && <p className="text-sm text-muted-foreground">Créez d&apos;abord une saison.</p>}
+      {seasons.length === 0 && (
+        <p className="text-sm text-muted-foreground">Créez d&apos;abord une saison.</p>
+      )}
       {seasons.map((season) => {
         const seasonEpisodes = episodes.filter((e) => e.season_id === season.id);
         return (
           <section key={season.id} className="rounded-xl border bg-card/60 p-5">
-            <h2 className="mb-3 font-semibold">{season.name ?? `Saison ${season.season_number}`}</h2>
+            <h2 className="mb-3 font-semibold">
+              {season.name ?? `Saison ${season.season_number}`}
+            </h2>
             {seasonEpisodes.length === 0 ? (
               <p className="text-sm text-muted-foreground">Aucun épisode.</p>
             ) : (
@@ -386,16 +532,27 @@ function EpisodesTab({ detail, editable }: { detail: AdminTitle; editable: boole
                       <details className="group rounded-lg border bg-background/40">
                         <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
                           <span>
-                            <span className="text-muted-foreground">É{episode.episode_number}</span> <span className="font-medium">{episode.name}</span>
+                            <span className="text-muted-foreground">É{episode.episode_number}</span>{" "}
+                            <span className="font-medium">{episode.name}</span>
                           </span>
                           <span className="flex items-center gap-2">
-                            {media ? <Badge variant="success">Vidéo prête</Badge> : <Badge variant="warning">Sans vidéo</Badge>}
-                            <StatusBadge status={episode.status} label={STATUS_LABELS[episode.status]} />
+                            {media ? (
+                              <Badge variant="success">Vidéo prête</Badge>
+                            ) : (
+                              <Badge variant="warning">Sans vidéo</Badge>
+                            )}
+                            <StatusBadge
+                              status={episode.status}
+                              label={STATUS_LABELS[episode.status]}
+                            />
                           </span>
                         </summary>
                         {editable && (
                           <div className="space-y-4 border-t p-4">
-                            <ActionForm action={saveEpisodeAction.bind(null, title.id, episode.id)} submitLabel="Enregistrer l'épisode">
+                            <ActionForm
+                              action={saveEpisodeAction.bind(null, title.id, episode.id)}
+                              submitLabel="Enregistrer l'épisode"
+                            >
                               <EpisodeFields seasons={seasons} episode={episode} />
                             </ActionForm>
                             <ConfirmAction
@@ -422,15 +579,30 @@ function EpisodesTab({ detail, editable }: { detail: AdminTitle; editable: boole
           {seasons.length > 0 && (
             <section className="rounded-xl border bg-card/60 p-5">
               <h2 className="mb-4 font-semibold">Nouvel épisode</h2>
-              <ActionForm action={saveEpisodeAction.bind(null, title.id, null)} submitLabel="Ajouter l'épisode" resetOnSuccess>
+              <ActionForm
+                action={saveEpisodeAction.bind(null, title.id, null)}
+                submitLabel="Ajouter l'épisode"
+                resetOnSuccess
+              >
                 <EpisodeFields seasons={seasons} />
               </ActionForm>
             </section>
           )}
           <section className="rounded-xl border bg-card/60 p-5">
             <h2 className="mb-4 font-semibold">Nouvelle saison</h2>
-            <ActionForm action={addSeasonAction.bind(null, title.id)} submitLabel="Ajouter la saison" resetOnSuccess>
-              <TextField label="Numéro" name="season_number" type="number" min={0} required defaultValue={(seasons.at(-1)?.season_number ?? 0) + 1} />
+            <ActionForm
+              action={addSeasonAction.bind(null, title.id)}
+              submitLabel="Ajouter la saison"
+              resetOnSuccess
+            >
+              <TextField
+                label="Numéro"
+                name="season_number"
+                type="number"
+                min={0}
+                required
+                defaultValue={(seasons.at(-1)?.season_number ?? 0) + 1}
+              />
               <TextField label="Nom (facultatif)" name="name" maxLength={120} />
             </ActionForm>
           </section>
@@ -440,7 +612,15 @@ function EpisodesTab({ detail, editable }: { detail: AdminTitle; editable: boole
   );
 }
 
-async function MediaTab({ detail, canUpload, editable }: { detail: AdminTitle; canUpload: boolean; editable: boolean }) {
+async function MediaTab({
+  detail,
+  canUpload,
+  editable,
+}: {
+  detail: AdminTitle;
+  canUpload: boolean;
+  editable: boolean;
+}) {
   const { title, assets, episodes } = detail;
   const devFolders = canUpload ? await listDevMediaFolders() : [];
   const episodeName = (id: string | null) => {
@@ -451,7 +631,11 @@ async function MediaTab({ detail, canUpload, editable }: { detail: AdminTitle; c
     { label: "Bande-annonce", episodeId: null, kind: "trailer" },
     ...(title.structure === "single"
       ? [{ label: "Vidéo principale", episodeId: null, kind: "main" as const }]
-      : episodes.map((e) => ({ label: `Épisode ${e.episode_number} · ${e.name}`, episodeId: e.id, kind: "main" as const }))),
+      : episodes.map((e) => ({
+          label: `Épisode ${e.episode_number} · ${e.name}`,
+          episodeId: e.id,
+          kind: "main" as const,
+        }))),
   ];
   return (
     <div className="space-y-6">
@@ -459,7 +643,9 @@ async function MediaTab({ detail, canUpload, editable }: { detail: AdminTitle; c
         <ShieldAlertIcon />
         <AlertTitle>Importer uniquement des vidéos autorisées</AlertTitle>
         <AlertDescription>
-          L&apos;import exige une licence signée et une attestation de droits. Les URL signées et le contrôle territorial limitent l&apos;accès mais ne constituent pas une protection absolue contre la copie.
+          L&apos;import exige une licence signée et une attestation de droits. Les URL signées et le
+          contrôle territorial limitent l&apos;accès mais ne constituent pas une protection absolue
+          contre la copie.
         </AlertDescription>
       </Alert>
       <section className="rounded-xl border bg-card/60 p-5">
@@ -473,35 +659,60 @@ async function MediaTab({ detail, canUpload, editable }: { detail: AdminTitle; c
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="space-y-1 text-sm">
                     <p className="font-medium">
-                      {asset.kind === "trailer" ? "Bande-annonce" : asset.episode_id ? episodeName(asset.episode_id) : "Vidéo principale"}
-                      {[title.main_asset_id, title.trailer_asset_id, ...episodes.map((e) => e.main_asset_id)].includes(asset.id) && (
+                      {asset.kind === "trailer"
+                        ? "Bande-annonce"
+                        : asset.episode_id
+                          ? episodeName(asset.episode_id)
+                          : "Vidéo principale"}
+                      {[
+                        title.main_asset_id,
+                        title.trailer_asset_id,
+                        ...episodes.map((e) => e.main_asset_id),
+                      ].includes(asset.id) && (
                         <Badge variant="gold" className="ms-2">
                           En service
                         </Badge>
                       )}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {asset.provider === "dev_local" ? "Média de test local" : "Cloudflare Stream"} · {asset.original_filename ?? "—"} · ajouté le {formatDateTime(asset.created_at)}
+                      {asset.provider === "dev_local" ? "Média de test local" : "Cloudflare Stream"}{" "}
+                      · {asset.original_filename ?? "—"} · ajouté le{" "}
+                      {formatDateTime(asset.created_at)}
                       {asset.duration_seconds ? ` · ${formatClock(asset.duration_seconds)}` : ""}
                       {asset.height ? ` · ${asset.height}p` : ""}
                     </p>
-                    {asset.error_message && <p className="text-xs text-destructive">{asset.error_message}</p>}
+                    {asset.error_message && (
+                      <p className="text-xs text-destructive">{asset.error_message}</p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <StatusBadge status={asset.status === "processing" ? "processing_media" : asset.status} label={MEDIA_STATUS[asset.status]} />
-                    {canUpload && asset.status !== "ready" && <ActionButton action={refreshMediaStatusAction.bind(null, asset.id)}>Actualiser</ActionButton>}
+                    <StatusBadge
+                      status={asset.status === "processing" ? "processing_media" : asset.status}
+                      label={MEDIA_STATUS[asset.status]}
+                    />
+                    {canUpload && asset.status !== "ready" && (
+                      <ActionButton action={refreshMediaStatusAction.bind(null, asset.id)}>
+                        Actualiser
+                      </ActionButton>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Sous-titres</p>
+                  <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    Sous-titres
+                  </p>
                   {asset.subtitles.length === 0 ? (
                     <p className="text-xs text-muted-foreground">Aucun sous-titre.</p>
                   ) : (
                     <ul className="flex flex-wrap gap-2">
                       {asset.subtitles.map((subtitle) => (
-                        <li key={subtitle.id} className="flex items-center gap-1 rounded-full border py-0.5 ps-3 pe-1 text-xs">
+                        <li
+                          key={subtitle.id}
+                          className="flex items-center gap-1 rounded-full border py-0.5 ps-3 pe-1 text-xs"
+                        >
                           {subtitle.label} ({subtitle.language}
-                          {subtitle.kind !== "subtitles" ? `, ${subtitle.kind}` : ""}){subtitle.is_machine_generated && " · traduction automatique"}
+                          {subtitle.kind !== "subtitles" ? `, ${subtitle.kind}` : ""})
+                          {subtitle.is_machine_generated && " · traduction automatique"}
                           {editable && (
                             <ConfirmAction
                               action={deleteSubtitleAction.bind(null, subtitle.id, title.id)}
@@ -518,11 +729,31 @@ async function MediaTab({ detail, canUpload, editable }: { detail: AdminTitle; c
                   )}
                   {editable && (
                     <details>
-                      <summary className="cursor-pointer text-xs text-primary">Ajouter des sous-titres (WebVTT)</summary>
-                      <ActionForm action={uploadSubtitleAction.bind(null, asset.id, title.id)} submitLabel="Envoyer les sous-titres" submitVariant="secondary" resetOnSuccess className="mt-3">
+                      <summary className="cursor-pointer text-xs text-primary">
+                        Ajouter des sous-titres (WebVTT)
+                      </summary>
+                      <ActionForm
+                        action={uploadSubtitleAction.bind(null, asset.id, title.id)}
+                        submitLabel="Envoyer les sous-titres"
+                        submitVariant="secondary"
+                        resetOnSuccess
+                        className="mt-3"
+                      >
                         <div className="grid gap-3 sm:grid-cols-3">
-                          <TextField label="Langue (code)" name="language" required placeholder="fr, kab, ar, en" pattern="[a-z]{2,3}(-[A-Za-z0-9]{2,8})?" />
-                          <TextField label="Libellé" name="label" required placeholder="Français" maxLength={60} />
+                          <TextField
+                            label="Langue (code)"
+                            name="language"
+                            required
+                            placeholder="fr, kab, ar, en"
+                            pattern="[a-z]{2,3}(-[A-Za-z0-9]{2,8})?"
+                          />
+                          <TextField
+                            label="Libellé"
+                            name="label"
+                            required
+                            placeholder="Français"
+                            maxLength={60}
+                          />
                           <Field label="Type" name="kind">
                             <NativeSelect id="kind" name="kind" defaultValue="subtitles">
                               <option value="subtitles">Sous-titres</option>
@@ -531,9 +762,17 @@ async function MediaTab({ detail, canUpload, editable }: { detail: AdminTitle; c
                             </NativeSelect>
                           </Field>
                         </div>
-                        <input type="file" name="file" accept=".vtt,text/vtt" required aria-label="Fichier WebVTT" className="block w-full text-sm file:me-3 file:rounded-full file:border-0 file:bg-secondary file:px-4 file:py-2 file:text-foreground" />
+                        <input
+                          type="file"
+                          name="file"
+                          accept=".vtt,text/vtt"
+                          required
+                          aria-label="Fichier WebVTT"
+                          className="block w-full text-sm file:me-3 file:rounded-full file:border-0 file:bg-secondary file:px-4 file:py-2 file:text-foreground"
+                        />
                         <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <input type="checkbox" name="machine" className="size-4 accent-primary" /> Traduction automatique non relue (signalée comme telle aux spectateurs)
+                          <input type="checkbox" name="machine" className="size-4 accent-primary" />{" "}
+                          Traduction automatique non relue (signalée comme telle aux spectateurs)
                         </label>
                       </ActionForm>
                     </details>
@@ -550,7 +789,12 @@ async function MediaTab({ detail, canUpload, editable }: { detail: AdminTitle; c
           {targets.map((target) => (
             <div key={`${target.kind}-${target.episodeId ?? "title"}`} className="space-y-2">
               <p className="text-sm font-medium">{target.label}</p>
-              <VideoUploader titleId={title.id} episodeId={target.episodeId} kind={target.kind} devFolders={devFolders} />
+              <VideoUploader
+                titleId={title.id}
+                episodeId={target.episodeId}
+                kind={target.kind}
+                devFolders={devFolders}
+              />
             </div>
           ))}
         </section>
@@ -572,27 +816,47 @@ function RightsTab({ detail, canWrite }: { detail: AdminTitle; canWrite: boolean
         )}
       </div>
       {licenses.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Aucune licence : l&apos;œuvre ne peut être ni publiée ni annoncée.</p>
+        <p className="text-sm text-muted-foreground">
+          Aucune licence : l&apos;œuvre ne peut être ni publiée ni annoncée.
+        </p>
       ) : (
         <ul className="divide-y">
           {licenses.map((license) => {
-            const included = license.license_territories.filter((t) => !t.is_excluded).map((t) => t.country_code);
-            const excluded = license.license_territories.filter((t) => t.is_excluded).map((t) => t.country_code);
+            const included = license.license_territories
+              .filter((t) => !t.is_excluded)
+              .map((t) => t.country_code);
+            const excluded = license.license_territories
+              .filter((t) => t.is_excluded)
+              .map((t) => t.country_code);
             return (
-              <li key={license.id} className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm">
+              <li
+                key={license.id}
+                className="flex flex-wrap items-center justify-between gap-3 py-3 text-sm"
+              >
                 <div className="space-y-1">
-                  <Link href={`/admin/droits/licences/${license.id}`} className="font-medium hover:underline">
-                    {license.rights_holders?.name ?? "Ayant droit non renseigné"} · {LICENSE_TYPE_LABELS[license.license_type] ?? license.license_type}
+                  <Link
+                    href={`/admin/droits/licences/${license.id}`}
+                    className="font-medium hover:underline"
+                  >
+                    {license.rights_holders?.name ?? "Ayant droit non renseigné"} ·{" "}
+                    {LICENSE_TYPE_LABELS[license.license_type] ?? license.license_type}
                   </Link>
                   <p className="text-xs text-muted-foreground">
-                    Du {formatDate(license.starts_at)} {license.ends_at ? `au ${formatDate(license.ends_at)}` : "sans date de fin"} · modes : {license.exploitation_modes.join(", ")} · supports : {license.supports.join(", ")}
+                    Du {formatDate(license.starts_at)}{" "}
+                    {license.ends_at ? `au ${formatDate(license.ends_at)}` : "sans date de fin"} ·
+                    modes : {license.exploitation_modes.join(", ")} · supports :{" "}
+                    {license.supports.join(", ")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Territoires : {included.includes("WW") ? "monde entier" : included.join(", ") || "aucun"}
+                    Territoires :{" "}
+                    {included.includes("WW") ? "monde entier" : included.join(", ") || "aucun"}
                     {excluded.length ? ` · exclus : ${excluded.join(", ")}` : ""}
                   </p>
                 </div>
-                <StatusBadge status={license.status} label={LICENSE_STATUS_LABELS[license.status]} />
+                <StatusBadge
+                  status={license.status}
+                  label={LICENSE_STATUS_LABELS[license.status]}
+                />
               </li>
             );
           })}

@@ -4,7 +4,14 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { safeNextPath } from "@/lib/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-const ALLOWED_TYPES: EmailOtpType[] = ["email", "signup", "recovery", "email_change", "invite", "magiclink"];
+const ALLOWED_TYPES: EmailOtpType[] = [
+  "email",
+  "signup",
+  "recovery",
+  "email_change",
+  "invite",
+  "magiclink",
+];
 
 /** Lien reçu par email (confirmation, réinitialisation, changement d'adresse). */
 export async function GET(request: NextRequest) {

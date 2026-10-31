@@ -32,7 +32,10 @@ export function AccountNav() {
     { href: "/compte/confidentialite", label: t("privacy"), icon: ShieldIcon },
   ];
   return (
-    <nav aria-label={t("title")} className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:px-0">
+    <nav
+      aria-label={t("title")}
+      className="-mx-4 flex scrollbar-none gap-1 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:px-0"
+    >
       {items.map(({ href, label, icon: Icon }) => {
         const active = href === "/compte" ? pathname === "/compte" : pathname.startsWith(href);
         return (

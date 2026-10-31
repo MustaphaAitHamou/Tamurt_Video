@@ -29,17 +29,24 @@ if (!url || !secret) {
 }
 const isLocal = /^https?:\/\/(127\.0\.0\.1|localhost|host\.docker\.internal)(:\d+)?/.test(url);
 if (!isLocal && !process.argv.includes("--allow-remote")) {
-  console.error(`Refus : ${url} n'est pas une instance locale. Les comptes de démonstration ne doivent jamais exister en production.`);
+  console.error(
+    `Refus : ${url} n'est pas une instance locale. Les comptes de démonstration ne doivent jamais exister en production.`,
+  );
   process.exit(1);
 }
 
-const db = createClient<Database>(url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
+const db = createClient<Database>(url, secret, {
+  auth: { persistSession: false, autoRefreshToken: false },
+});
 export const DEMO_PASSWORD = "Tamurt-Demo-2026";
 const DAY = 86_400_000;
 const iso = (offsetDays: number) => new Date(Date.now() + offsetDays * DAY).toISOString();
 
 /** Attend une requête et lève une erreur explicite en cas d'échec. */
-async function must<T>(label: string, promise: PromiseLike<{ data: T; error: { message: string } | null }>): Promise<NonNullable<T>> {
+async function must<T>(
+  label: string,
+  promise: PromiseLike<{ data: T; error: { message: string } | null }>,
+): Promise<NonNullable<T>> {
   const { data, error } = await promise;
   if (error) throw new Error(`${label} : ${error.message}`);
   return data as NonNullable<T>;
@@ -79,14 +86,22 @@ async function ensureUser(user: DemoUser): Promise<string> {
 }
 
 async function seedUsers() {
-  const plans = await must("formules", db.from("subscription_plans").select("id, code, price_cents, currency"));
-  const prices = await must("prix", db.from("plan_prices").select("id, plan_id").eq("is_current", true));
+  const plans = await must(
+    "formules",
+    db.from("subscription_plans").select("id, code, price_cents, currency"),
+  );
+  const prices = await must(
+    "prix",
+    db.from("plan_prices").select("id, plan_id").eq("is_current", true),
+  );
   const ids: Record<string, string> = {};
   for (const user of USERS) {
     const id = await ensureUser(user);
     ids[user.email] = id;
     for (const role of user.roles ?? []) {
-      await db.from("user_roles").upsert({ user_id: id, role }, { onConflict: "user_id,role", ignoreDuplicates: true });
+      await db
+        .from("user_roles")
+        .upsert({ user_id: id, role }, { onConflict: "user_id,role", ignoreDuplicates: true });
     }
     if (user.plan) {
       const plan = plans.find((p) => p.code === user.plan);
@@ -133,12 +148,25 @@ function devDuration(asset: string, fallback: number) {
 
 function vtt(lang: "fr" | "en" | "ar", duration: number) {
   const lines = {
-    fr: ["Sous-titres de démonstration.", "Œuvre fictive créée pour tester la plateforme.", "Tamurt Vidéo — média de test synthétique."],
-    en: ["Demo subtitles.", "Fictional work created to test the platform.", "Tamurt Vidéo — synthetic test media."],
-    ar: ["ترجمة تجريبية.", "عمل خيالي أُنشئ لاختبار المنصة.", "تامورت فيديو — وسائط اختبار اصطناعية."],
+    fr: [
+      "Sous-titres de démonstration.",
+      "Œuvre fictive créée pour tester la plateforme.",
+      "Tamurt Vidéo — média de test synthétique.",
+    ],
+    en: [
+      "Demo subtitles.",
+      "Fictional work created to test the platform.",
+      "Tamurt Vidéo — synthetic test media.",
+    ],
+    ar: [
+      "ترجمة تجريبية.",
+      "عمل خيالي أُنشئ لاختبار المنصة.",
+      "تامورت فيديو — وسائط اختبار اصطناعية.",
+    ],
   }[lang];
   const pad = (n: number) => n.toString().padStart(2, "0");
-  const ts = (s: number) => `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}.000`;
+  const ts = (s: number) =>
+    `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}.000`;
   let out = "WEBVTT\n\n";
   for (let start = 2, i = 0; start < duration - 2; start += 6, i++) {
     out += `${i + 1}\n${ts(start)} --> ${ts(Math.min(start + 4, duration))}\n${lines[i % lines.length]}\n\n`;
@@ -152,7 +180,10 @@ async function uploadSubtitles(assetId: string, duration: number, createdBy: str
     const storagePath = `${assetId}/${lang}.vtt`;
     const { error } = await db.storage
       .from("subtitles")
-      .upload(storagePath, new Blob([vtt(lang, duration)], { type: "text/vtt" }), { upsert: true, contentType: "text/vtt" });
+      .upload(storagePath, new Blob([vtt(lang, duration)], { type: "text/vtt" }), {
+        upsert: true,
+        contentType: "text/vtt",
+      });
     if (error) throw new Error(`Sous-titres ${storagePath} : ${error.message}`);
     await db.from("subtitles").upsert(
       {
@@ -179,7 +210,12 @@ async function createAsset(input: {
   createdBy: string;
 }) {
   const providerAssetId = `${input.media}#${input.key}`;
-  const existing = await db.from("media_assets").select("id").eq("provider", "dev_local").eq("provider_asset_id", providerAssetId).maybeSingle();
+  const existing = await db
+    .from("media_assets")
+    .select("id")
+    .eq("provider", "dev_local")
+    .eq("provider_asset_id", providerAssetId)
+    .maybeSingle();
   if (existing.data) return existing.data.id;
   const row = await must(
     `média ${providerAssetId}`,
@@ -197,7 +233,10 @@ async function createAsset(input: {
         height: 720,
         qualities: ["360p", "720p"],
         original_filename: `${input.media}.m3u8`,
-        rights_attestation: { type: "synthetic_test_media", note: "Média synthétique généré localement (scripts/generate-dev-media.sh)." },
+        rights_attestation: {
+          type: "synthetic_test_media",
+          note: "Média synthétique généré localement (scripts/generate-dev-media.sh).",
+        },
         created_by: input.createdBy,
         ready_at: new Date().toISOString(),
       })
@@ -216,7 +255,14 @@ async function seedCatalog(adminId: string) {
   for (const [slug, fullName] of Object.entries(DEMO_PEOPLE)) {
     const row = await must(
       `personne ${slug}`,
-      db.from("people").upsert({ slug, full_name: fullName, is_demo: true, bio: "Personne fictive (démonstration)." }, { onConflict: "slug" }).select("id").single(),
+      db
+        .from("people")
+        .upsert(
+          { slug, full_name: fullName, is_demo: true, bio: "Personne fictive (démonstration)." },
+          { onConflict: "slug" },
+        )
+        .select("id")
+        .single(),
     );
     peopleIds[slug] = row.id;
   }
@@ -229,21 +275,43 @@ async function seedCatalog(adminId: string) {
     ].map(async (h) => {
       const found = await db.from("rights_holders").select("id").eq("name", h.name).maybeSingle();
       if (found.data) return found.data.id;
-      const row = await must("ayant droit", db.from("rights_holders").insert({ ...h, country_code: "DZ", notes: "Ayant droit fictif (démonstration).", created_by: adminId }).select("id").single());
+      const row = await must(
+        "ayant droit",
+        db
+          .from("rights_holders")
+          .insert({
+            ...h,
+            country_code: "DZ",
+            notes: "Ayant droit fictif (démonstration).",
+            created_by: adminId,
+          })
+          .select("id")
+          .single(),
+      );
       return row.id;
     }),
   );
 
   const titleIds: Record<string, string> = {};
   for (const demo of DEMO_TITLES) {
-    titleIds[demo.slug] = await seedTitle(demo, { adminId, peopleIds, genreId, holders: holders as [string, string] });
+    titleIds[demo.slug] = await seedTitle(demo, {
+      adminId,
+      peopleIds,
+      genreId,
+      holders: holders as [string, string],
+    });
   }
   return titleIds;
 }
 
 async function seedTitle(
   demo: DemoTitle,
-  ctx: { adminId: string; peopleIds: Record<string, string>; genreId: (slug: string) => number | undefined; holders: [string, string] },
+  ctx: {
+    adminId: string;
+    peopleIds: Record<string, string>;
+    genreId: (slug: string) => number | undefined;
+    holders: [string, string];
+  },
 ) {
   const episodic = Boolean(demo.seasons);
   const title = await must(
@@ -283,7 +351,9 @@ async function seedTitle(
   const titleId = title.id;
 
   await db.from("title_genres").delete().eq("title_id", titleId);
-  const genreRows = demo.genres.map((slug) => ({ title_id: titleId, genre_id: ctx.genreId(slug) })).filter((r): r is { title_id: string; genre_id: number } => r.genre_id !== undefined);
+  const genreRows = demo.genres
+    .map((slug) => ({ title_id: titleId, genre_id: ctx.genreId(slug) }))
+    .filter((r): r is { title_id: string; genre_id: number } => r.genre_id !== undefined);
   if (genreRows.length) await must("genres de l'œuvre", db.from("title_genres").insert(genreRows));
 
   await db.from("credits").delete().eq("title_id", titleId);
@@ -303,7 +373,14 @@ async function seedTitle(
   // Médias (fournisseur de développement)
   const mainDuration = devDuration(demo.media, demo.media === "demo-feature" ? 120 : 90);
   if (!episodic) {
-    const assetId = await createAsset({ key: demo.slug, media: demo.media, kind: "main", titleId, duration: mainDuration, createdBy: ctx.adminId });
+    const assetId = await createAsset({
+      key: demo.slug,
+      media: demo.media,
+      kind: "main",
+      titleId,
+      duration: mainDuration,
+      createdBy: ctx.adminId,
+    });
     await uploadSubtitles(assetId, mainDuration, ctx.adminId);
     await db
       .from("titles")
@@ -318,7 +395,14 @@ async function seedTitle(
     for (const season of demo.seasons ?? []) {
       const seasonRow = await must(
         "saison",
-        db.from("seasons").upsert({ title_id: titleId, season_number: season.number, name: `Saison ${season.number}` }, { onConflict: "title_id,season_number" }).select("id").single(),
+        db
+          .from("seasons")
+          .upsert(
+            { title_id: titleId, season_number: season.number, name: `Saison ${season.number}` },
+            { onConflict: "title_id,season_number" },
+          )
+          .select("id")
+          .single(),
       );
       for (const [index, episode] of season.episodes.entries()) {
         const number = index + 1;
@@ -356,7 +440,12 @@ async function seedTitle(
         if (number === 1) await uploadSubtitles(assetId, duration, ctx.adminId);
         await db
           .from("episodes")
-          .update({ main_asset_id: assetId, intro_start_seconds: 3, intro_end_seconds: 14, credits_start_seconds: Math.max(duration - 15, 10) })
+          .update({
+            main_asset_id: assetId,
+            intro_start_seconds: 3,
+            intro_end_seconds: 14,
+            credits_start_seconds: Math.max(duration - 15, 10),
+          })
           .eq("id", episodeRow.id);
       }
     }
@@ -364,7 +453,14 @@ async function seedTitle(
 
   if (demo.trailer) {
     const duration = devDuration("demo-trailer", 30);
-    const trailerId = await createAsset({ key: `${demo.slug}-trailer`, media: "demo-trailer", kind: "trailer", titleId, duration, createdBy: ctx.adminId });
+    const trailerId = await createAsset({
+      key: `${demo.slug}-trailer`,
+      media: "demo-trailer",
+      kind: "trailer",
+      titleId,
+      duration,
+      createdBy: ctx.adminId,
+    });
     await db.from("titles").update({ trailer_asset_id: trailerId }).eq("id", titleId);
   }
 
@@ -383,24 +479,63 @@ async function seedTitle(
     created_by: ctx.adminId,
     notes: "Licence de test pour une œuvre fictive.",
     ...(rights === "worldwide"
-      ? { license_type: "owned_production", rights_holder_id: ctx.holders[0], starts_at: iso(-60), ends_at: null }
+      ? {
+          license_type: "owned_production",
+          rights_holder_id: ctx.holders[0],
+          starts_at: iso(-60),
+          ends_at: null,
+        }
       : rights === "upcoming"
-        ? { license_type: "exclusive_license", rights_holder_id: ctx.holders[1], starts_at: iso(90), ends_at: iso(90 + 3 * 365) }
+        ? {
+            license_type: "exclusive_license",
+            rights_holder_id: ctx.holders[1],
+            starts_at: iso(90),
+            ends_at: iso(90 + 3 * 365),
+          }
         : rights === "expired"
-          ? { license_type: "non_exclusive_license", rights_holder_id: ctx.holders[1], starts_at: iso(-400), ends_at: iso(30) }
-          : { license_type: rights === "france-only" ? "non_exclusive_license" : "exclusive_license", rights_holder_id: ctx.holders[1], starts_at: iso(-60), ends_at: iso(rights === "france-only" ? 365 : 730) }),
+          ? {
+              license_type: "non_exclusive_license",
+              rights_holder_id: ctx.holders[1],
+              starts_at: iso(-400),
+              ends_at: iso(30),
+            }
+          : {
+              license_type:
+                rights === "france-only" ? "non_exclusive_license" : "exclusive_license",
+              rights_holder_id: ctx.holders[1],
+              starts_at: iso(-60),
+              ends_at: iso(rights === "france-only" ? 365 : 730),
+            }),
   };
-  const existing = await db.from("licenses").select("id").eq("title_id", titleId).eq("contract_reference", reference).maybeSingle();
+  const existing = await db
+    .from("licenses")
+    .select("id")
+    .eq("title_id", titleId)
+    .eq("contract_reference", reference)
+    .maybeSingle();
   let licenseId = existing.data?.id;
   if (!licenseId) {
-    licenseId = (await must("licence", db.from("licenses").insert(licenseInput).select("id").single())).id;
+    licenseId = (
+      await must("licence", db.from("licenses").insert(licenseInput).select("id").single())
+    ).id;
   } else {
     await must("licence", db.from("licenses").update(licenseInput).eq("id", licenseId));
   }
   await db.from("license_territories").delete().eq("license_id", licenseId);
   const territories =
-    rights === "france-only" ? ["FR"] : rights === "maghreb-europe" ? ["DZ", "MA", "TN", "FR", "BE", "CH", "DE", "ES", "IT", "NL", "GB", "LU"] : ["WW"];
-  await must("territoires", db.from("license_territories").insert(territories.map((country_code) => ({ license_id: licenseId as string, country_code }))));
+    rights === "france-only"
+      ? ["FR"]
+      : rights === "maghreb-europe"
+        ? ["DZ", "MA", "TN", "FR", "BE", "CH", "DE", "ES", "IT", "NL", "GB", "LU"]
+        : ["WW"];
+  await must(
+    "territoires",
+    db
+      .from("license_territories")
+      .insert(
+        territories.map((country_code) => ({ license_id: licenseId as string, country_code })),
+      ),
+  );
 
   const targetStatus = demo.status ?? "published";
   if (title.status !== targetStatus) {
@@ -408,18 +543,30 @@ async function seedTitle(
       `publication ${demo.slug}`,
       db
         .from("titles")
-        .update({ status: targetStatus, published_at: targetStatus === "published" ? iso(-45 + DEMO_TITLES.indexOf(demo) * 3) : null })
+        .update({
+          status: targetStatus,
+          published_at:
+            targetStatus === "published" ? iso(-45 + DEMO_TITLES.indexOf(demo) * 3) : null,
+        })
         .eq("id", titleId),
     );
   }
 
   // Popularité de démonstration (sera recalculée par la tâche planifiée à partir des vraies vues).
-  const popularity = Math.round((DEMO_TITLES.length - DEMO_TITLES.indexOf(demo)) * 7.3 + (demo.featured ? 40 : 0)) % 100;
+  const popularity =
+    Math.round((DEMO_TITLES.length - DEMO_TITLES.indexOf(demo)) * 7.3 + (demo.featured ? 40 : 0)) %
+    100;
   await db.from("titles").update({ popularity_score: popularity }).eq("id", titleId);
 
   // La licence « expirée » n'expire qu'après la publication : la lecture devient alors bloquée.
   if (rights === "expired") {
-    await must("expiration", db.from("licenses").update({ ends_at: iso(-1) }).eq("id", licenseId));
+    await must(
+      "expiration",
+      db
+        .from("licenses")
+        .update({ ends_at: iso(-1) })
+        .eq("id", licenseId),
+    );
   }
   return titleId;
 }
@@ -428,91 +575,160 @@ async function seedTitle(
 // Éditorial, demandes, progression
 // ---------------------------------------------------------------------------
 async function seedEditorial(titleIds: Record<string, string>, adminId: string) {
-  const collection = await must("collection", db.from("collections").select("id").eq("slug", "selection-tamurt").single());
+  const collection = await must(
+    "collection",
+    db.from("collections").select("id").eq("slug", "selection-tamurt").single(),
+  );
   await db.from("collection_items").delete().eq("collection_id", collection.id);
-  const picks = ["le-chant-de-lakfadou", "taddart", "tifinagh-lecriture-des-ancetres", "lettre-a-yemma", "les-voix-du-sahara", "le-fils-du-djurdjura"];
+  const picks = [
+    "le-chant-de-lakfadou",
+    "taddart",
+    "tifinagh-lecriture-des-ancetres",
+    "lettre-a-yemma",
+    "les-voix-du-sahara",
+    "le-fils-du-djurdjura",
+  ];
   await must(
     "sélection",
-    db.from("collection_items").insert(picks.map((slug, position) => ({ collection_id: collection.id, title_id: titleIds[slug] as string, position }))),
+    db.from("collection_items").insert(
+      picks.map((slug, position) => ({
+        collection_id: collection.id,
+        title_id: titleIds[slug] as string,
+        position,
+      })),
+    ),
   );
 
   await db.from("home_banners").delete().like("headline", "%");
   await must(
     "bannières",
-    db.from("home_banners").insert([
-      {
-        title_id: titleIds["le-chant-de-lakfadou"],
-        headline: "Le Chant de l'Akfadou",
-        subheadline: "Une voix s'élève de la forêt. Œuvre fictive présentée pour la démonstration de la plateforme.",
-        position: 0,
-      },
-      {
-        title_id: titleIds["taddart"],
-        headline: "Taddart",
-        subheadline: "La série du Ramadan : un village, mille secrets. Œuvre fictive de démonstration.",
-        position: 1,
-      },
-      {
-        title_id: titleIds["le-fils-du-djurdjura"],
-        headline: "Le Fils du Djurdjura",
-        subheadline: "En accès anticipé pour les membres Premium. Œuvre fictive de démonstration.",
-        audience: "members",
-        position: 2,
-      },
-    ], { defaultToNull: false }),
+    db.from("home_banners").insert(
+      [
+        {
+          title_id: titleIds["le-chant-de-lakfadou"],
+          headline: "Le Chant de l'Akfadou",
+          subheadline:
+            "Une voix s'élève de la forêt. Œuvre fictive présentée pour la démonstration de la plateforme.",
+          position: 0,
+        },
+        {
+          title_id: titleIds["taddart"],
+          headline: "Taddart",
+          subheadline:
+            "La série du Ramadan : un village, mille secrets. Œuvre fictive de démonstration.",
+          position: 1,
+        },
+        {
+          title_id: titleIds["le-fils-du-djurdjura"],
+          headline: "Le Fils du Djurdjura",
+          subheadline:
+            "En accès anticipé pour les membres Premium. Œuvre fictive de démonstration.",
+          audience: "members",
+          position: 2,
+        },
+      ],
+      { defaultToNull: false },
+    ),
   );
 
   await db.from("announcements").delete().like("slug", "%");
   await must(
     "actualités",
-    db.from("announcements").insert([
-      {
-        slug: "ouverture-de-la-phase-fondatrice",
-        title: "Ouverture de la phase fondatrice",
-        excerpt: "Tamurt Vidéo ouvre son abonnement de soutien à 2 € par mois pour financer la construction de la plateforme.",
-        body: "## Pourquoi une phase fondatrice ?\n\nAvant de proposer un catalogue sous licence, il faut construire la plateforme, négocier les droits et financer les premières acquisitions.\n\nL'abonnement **Fondateur** permet de soutenir ce travail. Il ne donne pas accès à des films commerciaux tant que leurs droits n'ont pas été acquis : nous publierons chaque acquisition dans ces actualités.\n\n*Actualité de démonstration (environnement local).*",
-        category: "launch",
-        audience: "public",
-        status: "published",
-        published_at: iso(-10),
-        pinned: true,
-        created_by: adminId,
-      },
-      {
-        slug: "comment-nous-choisissons-les-oeuvres",
-        title: "Comment nous choisissons les œuvres du catalogue",
-        excerpt: "Droits vérifiés, territoires couverts, sous-titres soignés : notre méthode de sélection.",
-        body: "Chaque œuvre ajoutée au catalogue fait l'objet d'un contrat ou d'une vérification de ses droits : titulaire, territoires, durée et modes d'exploitation.\n\nLes demandes des membres Premium nous aident à prioriser les recherches d'ayants droit, sans promesse de disponibilité.\n\n*Actualité de démonstration (environnement local).*",
-        category: "catalog",
-        audience: "public",
-        status: "published",
-        published_at: iso(-6),
-        created_by: adminId,
-      },
-      {
-        slug: "merci-aux-premiers-fondateurs",
-        title: "Merci aux premiers membres fondateurs",
-        excerpt: "Un point d'étape réservé aux fondateurs sur l'utilisation des soutiens.",
-        body: "Merci ! Ce message de démonstration est réservé aux membres fondateurs et illustre les annonces privées de l'espace fondateur.",
-        category: "news",
-        audience: "founders",
-        status: "published",
-        published_at: iso(-2),
-        created_by: adminId,
-      },
-    ], { defaultToNull: false }),
+    db.from("announcements").insert(
+      [
+        {
+          slug: "ouverture-de-la-phase-fondatrice",
+          title: "Ouverture de la phase fondatrice",
+          excerpt:
+            "Tamurt Vidéo ouvre son abonnement de soutien à 2 € par mois pour financer la construction de la plateforme.",
+          body: "## Pourquoi une phase fondatrice ?\n\nAvant de proposer un catalogue sous licence, il faut construire la plateforme, négocier les droits et financer les premières acquisitions.\n\nL'abonnement **Fondateur** permet de soutenir ce travail. Il ne donne pas accès à des films commerciaux tant que leurs droits n'ont pas été acquis : nous publierons chaque acquisition dans ces actualités.\n\n*Actualité de démonstration (environnement local).*",
+          category: "launch",
+          audience: "public",
+          status: "published",
+          published_at: iso(-10),
+          pinned: true,
+          created_by: adminId,
+        },
+        {
+          slug: "comment-nous-choisissons-les-oeuvres",
+          title: "Comment nous choisissons les œuvres du catalogue",
+          excerpt:
+            "Droits vérifiés, territoires couverts, sous-titres soignés : notre méthode de sélection.",
+          body: "Chaque œuvre ajoutée au catalogue fait l'objet d'un contrat ou d'une vérification de ses droits : titulaire, territoires, durée et modes d'exploitation.\n\nLes demandes des membres Premium nous aident à prioriser les recherches d'ayants droit, sans promesse de disponibilité.\n\n*Actualité de démonstration (environnement local).*",
+          category: "catalog",
+          audience: "public",
+          status: "published",
+          published_at: iso(-6),
+          created_by: adminId,
+        },
+        {
+          slug: "merci-aux-premiers-fondateurs",
+          title: "Merci aux premiers membres fondateurs",
+          excerpt: "Un point d'étape réservé aux fondateurs sur l'utilisation des soutiens.",
+          body: "Merci ! Ce message de démonstration est réservé aux membres fondateurs et illustre les annonces privées de l'espace fondateur.",
+          category: "news",
+          audience: "founders",
+          status: "published",
+          published_at: iso(-2),
+          created_by: adminId,
+        },
+      ],
+      { defaultToNull: false },
+    ),
   );
 
   await db.from("roadmap_items").delete().like("title", "%");
   await must(
     "feuille de route",
     db.from("roadmap_items").insert([
-      { title: "Plateforme web et espace membre", category: "platform", status: "done", progress: 100, position: 1, target_label: "2026" },
-      { title: "Lecteur vidéo sécurisé multi-qualité", category: "platform", status: "in_progress", progress: 80, position: 2, target_label: "2026" },
-      { title: "Ouverture des abonnements fondateur", category: "business", status: "in_progress", progress: 60, position: 3, target_label: "2026" },
-      { title: "Premières acquisitions de droits", category: "catalog", status: "planned", progress: 10, position: 4, target_label: "2027" },
-      { title: "Sous-titres kabyle, arabe et anglais validés", category: "catalog", status: "planned", progress: 15, position: 5, target_label: "2027" },
-      { title: "Applications mobiles et TV", category: "apps", status: "planned", progress: 0, position: 6, target_label: "À définir" },
+      {
+        title: "Plateforme web et espace membre",
+        category: "platform",
+        status: "done",
+        progress: 100,
+        position: 1,
+        target_label: "2026",
+      },
+      {
+        title: "Lecteur vidéo sécurisé multi-qualité",
+        category: "platform",
+        status: "in_progress",
+        progress: 80,
+        position: 2,
+        target_label: "2026",
+      },
+      {
+        title: "Ouverture des abonnements fondateur",
+        category: "business",
+        status: "in_progress",
+        progress: 60,
+        position: 3,
+        target_label: "2026",
+      },
+      {
+        title: "Premières acquisitions de droits",
+        category: "catalog",
+        status: "planned",
+        progress: 10,
+        position: 4,
+        target_label: "2027",
+      },
+      {
+        title: "Sous-titres kabyle, arabe et anglais validés",
+        category: "catalog",
+        status: "planned",
+        progress: 15,
+        position: 5,
+        target_label: "2027",
+      },
+      {
+        title: "Applications mobiles et TV",
+        category: "apps",
+        status: "planned",
+        progress: 0,
+        position: 6,
+        target_label: "À définir",
+      },
     ]),
   );
 }
@@ -522,9 +738,27 @@ async function seedRequests(userIds: Record<string, string>) {
   if (!premium) return;
   await db.from("content_requests").delete().like("title", "% (fictif)");
   const requests = [
-    { title: "La Montagne aux sept sources (fictif)", release_year: 1998, country: "Algérie", content_type: "film" as const, comment: "Demande de démonstration." },
-    { title: "Les Chroniques de Tizi (fictif)", release_year: 2008, country: "Algérie", content_type: "series" as const, comment: "Demande de démonstration." },
-    { title: "Mémoires du Hoggar (fictif)", release_year: 2015, country: "Algérie", content_type: "documentary" as const, comment: "Demande de démonstration." },
+    {
+      title: "La Montagne aux sept sources (fictif)",
+      release_year: 1998,
+      country: "Algérie",
+      content_type: "film" as const,
+      comment: "Demande de démonstration.",
+    },
+    {
+      title: "Les Chroniques de Tizi (fictif)",
+      release_year: 2008,
+      country: "Algérie",
+      content_type: "series" as const,
+      comment: "Demande de démonstration.",
+    },
+    {
+      title: "Mémoires du Hoggar (fictif)",
+      release_year: 2015,
+      country: "Algérie",
+      content_type: "documentary" as const,
+      comment: "Demande de démonstration.",
+    },
   ];
   for (const request of requests) {
     await must("demande", db.from("content_requests").insert({ ...request, user_id: premium }));
@@ -539,7 +773,10 @@ async function main() {
   await seedEditorial(titleIds, adminId);
   await seedRequests(userIds);
   console.info("Terminé. Comptes de démonstration (mot de passe : %s) :", DEMO_PASSWORD);
-  for (const user of USERS) console.info(`  - ${user.email}${user.roles ? ` [${user.roles.join(", ")}]` : ""}${user.plan ? ` (${user.plan})` : ""}`);
+  for (const user of USERS)
+    console.info(
+      `  - ${user.email}${user.roles ? ` [${user.roles.join(", ")}]` : ""}${user.plan ? ` (${user.plan})` : ""}`,
+    );
 }
 
 main().catch((error) => {

@@ -6,16 +6,31 @@ import { BillingNav } from "@/components/admin/billing-nav";
 import { AdminPageHeader, StatusBadge } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { NativeSelect } from "@/components/ui/native-select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { formatDateTime } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/server/auth/session";
 
 export const metadata = { title: "Événements de paiement" };
 
-const STATUS: Record<string, string> = { received: "Reçu", processing: "En cours", processed: "Traité", ignored: "Ignoré", failed: "Échec" };
+const STATUS: Record<string, string> = {
+  received: "Reçu",
+  processing: "En cours",
+  processed: "Traité",
+  ignored: "Ignoré",
+  failed: "Échec",
+};
 
-export default async function PaymentEventsPage({ searchParams }: PageProps<"/admin/abonnements/evenements">) {
+export default async function PaymentEventsPage({
+  searchParams,
+}: PageProps<"/admin/abonnements/evenements">) {
   const viewer = await requireStaff("billing.read", "/admin/abonnements/evenements");
   const canManage = viewer.staff.permissions.includes("billing.manage");
   const { statut } = await searchParams;
@@ -23,7 +38,9 @@ export default async function PaymentEventsPage({ searchParams }: PageProps<"/ad
   const supabase = await createSupabaseServerClient();
   let query = supabase
     .from("payment_events")
-    .select("id, event_id, event_type, status, attempts, error, livemode, received_at, processed_at, related_user_id")
+    .select(
+      "id, event_id, event_type, status, attempts, error, livemode, received_at, processed_at, related_user_id",
+    )
     .order("received_at", { ascending: false })
     .limit(200);
   if (status) query = query.eq("status", status as "failed");
@@ -82,7 +99,10 @@ export default async function PaymentEventsPage({ searchParams }: PageProps<"/ad
                   </Link>
                 )}
                 {canManage && event.status === "failed" && (
-                  <ActionButton action={reprocessPaymentEventAction.bind(null, event.id)} className="mt-1">
+                  <ActionButton
+                    action={reprocessPaymentEventAction.bind(null, event.id)}
+                    className="mt-1"
+                  >
                     Retraiter
                   </ActionButton>
                 )}
@@ -91,7 +111,9 @@ export default async function PaymentEventsPage({ searchParams }: PageProps<"/ad
           ))}
         </TableBody>
       </Table>
-      {(events ?? []).length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">Aucun événement reçu.</p>}
+      {(events ?? []).length === 0 && (
+        <p className="py-8 text-center text-sm text-muted-foreground">Aucun événement reçu.</p>
+      )}
     </>
   );
 }

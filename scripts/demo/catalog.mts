@@ -28,7 +28,11 @@ export type DemoTitle = {
   media: "demo-feature" | "demo-episode" | "demo-documentary";
   trailer?: boolean;
   seasons?: { number: number; episodes: { name: string; synopsis: string }[] }[];
-  credits: { person: string; role: "director" | "actor" | "writer" | "producer" | "presenter" | "guest"; character?: string }[];
+  credits: {
+    person: string;
+    role: "director" | "actor" | "writer" | "producer" | "presenter" | "guest";
+    character?: string;
+  }[];
   /** Cas de test des droits. */
   rights?: "worldwide" | "france-only" | "maghreb-europe" | "expired" | "upcoming";
   status?: "published" | "announced";
@@ -70,7 +74,8 @@ export const DEMO_TITLES: DemoTitle[] = [
     age: 10,
     minTier: "standard",
     tagline: "Une voix s'élève de la forêt.",
-    synopsis: "Dans un village perché au-dessus de la forêt, une jeune chanteuse fait renaître les poèmes de sa grand-mère.",
+    synopsis:
+      "Dans un village perché au-dessus de la forêt, une jeune chanteuse fait renaître les poèmes de sa grand-mère.",
     description:
       "Œuvre fictive de démonstration. Tiziri, vingt ans, découvre un carnet de chants anciens dans la maison familiale. Entre la ville où elle étudie et le village où l'attend sa famille, elle doit choisir la voix qu'elle veut porter.",
     original: true,
@@ -100,8 +105,10 @@ export const DEMO_TITLES: DemoTitle[] = [
     age: 12,
     minTier: "standard",
     tagline: "Un village, mille secrets.",
-    synopsis: "Le retour d'un exilé bouleverse l'équilibre fragile d'un village de montagne pendant le mois de Ramadan.",
-    description: "Série fictive de démonstration en deux saisons, pensée comme une série du Ramadan : un feuilleton familial au cœur d'un village de montagne.",
+    synopsis:
+      "Le retour d'un exilé bouleverse l'équilibre fragile d'un village de montagne pendant le mois de Ramadan.",
+    description:
+      "Série fictive de démonstration en deux saisons, pensée comme une série du Ramadan : un feuilleton familial au cœur d'un village de montagne.",
     original: true,
     featured: true,
     scene: "night",
@@ -132,12 +139,18 @@ export const DEMO_TITLES: DemoTitle[] = [
     age: 0,
     minTier: "standard",
     tagline: "Trente soirs, une seule famille.",
-    synopsis: "Une comédie familiale où chaque ftour réserve sa surprise dans un immeuble populaire d'Alger.",
+    synopsis:
+      "Une comédie familiale où chaque ftour réserve sa surprise dans un immeuble populaire d'Alger.",
     description: "Série comique fictive de démonstration, format court du Ramadan.",
     scene: "city",
     palette: ["#0b1220", "#0f766e", "#fbbf24"],
     media: "demo-episode",
-    seasons: [{ number: 1, episodes: ep(5, ["Le premier ftour", "La zlabia", "Le voisin", "La panne", "La fête"]) }],
+    seasons: [
+      {
+        number: 1,
+        episodes: ep(5, ["Le premier ftour", "La zlabia", "Le voisin", "La panne", "La fête"]),
+      },
+    ],
     credits: [
       { person: "anir-boudjemaa", role: "director" },
       { person: "melissa-ouchene", role: "actor", character: "Samia" },
@@ -157,7 +170,8 @@ export const DEMO_TITLES: DemoTitle[] = [
     age: 0,
     minTier: "founder",
     tagline: "Des rochers du Sahara aux écrans d'aujourd'hui.",
-    synopsis: "Un voyage à travers l'histoire de l'alphabet amazigh, des gravures rupestres aux claviers modernes.",
+    synopsis:
+      "Un voyage à travers l'histoire de l'alphabet amazigh, des gravures rupestres aux claviers modernes.",
     description: "Documentaire fictif de démonstration, accessible dès la formule Fondateur.",
     original: true,
     scene: "desert",
@@ -183,7 +197,8 @@ export const DEMO_TITLES: DemoTitle[] = [
     minTier: "free",
     tagline: "Une fête, des traditions partagées.",
     synopsis: "Familles, villages et diaspora célèbrent le premier jour de l'an amazigh.",
-    description: "Documentaire fictif de démonstration, accessible gratuitement aux membres inscrits.",
+    description:
+      "Documentaire fictif de démonstration, accessible gratuitement aux membres inscrits.",
     scene: "olive",
     palette: ["#0c1407", "#3f6212", "#d9f99d"],
     media: "demo-documentary",
@@ -203,7 +218,8 @@ export const DEMO_TITLES: DemoTitle[] = [
     minTier: "standard",
     tagline: "Chaque ruelle cache un témoin.",
     synopsis: "Une inspectrice enquête sur une disparition dans les ruelles de la vieille ville.",
-    description: "Film fictif de démonstration. Sa licence de test ne couvre que la France (cas de test territorial).",
+    description:
+      "Film fictif de démonstration. Sa licence de test ne couvre que la France (cas de test territorial).",
     scene: "city",
     palette: ["#05070c", "#334155", "#e3263a"],
     media: "demo-feature",
@@ -227,7 +243,8 @@ export const DEMO_TITLES: DemoTitle[] = [
     minTier: "standard",
     tagline: "Avant que l'hiver ne vienne.",
     synopsis: "Un vieil homme refuse de vendre son oliveraie au moment de la dernière récolte.",
-    description: "Film fictif de démonstration dont la licence de test a expiré : la lecture est automatiquement bloquée.",
+    description:
+      "Film fictif de démonstration dont la licence de test a expiré : la lecture est automatiquement bloquée.",
     scene: "olive",
     palette: ["#140f05", "#78350f", "#a3e635"],
     media: "demo-feature",
@@ -250,7 +267,8 @@ export const DEMO_TITLES: DemoTitle[] = [
     minTier: "standard",
     tagline: "Le désert ne pardonne qu'à ceux qui l'écoutent.",
     synopsis: "Deux frères traversent le Hoggar pour ramener un instrument légendaire.",
-    description: "Film fictif de démonstration, annoncé : sa licence de test démarre dans trois mois.",
+    description:
+      "Film fictif de démonstration, annoncé : sa licence de test démarre dans trois mois.",
     original: true,
     scene: "desert",
     palette: ["#1c0f05", "#c2410c", "#fcd34d"],
@@ -321,7 +339,8 @@ export const DEMO_TITLES: DemoTitle[] = [
     age: 0,
     minTier: "founder",
     tagline: "Ce que l'on n'ose dire qu'en écrivant.",
-    synopsis: "À Marseille, un étudiant écrit à sa mère restée au pays la lettre qu'il n'a jamais su prononcer.",
+    synopsis:
+      "À Marseille, un étudiant écrit à sa mère restée au pays la lettre qu'il n'a jamais su prononcer.",
     description: "Court-métrage fictif de démonstration.",
     scene: "sea",
     palette: ["#03111a", "#0e7490", "#fde68a"],
@@ -345,7 +364,8 @@ export const DEMO_TITLES: DemoTitle[] = [
     minTier: "free",
     tagline: "L'argile garde la mémoire des mains.",
     synopsis: "Une potière transmet à sa petite-fille les motifs géométriques de ses ancêtres.",
-    description: "Court-métrage fictif de démonstration, accessible gratuitement aux membres inscrits.",
+    description:
+      "Court-métrage fictif de démonstration, accessible gratuitement aux membres inscrits.",
     scene: "pattern",
     palette: ["#1a0b05", "#9a3412", "#fef3c7"],
     media: "demo-documentary",
@@ -365,12 +385,18 @@ export const DEMO_TITLES: DemoTitle[] = [
     age: 0,
     minTier: "standard",
     tagline: "Les recettes qui racontent une histoire.",
-    synopsis: "Chaque semaine, une famille partage une recette transmise de génération en génération.",
+    synopsis:
+      "Chaque semaine, une famille partage une recette transmise de génération en génération.",
     description: "Émission fictive de démonstration.",
     scene: "olive",
     palette: ["#140a05", "#b91c1c", "#fde68a"],
     media: "demo-episode",
-    seasons: [{ number: 1, episodes: ep(3, ["Le couscous de Tiziri", "Les galettes du matin", "Le tajine des fêtes"]) }],
+    seasons: [
+      {
+        number: 1,
+        episodes: ep(3, ["Le couscous de Tiziri", "Les galettes du matin", "Le tajine des fêtes"]),
+      },
+    ],
     credits: [{ person: "kahina-taleb-demo", role: "presenter" }],
     rights: "worldwide",
   },

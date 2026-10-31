@@ -26,8 +26,10 @@ async function resolvePurchasablePlan(code: string) {
     .select("id, code, tier, name, is_active, available_in_phases")
     .eq("code", code)
     .maybeSingle();
-  if (!plan || !plan.is_active || !plan.available_in_phases.includes(settings.launchPhase)) return { ok: false as const, error: "PLAN_UNAVAILABLE" as const };
-  if (plan.tier === "founder" && !settings.founderSignupsOpen) return { ok: false as const, error: "FOUNDER_CLOSED" as const };
+  if (!plan || !plan.is_active || !plan.available_in_phases.includes(settings.launchPhase))
+    return { ok: false as const, error: "PLAN_UNAVAILABLE" as const };
+  if (plan.tier === "founder" && !settings.founderSignupsOpen)
+    return { ok: false as const, error: "FOUNDER_CLOSED" as const };
   const { data: price } = await admin
     .from("plan_prices")
     .select("id, provider_price_id")
@@ -82,15 +84,26 @@ export async function startCheckoutAction(formData: FormData) {
     });
     url = checkout.url;
     if (!customer) {
-      await admin
-        .from("billing_customers")
-        .upsert({ user_id: viewer.user.id, provider: "stripe", provider_customer_id: checkout.customerId }, { onConflict: "user_id" });
+      await admin.from("billing_customers").upsert(
+        {
+          user_id: viewer.user.id,
+          provider: "stripe",
+          provider_customer_id: checkout.customerId,
+        },
+        { onConflict: "user_id" },
+      );
     }
   } catch (error) {
     console.error("[billing] checkout", error);
     redirect("/offres?erreur=paiements");
   }
-  await logAudit({ actorId: viewer.user.id, action: "billing.checkout_started", entityType: "subscription_plan", entityId: resolved.plan.id, metadata: { plan: resolved.plan.code, test_mode: provider.testMode } });
+  await logAudit({
+    actorId: viewer.user.id,
+    action: "billing.checkout_started",
+    entityType: "subscription_plan",
+    entityId: resolved.plan.id,
+    metadata: { plan: resolved.plan.code, test_mode: provider.testMode },
+  });
   redirect(url);
 }
 
@@ -134,10 +147,20 @@ async function ownStripeSubscription() {
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (!subscription?.provider_subscription_id) return { error: failure("Aucun abonnement modifiable.", "NOT_FOUND") };
+  if (!subscription?.provider_subscription_id)
+    return { error: failure("Aucun abonnement modifiable.", "NOT_FOUND") };
   const provider = getPaymentProvider();
-  if (!provider) return { error: failure("Les paiements ne sont pas configurés.", "PAYMENTS_DISABLED") };
-  return { viewer, admin, provider, subscription: { ...subscription, provider_subscription_id: subscription.provider_subscription_id } };
+  if (!provider)
+    return { error: failure("Les paiements ne sont pas configurés.", "PAYMENTS_DISABLED") };
+  return {
+    viewer,
+    admin,
+    provider,
+    subscription: {
+      ...subscription,
+      provider_subscription_id: subscription.provider_subscription_id,
+    },
+  };
 }
 
 /** Résiliation à l'échéance : l'accès reste ouvert jusqu'à la fin de la période payée. */
@@ -146,15 +169,31 @@ export async function setCancelAtPeriodEndAction(cancel: boolean): Promise<Actio
   if ("error" in context) return context.error as ActionResult;
   const { viewer, admin, provider, subscription } = context;
   try {
-    const state = await provider.setCancelAtPeriodEnd(subscription.provider_subscription_id, cancel);
+    const state = await provider.setCancelAtPeriodEnd(
+      subscription.provider_subscription_id,
+      cancel,
+    );
     await syncSubscription(provider, admin, subscription.provider_subscription_id, state);
   } catch (error) {
     console.error("[billing] résiliation", error);
-    return failure("Le prestataire de paiement n'a pas pu traiter la demande. Réessayez plus tard.", "PROVIDER_ERROR");
+    return failure(
+      "Le prestataire de paiement n'a pas pu traiter la demande. Réessayez plus tard.",
+      "PROVIDER_ERROR",
+    );
   }
-  await logAudit({ actorId: viewer.user.id, action: cancel ? "billing.cancel_scheduled" : "billing.cancel_revoked", entityType: "subscription", entityId: subscription.id });
+  await logAudit({
+    actorId: viewer.user.id,
+    action: cancel ? "billing.cancel_scheduled" : "billing.cancel_revoked",
+    entityType: "subscription",
+    entityId: subscription.id,
+  });
   revalidatePath("/compte/abonnement");
-  return success(undefined, cancel ? "Résiliation programmée à la fin de la période en cours." : "Votre abonnement continue.");
+  return success(
+    undefined,
+    cancel
+      ? "Résiliation programmée à la fin de la période en cours."
+      : "Votre abonnement continue.",
+  );
 }
 
 /** Changement de formule (proratisé). Met fin définitivement au tarif fondateur. */
@@ -165,16 +204,30 @@ export async function changePlanAction(planCode: string): Promise<ActionResult> 
   if ("error" in context) return context.error as ActionResult;
   const { viewer, admin, provider, subscription } = context;
   const resolved = await resolvePurchasablePlan(code.data);
-  if (!resolved.ok) return failure("Cette formule n'est pas disponible actuellement.", resolved.error);
-  if (resolved.plan.id === subscription.plan_id) return failure("Vous avez déjà cette formule.", "SAME_PLAN");
+  if (!resolved.ok)
+    return failure("Cette formule n'est pas disponible actuellement.", resolved.error);
+  if (resolved.plan.id === subscription.plan_id)
+    return failure("Vous avez déjà cette formule.", "SAME_PLAN");
   try {
-    const state = await provider.changePlan(subscription.provider_subscription_id, resolved.priceId);
+    const state = await provider.changePlan(
+      subscription.provider_subscription_id,
+      resolved.priceId,
+    );
     await syncSubscription(provider, admin, subscription.provider_subscription_id, state);
   } catch (error) {
     console.error("[billing] changement de formule", error);
-    return failure("Le changement de formule a échoué. Aucun montant n'a été modifié.", "PROVIDER_ERROR");
+    return failure(
+      "Le changement de formule a échoué. Aucun montant n'a été modifié.",
+      "PROVIDER_ERROR",
+    );
   }
-  await logAudit({ actorId: viewer.user.id, action: "billing.plan_changed", entityType: "subscription", entityId: subscription.id, metadata: { to: resolved.plan.code } });
+  await logAudit({
+    actorId: viewer.user.id,
+    action: "billing.plan_changed",
+    entityType: "subscription",
+    entityId: subscription.id,
+    metadata: { to: resolved.plan.code },
+  });
   revalidatePath("/compte/abonnement");
   return success(undefined, `Votre formule est désormais ${resolved.plan.name}.`);
 }

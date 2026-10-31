@@ -33,17 +33,34 @@ function MarkShapes({ gradientId }: { gradientId: string }) {
 }
 
 /** Emblème seul (losange et triangle de lecture). */
-export function LogoMark({ className, title = "Tamurt Vidéo" }: { className?: string; title?: string }) {
+export function LogoMark({
+  className,
+  title = "Tamurt Vidéo",
+}: {
+  className?: string;
+  title?: string;
+}) {
   const gradientId = useId();
   return (
-    <svg viewBox="0 0 64 64" role="img" aria-label={title} className={cn("size-8 shrink-0", className)}>
+    <svg
+      viewBox="0 0 64 64"
+      role="img"
+      aria-label={title}
+      className={cn("size-8 shrink-0", className)}
+    >
       <MarkShapes gradientId={gradientId} />
     </svg>
   );
 }
 
 /** Logotype complet, vectoriel et indépendant des polices chargées. */
-export function Logo({ className, title = "Tamurt Vidéo" }: { className?: string; title?: string }) {
+export function Logo({
+  className,
+  title = "Tamurt Vidéo",
+}: {
+  className?: string;
+  title?: string;
+}) {
   const gradientId = useId();
   return (
     <svg

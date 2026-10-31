@@ -19,7 +19,12 @@ export function flatten(messages: Messages, prefix = ""): Record<string, string>
 
 function collectArguments(elements: MessageFormatElement[], names = new Set<string>()) {
   for (const element of elements) {
-    if (element.type === TYPE.argument || element.type === TYPE.number || element.type === TYPE.date || element.type === TYPE.time) {
+    if (
+      element.type === TYPE.argument ||
+      element.type === TYPE.number ||
+      element.type === TYPE.date ||
+      element.type === TYPE.time
+    ) {
       names.add(`{${element.value}}`);
     } else if (element.type === TYPE.plural || element.type === TYPE.select) {
       names.add(`{${element.value}}`);
@@ -36,9 +41,18 @@ export function placeholders(message: string) {
   return [...collectArguments(parse(message))].sort();
 }
 
-export type LocaleReport = { missing: string[]; unknown: string[]; invalid: string[]; placeholderMismatch: string[] };
+export type LocaleReport = {
+  missing: string[];
+  unknown: string[];
+  invalid: string[];
+  placeholderMismatch: string[];
+};
 
-export function compareLocale(reference: Messages, candidate: Messages, { partial = false } = {}): LocaleReport {
+export function compareLocale(
+  reference: Messages,
+  candidate: Messages,
+  { partial = false } = {},
+): LocaleReport {
   const ref = flatten(reference);
   const target = flatten(candidate);
   const report: LocaleReport = { missing: [], unknown: [], invalid: [], placeholderMismatch: [] };

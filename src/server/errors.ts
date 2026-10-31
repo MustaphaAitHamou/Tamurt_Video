@@ -10,11 +10,18 @@ export function success<T>(data: T, message?: string): ActionResult<T> {
   return { ok: true, data, message };
 }
 
-export function failure(error: string, code?: string, fieldErrors?: FieldErrors): ActionResult<never> {
+export function failure(
+  error: string,
+  code?: string,
+  fieldErrors?: FieldErrors,
+): ActionResult<never> {
   return { ok: false, error, code, fieldErrors };
 }
 
-export function fromZodError(error: z.ZodError, message = "Certains champs sont invalides."): ActionResult<never> {
+export function fromZodError(
+  error: z.ZodError,
+  message = "Certains champs sont invalides.",
+): ActionResult<never> {
   return failure(message, "VALIDATION", z.flattenError(error).fieldErrors as FieldErrors);
 }
 
@@ -69,7 +76,10 @@ const DB_MESSAGES: Record<string, string> = {
   REASON_REQUIRED: "Un motif est obligatoire.",
 };
 
-export function dbErrorMessage(error: DbError, fallback = "Une erreur est survenue. Réessayez plus tard."): string {
+export function dbErrorMessage(
+  error: DbError,
+  fallback = "Une erreur est survenue. Réessayez plus tard.",
+): string {
   const code = dbErrorCode(error);
   return (code && DB_MESSAGES[code]) || fallback;
 }

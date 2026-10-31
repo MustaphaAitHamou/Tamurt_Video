@@ -6,7 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { TITLE_KIND_LABELS } from "@/lib/constants";
 import { formatDate } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -33,7 +40,10 @@ export default async function AdminCataloguePage({ searchParams }: PageProps<"/a
   const supabase = await createSupabaseServerClient();
   let query = supabase
     .from("titles")
-    .select("id, slug, title, kind, status, published_at, is_demo, takedown_at, deleted_at, release_year, updated_at", { count: "exact" })
+    .select(
+      "id, slug, title, kind, status, published_at, is_demo, takedown_at, deleted_at, release_year, updated_at",
+      { count: "exact" },
+    )
     .order("updated_at", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (q) query = query.ilike("title", `%${q}%`);
@@ -91,7 +101,9 @@ export default async function AdminCataloguePage({ searchParams }: PageProps<"/a
                 <Link href={`/admin/catalogue/${title.id}`} className="font-medium hover:underline">
                   {title.title}
                 </Link>
-                {title.release_year && <span className="text-muted-foreground"> ({title.release_year})</span>}
+                {title.release_year && (
+                  <span className="text-muted-foreground"> ({title.release_year})</span>
+                )}
                 <div className="mt-1 flex gap-1">
                   {title.is_demo && <Badge variant="muted">Démo</Badge>}
                   {title.takedown_at && <Badge variant="destructive">Retirée</Badge>}
@@ -103,12 +115,20 @@ export default async function AdminCataloguePage({ searchParams }: PageProps<"/a
                 <StatusBadge status={title.status} label={STATUS_LABELS[title.status]} />
               </TableCell>
               <TableCell className="text-sm">{formatDate(title.published_at) || "—"}</TableCell>
-              <TableCell className="text-sm text-muted-foreground">{formatDate(title.updated_at)}</TableCell>
+              <TableCell className="text-sm text-muted-foreground">
+                {formatDate(title.updated_at)}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      <AdminPagination basePath="/admin/catalogue" page={page} pageSize={PAGE_SIZE} total={count ?? 0} params={{ q, statut: status }} />
+      <AdminPagination
+        basePath="/admin/catalogue"
+        page={page}
+        pageSize={PAGE_SIZE}
+        total={count ?? 0}
+        params={{ q, statut: status }}
+      />
     </>
   );
 }

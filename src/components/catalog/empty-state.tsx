@@ -31,7 +31,9 @@ export function EmptyState({
       </span>
       <div className="max-w-md space-y-1.5">
         <h2 className="text-lg font-semibold">{title}</h2>
-        {description && <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>}
+        {description && (
+          <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+        )}
       </div>
       {action && (
         <Button asChild variant="secondary">

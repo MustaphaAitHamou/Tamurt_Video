@@ -6,7 +6,11 @@ import { CookieSettingsButton } from "@/components/legal/cookie-settings-button"
 import { getPublicSettings } from "@/server/settings";
 
 export async function SiteFooter() {
-  const [t, tn, settings] = await Promise.all([getTranslations("footer"), getTranslations("nav"), getPublicSettings()]);
+  const [t, tn, settings] = await Promise.all([
+    getTranslations("footer"),
+    getTranslations("nav"),
+    getPublicSettings(),
+  ]);
   const year = new Date().getFullYear();
 
   const columns = [
@@ -66,11 +70,16 @@ export async function SiteFooter() {
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             {columns.map((column) => (
               <div key={column.title}>
-                <h2 className="mb-3 font-sans text-xs font-semibold tracking-widest text-white/50 uppercase">{column.title}</h2>
+                <h2 className="mb-3 font-sans text-xs font-semibold tracking-widest text-white/50 uppercase">
+                  {column.title}
+                </h2>
                 <ul className="space-y-2">
                   {column.links.map((link) => (
                     <li key={link.href}>
-                      <Link href={link.href} className="text-sm text-muted-foreground transition hover:text-foreground">
+                      <Link
+                        href={link.href}
+                        className="text-sm text-muted-foreground transition hover:text-foreground"
+                      >
                         {link.label}
                       </Link>
                     </li>

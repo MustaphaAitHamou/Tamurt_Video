@@ -3,7 +3,12 @@ import "server-only";
 import { getEnv } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getEmailProvider } from "@/server/email/providers";
-import { preferenceKeyForType, renderEmail, templateForNotificationType, type EmailTemplate } from "@/server/email/templates";
+import {
+  preferenceKeyForType,
+  renderEmail,
+  templateForNotificationType,
+  type EmailTemplate,
+} from "@/server/email/templates";
 
 type NotificationRow = {
   id: string;
@@ -28,7 +33,10 @@ async function deliver(row: NotificationRow) {
   const preferences = (profile?.notification_preferences ?? {}) as Record<string, boolean>;
   const preferenceKey = preferenceKeyForType(row.type);
   // Les emails de facturation et d'administration restent envoyés : informations contractuelles.
-  const optedOut = preferenceKey !== null && preferenceKey !== "email_billing" && preferences[preferenceKey] === false;
+  const optedOut =
+    preferenceKey !== null &&
+    preferenceKey !== "email_billing" &&
+    preferences[preferenceKey] === false;
 
   if (!email || optedOut) {
     await admin.from("notifications").update({ email_status: "skipped" }).eq("id", row.id);
@@ -36,9 +44,20 @@ async function deliver(row: NotificationRow) {
   }
 
   const template = templateForNotificationType(row.type);
-  const rendered = renderEmail(template, { title: row.title, body: row.body, link: row.link, siteUrl: env.siteUrl });
+  const rendered = renderEmail(template, {
+    title: row.title,
+    body: row.body,
+    link: row.link,
+    siteUrl: env.siteUrl,
+  });
   const provider = getEmailProvider();
-  const result = await provider.send({ to: email, subject: rendered.subject, html: rendered.html, text: rendered.text, replyTo: env.email.replyTo });
+  const result = await provider.send({
+    to: email,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+    replyTo: env.email.replyTo,
+  });
 
   await admin.from("email_outbox").insert({
     user_id: row.user_id,
@@ -56,7 +75,11 @@ async function deliver(row: NotificationRow) {
   await admin
     .from("notifications")
     .update({
-      email_status: failed ? (row.email_attempts + 1 >= MAX_ATTEMPTS ? "failed" : "pending") : "sent",
+      email_status: failed
+        ? row.email_attempts + 1 >= MAX_ATTEMPTS
+          ? "failed"
+          : "pending"
+        : "sent",
       email_attempts: row.email_attempts + 1,
     })
     .eq("id", row.id);
@@ -116,7 +139,9 @@ export async function notifyUser(input: {
     return null;
   }
   if (input.email) {
-    await sendNotificationEmail(id).catch((cause) => console.error("[email] envoi immédiat", cause));
+    await sendNotificationEmail(id).catch((cause) =>
+      console.error("[email] envoi immédiat", cause),
+    );
   }
   return id;
 }
@@ -125,12 +150,30 @@ export async function notifyUser(input: {
  * Email transactionnel adressé directement (destinataire sans compte : auteur
  * d'une réclamation, d'un message de contact). Journalisé dans email_outbox.
  */
-export async function sendDirectEmail(input: { to: string; title: string; body: string; link?: string | null; template?: EmailTemplate; userId?: string | null }) {
+export async function sendDirectEmail(input: {
+  to: string;
+  title: string;
+  body: string;
+  link?: string | null;
+  template?: EmailTemplate;
+  userId?: string | null;
+}) {
   const env = getEnv();
   const template = input.template ?? "external.notice";
-  const rendered = renderEmail(template, { title: input.title, body: input.body, link: input.link ?? null, siteUrl: env.siteUrl });
+  const rendered = renderEmail(template, {
+    title: input.title,
+    body: input.body,
+    link: input.link ?? null,
+    siteUrl: env.siteUrl,
+  });
   const provider = getEmailProvider();
-  const result = await provider.send({ to: input.to, subject: rendered.subject, html: rendered.html, text: rendered.text, replyTo: env.email.replyTo });
+  const result = await provider.send({
+    to: input.to,
+    subject: rendered.subject,
+    html: rendered.html,
+    text: rendered.text,
+    replyTo: env.email.replyTo,
+  });
   await createSupabaseAdminClient()
     .from("email_outbox")
     .insert({

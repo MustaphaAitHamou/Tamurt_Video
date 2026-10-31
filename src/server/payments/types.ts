@@ -68,13 +68,21 @@ export interface PaymentProvider {
     locale: string;
     automaticTax: boolean;
   }): Promise<{ url: string; customerId: string }>;
-  createPortal(input: { customerId: string; returnUrl: string; locale: string }): Promise<{ url: string }>;
+  createPortal(input: {
+    customerId: string;
+    returnUrl: string;
+    locale: string;
+  }): Promise<{ url: string }>;
   retrieveSubscription(id: string): Promise<ProviderSubscriptionState>;
   retrieveInvoice(id: string): Promise<ProviderInvoiceState>;
   setCancelAtPeriodEnd(subscriptionId: string, cancel: boolean): Promise<ProviderSubscriptionState>;
   changePlan(subscriptionId: string, newPriceId: string): Promise<ProviderSubscriptionState>;
   cancelImmediately(subscriptionId: string): Promise<void>;
-  refundInvoice(input: { invoiceId: string; amountCents: number; reason: string }): Promise<{ refundId: string; status: string }>;
+  refundInvoice(input: {
+    invoiceId: string;
+    amountCents: number;
+    reason: string;
+  }): Promise<{ refundId: string; status: string }>;
   ensurePrice(input: {
     planCode: string;
     planName: string;

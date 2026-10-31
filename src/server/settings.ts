@@ -128,7 +128,9 @@ export function mapSettingsRows(rows: { key: string; value: unknown }[]): Platfo
 
 const loadSettings = unstable_cache(
   async () => {
-    const { data, error } = await createSupabaseAdminClient().from("platform_settings").select("key, value");
+    const { data, error } = await createSupabaseAdminClient()
+      .from("platform_settings")
+      .select("key, value");
     if (error) {
       console.error("[settings] lecture impossible", error.message);
       return DEFAULTS;

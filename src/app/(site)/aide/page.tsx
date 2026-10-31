@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = { title: "Questions fréquentes", description: "Aide et questions fréquentes sur Tamurt Vidéo." };
+export const metadata: Metadata = {
+  title: "Questions fréquentes",
+  description: "Aide et questions fréquentes sur Tamurt Vidéo.",
+};
 
 const EXTRA = [
   {
@@ -38,7 +41,10 @@ export default async function HelpPage() {
           <details key={q} className="group rounded-xl border bg-card/60 p-5 open:bg-card">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
               {q}
-              <span className="text-xl text-muted-foreground transition group-open:rotate-45" aria-hidden>
+              <span
+                className="text-xl text-muted-foreground transition group-open:rotate-45"
+                aria-hidden
+              >
                 +
               </span>
             </summary>

@@ -1,6 +1,10 @@
 import type Stripe from "stripe";
 
-import type { ProviderInvoiceState, ProviderSubscriptionState, SubscriptionStatus } from "@/server/payments/types";
+import type {
+  ProviderInvoiceState,
+  ProviderSubscriptionState,
+  SubscriptionStatus,
+} from "@/server/payments/types";
 
 const STATUSES: SubscriptionStatus[] = [
   "incomplete",
@@ -13,11 +17,15 @@ const STATUSES: SubscriptionStatus[] = [
   "paused",
 ];
 
-const toDate = (seconds: number | null | undefined) => (typeof seconds === "number" && seconds > 0 ? new Date(seconds * 1000) : null);
-const idOf = (value: string | { id: string } | null | undefined) => (typeof value === "string" ? value : (value?.id ?? null));
+const toDate = (seconds: number | null | undefined) =>
+  typeof seconds === "number" && seconds > 0 ? new Date(seconds * 1000) : null;
+const idOf = (value: string | { id: string } | null | undefined) =>
+  typeof value === "string" ? value : (value?.id ?? null);
 
 /** Normalise un abonnement Stripe (API 2025+ : périodes portées par les éléments). */
-export function mapStripeSubscription(subscription: Stripe.Subscription): ProviderSubscriptionState {
+export function mapStripeSubscription(
+  subscription: Stripe.Subscription,
+): ProviderSubscriptionState {
   const item = subscription.items.data[0];
   if (!item) throw new Error(`Abonnement ${subscription.id} sans élément.`);
   const status = STATUSES.includes(subscription.status as SubscriptionStatus)

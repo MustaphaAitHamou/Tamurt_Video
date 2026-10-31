@@ -5,14 +5,20 @@ import { DownloadIcon, ReceiptIcon } from "lucide-react";
 import { AccountSection } from "@/components/account/section";
 import { EmptyState } from "@/components/catalog/empty-state";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { isLocale, localeIntlTag } from "@/i18n/config";
 import { formatDate, formatPrice } from "@/lib/format";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireViewer } from "@/server/auth/session";
 
 export const metadata: Metadata = { title: "Factures", robots: { index: false } };
-
 
 export default async function InvoicesPage() {
   const viewer = await requireViewer("/compte/factures");
@@ -21,7 +27,9 @@ export default async function InvoicesPage() {
   const supabase = await createSupabaseServerClient();
   const { data: invoices } = await supabase
     .from("invoices")
-    .select("id, number, status, currency, amount_paid_cents, amount_due_cents, amount_refunded_cents, paid_at, created_at, hosted_invoice_url, invoice_pdf_url")
+    .select(
+      "id, number, status, currency, amount_paid_cents, amount_due_cents, amount_refunded_cents, paid_at, created_at, hosted_invoice_url, invoice_pdf_url",
+    )
     .eq("user_id", viewer.user.id)
     .order("created_at", { ascending: false })
     .limit(100);
@@ -47,16 +55,31 @@ export default async function InvoicesPage() {
                 <TableCell className="font-mono text-xs">{invoice.number ?? "—"}</TableCell>
                 <TableCell>{formatDate(invoice.paid_at ?? invoice.created_at, locale)}</TableCell>
                 <TableCell>
-                  {formatPrice(invoice.amount_paid_cents || invoice.amount_due_cents, invoice.currency, locale)}
+                  {formatPrice(
+                    invoice.amount_paid_cents || invoice.amount_due_cents,
+                    invoice.currency,
+                    locale,
+                  )}
                   {invoice.amount_refunded_cents > 0 && (
                     <span className="block text-xs text-muted-foreground">
-                      Remboursé : {formatPrice(invoice.amount_refunded_cents, invoice.currency, locale)}
+                      Remboursé :{" "}
+                      {formatPrice(invoice.amount_refunded_cents, invoice.currency, locale)}
                     </span>
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={invoice.status === "paid" ? "success" : invoice.status === "open" ? "warning" : "muted"}>
-                    {t.has(`invoiceStatuses.${invoice.status}`) ? t(`invoiceStatuses.${invoice.status}`) : invoice.status}
+                  <Badge
+                    variant={
+                      invoice.status === "paid"
+                        ? "success"
+                        : invoice.status === "open"
+                          ? "warning"
+                          : "muted"
+                    }
+                  >
+                    {t.has(`invoiceStatuses.${invoice.status}`)
+                      ? t(`invoiceStatuses.${invoice.status}`)
+                      : invoice.status}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-end">

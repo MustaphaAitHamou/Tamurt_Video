@@ -3,7 +3,11 @@ import "server-only";
 import { formatDate, formatPrice } from "@/lib/format";
 import type { AdminSupabaseClient } from "@/lib/supabase/admin";
 import { notifyUser } from "@/server/email/dispatcher";
-import type { PaymentProvider, ProviderInvoiceState, ProviderSubscriptionState } from "@/server/payments/types";
+import type {
+  PaymentProvider,
+  ProviderInvoiceState,
+  ProviderSubscriptionState,
+} from "@/server/payments/types";
 
 export type SubscriptionTransition =
   | "activated"
@@ -24,11 +28,21 @@ export function detectTransitions(
   const wasLive = previous !== null && ["active", "trialing", "past_due"].includes(previous.status);
   const isLive = ["active", "trialing"].includes(next.status);
   if (!wasLive && isLive) transitions.push("activated");
-  if (previous && ["active", "trialing"].includes(previous.status) && next.status === "past_due") transitions.push("payment_failed");
-  if (previous && !previous.cancel_at_period_end && next.cancelAtPeriodEnd && next.status !== "canceled") transitions.push("cancellation_scheduled");
-  if (previous && previous.cancel_at_period_end && !next.cancelAtPeriodEnd && isLive) transitions.push("cancellation_revoked");
-  if (previous && previous.status !== "canceled" && next.status === "canceled") transitions.push("canceled");
-  if (previous && previous.plan_id !== next.planId && isLive && wasLive) transitions.push("plan_changed");
+  if (previous && ["active", "trialing"].includes(previous.status) && next.status === "past_due")
+    transitions.push("payment_failed");
+  if (
+    previous &&
+    !previous.cancel_at_period_end &&
+    next.cancelAtPeriodEnd &&
+    next.status !== "canceled"
+  )
+    transitions.push("cancellation_scheduled");
+  if (previous && previous.cancel_at_period_end && !next.cancelAtPeriodEnd && isLive)
+    transitions.push("cancellation_revoked");
+  if (previous && previous.status !== "canceled" && next.status === "canceled")
+    transitions.push("canceled");
+  if (previous && previous.plan_id !== next.planId && isLive && wasLive)
+    transitions.push("plan_changed");
   return transitions;
 }
 
@@ -48,10 +62,18 @@ async function resolveUserId(admin: AdminSupabaseClient, state: ProviderSubscrip
  * L'état est toujours relu via l'API : l'ordre d'arrivée des webhooks n'a pas
  * d'importance, et un état plus ancien ne peut pas écraser un état plus récent.
  */
-export async function syncSubscription(provider: PaymentProvider, admin: AdminSupabaseClient, providerSubscriptionId: string, knownState?: ProviderSubscriptionState) {
+export async function syncSubscription(
+  provider: PaymentProvider,
+  admin: AdminSupabaseClient,
+  providerSubscriptionId: string,
+  knownState?: ProviderSubscriptionState,
+) {
   const state = knownState ?? (await provider.retrieveSubscription(providerSubscriptionId));
   const userId = await resolveUserId(admin, state);
-  if (!userId) throw new Error(`UNKNOWN_CUSTOMER: client ${state.providerCustomerId} non rattaché à un compte.`);
+  if (!userId)
+    throw new Error(
+      `UNKNOWN_CUSTOMER: client ${state.providerCustomerId} non rattaché à un compte.`,
+    );
 
   const { data: previous } = await admin
     .from("subscriptions")
@@ -84,9 +106,17 @@ export async function syncSubscription(provider: PaymentProvider, admin: AdminSu
 
   await admin
     .from("billing_customers")
-    .upsert({ user_id: userId, provider: "stripe", provider_customer_id: state.providerCustomerId }, { onConflict: "user_id" });
+    .upsert(
+      { user_id: userId, provider: "stripe", provider_customer_id: state.providerCustomerId },
+      { onConflict: "user_id" },
+    );
 
-  if (!applied.applied) return { subscriptionId: applied.subscription_id, userId, transitions: [] as SubscriptionTransition[] };
+  if (!applied.applied)
+    return {
+      subscriptionId: applied.subscription_id,
+      userId,
+      transitions: [] as SubscriptionTransition[],
+    };
 
   const { data: current } = await admin
     .from("subscriptions")
@@ -169,7 +199,11 @@ export async function syncSubscription(provider: PaymentProvider, admin: AdminSu
 }
 
 /** Enregistre ou met à jour une facture (historique des paiements). */
-export async function upsertInvoice(admin: AdminSupabaseClient, invoice: ProviderInvoiceState, estimatedFeeCents: number | null) {
+export async function upsertInvoice(
+  admin: AdminSupabaseClient,
+  invoice: ProviderInvoiceState,
+  estimatedFeeCents: number | null,
+) {
   let userId: string | null = null;
   if (invoice.providerCustomerId) {
     const { data } = await admin

@@ -5,7 +5,10 @@ import { AlertTriangleIcon, CrownIcon, HourglassIcon, InfoIcon } from "lucide-re
 
 import { openBillingPortalAction } from "@/actions/billing";
 import { AccountSection } from "@/components/account/section";
-import { CancelSubscriptionButton, ChangePlanButton } from "@/components/billing/subscription-actions";
+import {
+  CancelSubscriptionButton,
+  ChangePlanButton,
+} from "@/components/billing/subscription-actions";
 import { SubmitButton } from "@/components/forms/form-fields";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,7 +32,8 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
     getPublicPlans(),
     getLocale(),
   ]);
-  const planName = (plan: { name: string; tier: "free" | "founder" | "standard" | "premium" }) => (rawLocale === "fr" ? plan.name : tTiers(plan.tier));
+  const planName = (plan: { name: string; tier: "free" | "founder" | "standard" | "premium" }) =>
+    rawLocale === "fr" ? plan.name : tTiers(plan.tier);
   const locale = isLocale(rawLocale) ? localeIntlTag[rawLocale] : "fr-FR";
   const e = viewer.entitlements;
   const provider = getPaymentProvider();
@@ -37,13 +41,20 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
   const endDate = e.currentPeriodEnd ? formatDate(e.currentPeriodEnd, locale) : null;
   const graceUntil = e.accessUntil && e.inGrace ? formatDate(e.accessUntil, locale) : null;
   const otherPlans = plans.filter(
-    (p) => p.code !== e.planCode && p.isActive && p.availableInPhases.includes(e.launchPhase) && p.tier !== "founder",
+    (p) =>
+      p.code !== e.planCode &&
+      p.isActive &&
+      p.availableInPhases.includes(e.launchPhase) &&
+      p.tier !== "founder",
   );
 
   return (
     <>
       {params.paiement === "confirmation" && !e.subscriptionId && (
-        <p role="status" className="flex items-start gap-3 rounded-xl border border-gold/40 bg-gold/10 p-4 text-sm text-gold">
+        <p
+          role="status"
+          className="flex items-start gap-3 rounded-xl border border-gold/40 bg-gold/10 p-4 text-sm text-gold"
+        >
           <HourglassIcon className="mt-0.5 size-4 shrink-0" />
           {tb("paymentPending")}
         </p>
@@ -71,18 +82,32 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
                   {rawLocale === "fr" || !e.planTier ? e.planName : tTiers(e.planTier)}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant={e.status === "active" || e.status === "trialing" ? "success" : e.status === "past_due" ? "warning" : "muted"}>
+                  <Badge
+                    variant={
+                      e.status === "active" || e.status === "trialing"
+                        ? "success"
+                        : e.status === "past_due"
+                          ? "warning"
+                          : "muted"
+                    }
+                  >
                     {e.status ? t(`statuses.${e.status}`) : ""}
                   </Badge>
                   {e.isFounderRate && <Badge variant="gold">{t("founderRate")}</Badge>}
-                  {e.provider === "manual" && <Badge variant="outline">{tb("grantedByTeam")}</Badge>}
+                  {e.provider === "manual" && (
+                    <Badge variant="outline">{tb("grantedByTeam")}</Badge>
+                  )}
                 </div>
               </div>
               {e.unitAmountCents !== null && (
                 <p className="text-end">
-                  <span className="font-display text-3xl font-bold">{formatPrice(e.unitAmountCents, e.currency ?? "EUR", locale)}</span>
+                  <span className="font-display text-3xl font-bold">
+                    {formatPrice(e.unitAmountCents, e.currency ?? "EUR", locale)}
+                  </span>
                   <span className="text-sm text-muted-foreground"> {tp("perMonth")}</span>
-                  <span className="block text-xs text-muted-foreground">{tp("billedIn", { currency: e.currency ?? "EUR" })}</span>
+                  <span className="block text-xs text-muted-foreground">
+                    {tp("billedIn", { currency: e.currency ?? "EUR" })}
+                  </span>
                 </p>
               )}
             </div>
@@ -94,7 +119,10 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
               </p>
             )}
             {e.inGrace && graceUntil && (
-              <p role="alert" className="flex items-start gap-2 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm text-warning">
+              <p
+                role="alert"
+                className="flex items-start gap-2 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm text-warning"
+              >
                 <AlertTriangleIcon className="mt-0.5 size-4 shrink-0" />
                 {t("graceWarning", { date: graceUntil })}
               </p>
@@ -105,7 +133,9 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
                 {t("cancelScheduled", { date: endDate })}
               </p>
             )}
-            {!e.cancelAtPeriodEnd && endDate && <p className="text-sm text-muted-foreground">{t("renewsOn", { date: endDate })}</p>}
+            {!e.cancelAtPeriodEnd && endDate && (
+              <p className="text-sm text-muted-foreground">{t("renewsOn", { date: endDate })}</p>
+            )}
 
             {isStripe && provider && (
               <div className="flex flex-wrap gap-3 border-t pt-5">
@@ -115,7 +145,9 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
                 <CancelSubscriptionButton cancelScheduled={e.cancelAtPeriodEnd} endDate={endDate} />
               </div>
             )}
-            {isStripe && !provider && <p className="text-sm text-muted-foreground">{tb("onlineManagementUnavailable")}</p>}
+            {isStripe && !provider && (
+              <p className="text-sm text-muted-foreground">{tb("onlineManagementUnavailable")}</p>
+            )}
           </div>
         )}
       </AccountSection>
@@ -124,7 +156,10 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
         <AccountSection title={tb("changePlanTitle")} description={tb("changePlanDescription")}>
           <ul className="space-y-3">
             {otherPlans.map((plan) => (
-              <li key={plan.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
+              <li
+                key={plan.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4"
+              >
                 <div>
                   <p className="font-medium">{planName(plan)}</p>
                   <p className="text-sm text-muted-foreground">
@@ -153,7 +188,10 @@ export default async function SubscriptionPage({ searchParams }: PageProps<"/com
               </Link>
             ),
             refunds: (chunks) => (
-              <Link href="/legal/remboursement" className="text-foreground underline underline-offset-4">
+              <Link
+                href="/legal/remboursement"
+                className="text-foreground underline underline-offset-4"
+              >
                 {chunks}
               </Link>
             ),

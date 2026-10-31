@@ -24,7 +24,12 @@ function rng(seedText: string) {
 }
 
 const escapeXml = (value: string) =>
-  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 
 function wrap(text: string, maxChars: number) {
   const words = text.toUpperCase().split(/\s+/);
@@ -55,7 +60,13 @@ function motifBand(y: number, width: number, color: string, opacity: number, siz
   return `<g opacity="${opacity}"><path d="${d}" fill="none" stroke="${color}" stroke-width="2"/><path d="${chevrons}" fill="none" stroke="${color}" stroke-width="2"/></g>`;
 }
 
-function scene(kind: Scene, w: number, h: number, palette: [string, string, string], random: () => number) {
+function scene(
+  kind: Scene,
+  w: number,
+  h: number,
+  palette: [string, string, string],
+  random: () => number,
+) {
   const [dark, mid, light] = palette;
   const horizon = h * (0.55 + random() * 0.1);
   switch (kind) {
@@ -100,7 +111,8 @@ function scene(kind: Scene, w: number, h: number, palette: [string, string, stri
         const bh = 80 + random() * (h * 0.35);
         blocks += `<rect x="${x.toFixed(1)}" y="${(h - bh).toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${random() > 0.5 ? dark : "#000"}" opacity="0.9"/>`;
         for (let wy = h - bh + 18; wy < h - 20; wy += 34) {
-          if (random() > 0.55) blocks += `<rect x="${(x + 10).toFixed(1)}" y="${wy.toFixed(1)}" width="10" height="14" fill="${light}" opacity="0.7"/>`;
+          if (random() > 0.55)
+            blocks += `<rect x="${(x + 10).toFixed(1)}" y="${wy.toFixed(1)}" width="10" height="14" fill="${light}" opacity="0.7"/>`;
         }
         x += bw + 4;
       }
@@ -185,7 +197,11 @@ function svg(title: DemoTitle, w: number, h: number, withText: boolean) {
 for (const title of DEMO_TITLES) {
   const dir = path.join(root, "public/demo/titles", title.slug);
   await mkdir(dir, { recursive: true });
-  await sharp(Buffer.from(svg(title, 600, 900, true))).webp({ quality: 82 }).toFile(path.join(dir, "poster.webp"));
-  await sharp(Buffer.from(svg(title, 1600, 900, false))).webp({ quality: 80 }).toFile(path.join(dir, "backdrop.webp"));
+  await sharp(Buffer.from(svg(title, 600, 900, true)))
+    .webp({ quality: 82 })
+    .toFile(path.join(dir, "poster.webp"));
+  await sharp(Buffer.from(svg(title, 1600, 900, false)))
+    .webp({ quality: 80 })
+    .toFile(path.join(dir, "backdrop.webp"));
 }
 console.info(`${DEMO_TITLES.length} visuels de démonstration générés.`);

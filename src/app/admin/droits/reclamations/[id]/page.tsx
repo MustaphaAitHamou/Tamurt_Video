@@ -22,10 +22,21 @@ export default async function ClaimPage({ params }: PageProps<"/admin/droits/rec
   if (!uuidPattern.test(id)) notFound();
   const viewer = await requireStaff("rights.read", `/admin/droits/reclamations/${id}`);
   const supabase = await createSupabaseServerClient();
-  const { data: claim } = await supabase.from("content_claims").select("*, titles(id, title, slug, status, takedown_at, takedown_reason)").eq("id", id).maybeSingle();
+  const { data: claim } = await supabase
+    .from("content_claims")
+    .select("*, titles(id, title, slug, status, takedown_at, takedown_reason)")
+    .eq("id", id)
+    .maybeSingle();
   if (!claim) notFound();
   const canAct = viewer.staff.permissions.includes("takedown.execute");
-  const { data: titles } = canAct ? await supabase.from("titles").select("id, title").is("deleted_at", null).order("title").limit(2000) : { data: [] };
+  const { data: titles } = canAct
+    ? await supabase
+        .from("titles")
+        .select("id, title")
+        .is("deleted_at", null)
+        .order("title")
+        .limit(2000)
+    : { data: [] };
   const title = claim.titles;
 
   return (
@@ -65,12 +76,16 @@ export default async function ClaimPage({ params }: PageProps<"/admin/droits/rec
           </dl>
           <div>
             <p className="mb-1 text-xs text-muted-foreground">Description</p>
-            <p className="whitespace-pre-wrap rounded-lg border bg-background/40 p-4 leading-relaxed">{claim.description}</p>
+            <p className="rounded-lg border bg-background/40 p-4 leading-relaxed whitespace-pre-wrap">
+              {claim.description}
+            </p>
           </div>
           {claim.action_taken && (
             <div>
               <p className="mb-1 text-xs text-muted-foreground">Actions consignées</p>
-              <p className="whitespace-pre-wrap rounded-lg border bg-background/40 p-4">{claim.action_taken}</p>
+              <p className="rounded-lg border bg-background/40 p-4 whitespace-pre-wrap">
+                {claim.action_taken}
+              </p>
             </div>
           )}
           {title && (
@@ -80,7 +95,13 @@ export default async function ClaimPage({ params }: PageProps<"/admin/droits/rec
                 <Link href={`/admin/catalogue/${title.id}`} className="font-medium underline">
                   {title.title}
                 </Link>{" "}
-                {title.takedown_at ? <span className="text-destructive">· retirée le {formatDateTime(title.takedown_at)}</span> : <span className="text-muted-foreground">· en ligne selon ses droits</span>}
+                {title.takedown_at ? (
+                  <span className="text-destructive">
+                    · retirée le {formatDateTime(title.takedown_at)}
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">· en ligne selon ses droits</span>
+                )}
               </p>
               {canAct &&
                 (title.takedown_at ? (
@@ -129,10 +150,17 @@ export default async function ClaimPage({ params }: PageProps<"/admin/droits/rec
                 </NativeSelect>
               </Field>
               <Field label="Actions consignées (interne)" name="action_taken">
-                <Textarea id="action_taken" name="action_taken" defaultValue={claim.action_taken ?? ""} maxLength={4000} className="min-h-28" />
+                <Textarea
+                  id="action_taken"
+                  name="action_taken"
+                  defaultValue={claim.action_taken ?? ""}
+                  maxLength={4000}
+                  className="min-h-28"
+                />
               </Field>
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="notify" className="size-4 accent-primary" /> Informer le déclarant par email
+                <input type="checkbox" name="notify" className="size-4 accent-primary" /> Informer
+                le déclarant par email
               </label>
               <Field label="Message au déclarant (facultatif)" name="message">
                 <Textarea id="message" name="message" maxLength={3000} />

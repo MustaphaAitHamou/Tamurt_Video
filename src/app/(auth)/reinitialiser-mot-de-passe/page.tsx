@@ -15,7 +15,9 @@ export default async function ResetPasswordPage() {
     <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">{t("resetTitle")}</h1>
-        <p className="text-sm text-muted-foreground">{user ? t("resetSubtitle") : t("linkInvalid")}</p>
+        <p className="text-sm text-muted-foreground">
+          {user ? t("resetSubtitle") : t("linkInvalid")}
+        </p>
       </div>
       {user ? (
         <UpdatePasswordForm />

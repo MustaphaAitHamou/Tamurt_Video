@@ -3,7 +3,13 @@
 import "./globals.css";
 
 /** Dernier filet de sécurité (erreur dans le layout racine) : aucune dépendance externe. */
-export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   return (
     <html lang="fr">
       <body className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-background px-6 text-center text-foreground">

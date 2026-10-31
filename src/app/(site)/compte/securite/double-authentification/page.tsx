@@ -9,7 +9,9 @@ import { requireViewer } from "@/server/auth/session";
 
 export const metadata: Metadata = { title: "Double authentification", robots: { index: false } };
 
-export default async function MfaSetupPage({ searchParams }: PageProps<"/compte/securite/double-authentification">) {
+export default async function MfaSetupPage({
+  searchParams,
+}: PageProps<"/compte/securite/double-authentification">) {
   const params = await searchParams;
   const next = safeNextPath(params.next, "");
   const viewer = await requireViewer("/compte/securite/double-authentification");
@@ -27,7 +29,17 @@ export default async function MfaSetupPage({ searchParams }: PageProps<"/compte/
           : t("mfaDescription")
       }
     >
-      {hasVerified ? viewer.user.aal === "aal2" ? <p className="text-sm text-success">Double authentification active et vérifiée pour cette session.</p> : <MfaLoginForm next={next || "/compte/securite"} /> : <MfaEnrollment next={next || undefined} />}
+      {hasVerified ? (
+        viewer.user.aal === "aal2" ? (
+          <p className="text-sm text-success">
+            Double authentification active et vérifiée pour cette session.
+          </p>
+        ) : (
+          <MfaLoginForm next={next || "/compte/securite"} />
+        )
+      ) : (
+        <MfaEnrollment next={next || undefined} />
+      )}
     </AccountSection>
   );
 }

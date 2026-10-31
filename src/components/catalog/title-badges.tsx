@@ -17,7 +17,13 @@ export function AgeRatingBadge({ rating }: { rating: number }) {
   );
 }
 
-export function TitleBadges({ title, compact = false }: { title: TitleCardData; compact?: boolean }) {
+export function TitleBadges({
+  title,
+  compact = false,
+}: {
+  title: TitleCardData;
+  compact?: boolean;
+}) {
   const t = useTranslations("common");
   const tt = useTranslations("title");
   const tiers = useTranslations("tiers");

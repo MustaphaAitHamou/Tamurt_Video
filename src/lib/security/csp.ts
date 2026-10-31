@@ -39,7 +39,12 @@ export function buildContentSecurityPolicy(options: {
     "frame-src": ["'none'"],
     "object-src": ["'none'"],
     "base-uri": ["'self'"],
-    "form-action": ["'self'", supabaseOrigin, "https://checkout.stripe.com", "https://billing.stripe.com"],
+    "form-action": [
+      "'self'",
+      supabaseOrigin,
+      "https://checkout.stripe.com",
+      "https://billing.stripe.com",
+    ],
     "frame-ancestors": ["'none'"],
   };
 

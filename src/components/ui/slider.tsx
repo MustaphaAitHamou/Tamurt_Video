@@ -14,7 +14,10 @@ function Slider({
   rangeClassName,
   thumbLabel,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root> & { rangeClassName?: string; thumbLabel?: string }) {
+}: React.ComponentProps<typeof SliderPrimitive.Root> & {
+  rangeClassName?: string;
+  thumbLabel?: string;
+}) {
   const values = React.useMemo(
     () => (Array.isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min]),
     [value, defaultValue, min],
@@ -36,7 +39,10 @@ function Slider({
         data-slot="slider-track"
         className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-white/25"
       >
-        <SliderPrimitive.Range data-slot="slider-range" className={cn("absolute h-full bg-primary", rangeClassName)} />
+        <SliderPrimitive.Range
+          data-slot="slider-range"
+          className={cn("absolute h-full bg-primary", rangeClassName)}
+        />
       </SliderPrimitive.Track>
       {values.map((_, index) => (
         <SliderPrimitive.Thumb

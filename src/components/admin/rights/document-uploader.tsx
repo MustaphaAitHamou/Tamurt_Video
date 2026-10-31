@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { FileUpIcon, Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-import { createLicenseDocumentUploadAction, getLicenseDocumentUrlAction, registerLicenseDocumentAction } from "@/actions/admin/rights";
+import {
+  createLicenseDocumentUploadAction,
+  getLicenseDocumentUrlAction,
+  registerLicenseDocumentAction,
+} from "@/actions/admin/rights";
 import { Button } from "@/components/ui/button";
 import { NativeSelect } from "@/components/ui/native-select";
 import { DOCUMENT_TYPE_LABELS } from "@/components/admin/rights/labels";
@@ -21,21 +25,37 @@ export function DocumentUploader({ licenseId }: { licenseId: string }) {
     startTransition(async () => {
       if (!file) return;
       const mimeType = file.type || "application/octet-stream";
-      const prepared = await createLicenseDocumentUploadAction({ licenseId, fileName: file.name, mimeType, sizeBytes: file.size });
+      const prepared = await createLicenseDocumentUploadAction({
+        licenseId,
+        fileName: file.name,
+        mimeType,
+        sizeBytes: file.size,
+      });
       if (!prepared.ok) {
         toast.error(prepared.error);
         return;
       }
       const response = await fetch(prepared.data.signedUrl, {
         method: "PUT",
-        headers: { "content-type": mimeType, "x-upsert": "false", apikey: publicEnv.supabasePublishableKey },
+        headers: {
+          "content-type": mimeType,
+          "x-upsert": "false",
+          apikey: publicEnv.supabasePublishableKey,
+        },
         body: file,
       }).catch(() => null);
       if (!response?.ok) {
         toast.error("Le fichier n'a pas pu être envoyé.");
         return;
       }
-      const registered = await registerLicenseDocumentAction({ licenseId, path: prepared.data.path, fileName: file.name, mimeType, sizeBytes: file.size, documentType: type });
+      const registered = await registerLicenseDocumentAction({
+        licenseId,
+        path: prepared.data.path,
+        fileName: file.name,
+        mimeType,
+        sizeBytes: file.size,
+        documentType: type,
+      });
       if (registered.ok) {
         toast.success(registered.message ?? "Justificatif archivé.");
         setFile(null);
@@ -68,7 +88,13 @@ export function DocumentUploader({ licenseId }: { licenseId: string }) {
   );
 }
 
-export function DocumentLink({ documentId, children }: { documentId: string; children: React.ReactNode }) {
+export function DocumentLink({
+  documentId,
+  children,
+}: {
+  documentId: string;
+  children: React.ReactNode;
+}) {
   const [pending, startTransition] = useTransition();
   return (
     <button

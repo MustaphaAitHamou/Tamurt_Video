@@ -32,7 +32,10 @@ export type WebhookDeps = {
 };
 
 /** Applique un événement du prestataire. Retourne « ignored » pour les types non gérés. */
-export async function applyProviderEvent(event: ProviderEvent, deps: WebhookDeps): Promise<{ outcome: "processed" | "ignored"; userId?: string; subscriptionId?: string }> {
+export async function applyProviderEvent(
+  event: ProviderEvent,
+  deps: WebhookDeps,
+): Promise<{ outcome: "processed" | "ignored"; userId?: string; subscriptionId?: string }> {
   const object = event.object;
 
   if (SUBSCRIPTION_EVENTS.has(event.type) && event.objectId) {
@@ -41,13 +44,18 @@ export async function applyProviderEvent(event: ProviderEvent, deps: WebhookDeps
   }
 
   if (event.type === "checkout.session.completed") {
-    if (object.mode !== "subscription" || typeof object.subscription !== "string") return { outcome: "ignored" };
-    const userId = typeof object.client_reference_id === "string" ? object.client_reference_id : null;
+    if (object.mode !== "subscription" || typeof object.subscription !== "string")
+      return { outcome: "ignored" };
+    const userId =
+      typeof object.client_reference_id === "string" ? object.client_reference_id : null;
     const customerId = typeof object.customer === "string" ? object.customer : null;
     if (userId && customerId) {
       await deps.admin
         .from("billing_customers")
-        .upsert({ user_id: userId, provider: "stripe", provider_customer_id: customerId }, { onConflict: "user_id" });
+        .upsert(
+          { user_id: userId, provider: "stripe", provider_customer_id: customerId },
+          { onConflict: "user_id" },
+        );
     }
     const result = await syncSubscription(deps.provider, deps.admin, object.subscription);
     return { outcome: "processed", userId: result.userId, subscriptionId: result.subscriptionId };
@@ -58,10 +66,18 @@ export async function applyProviderEvent(event: ProviderEvent, deps: WebhookDeps
     let synced: { userId?: string; subscriptionId?: string } = {};
     // L'abonnement d'abord, pour que la facture puisse y être rattachée.
     if (invoice.providerSubscriptionId) {
-      const result = await syncSubscription(deps.provider, deps.admin, invoice.providerSubscriptionId);
+      const result = await syncSubscription(
+        deps.provider,
+        deps.admin,
+        invoice.providerSubscriptionId,
+      );
       synced = { userId: result.userId, subscriptionId: result.subscriptionId };
     }
-    await upsertInvoice(deps.admin, invoice, estimateFeeCents(invoice.amountPaidCents, deps.feeModel.percent, deps.feeModel.fixedCents));
+    await upsertInvoice(
+      deps.admin,
+      invoice,
+      estimateFeeCents(invoice.amountPaidCents, deps.feeModel.percent, deps.feeModel.fixedCents),
+    );
     return { outcome: "processed", ...synced };
   }
 

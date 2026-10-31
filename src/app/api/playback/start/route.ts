@@ -16,7 +16,10 @@ export async function POST(request: NextRequest) {
   }
   // Identifiant d'appareil (cookie httpOnly) : une nouvelle lecture remplace celle du même appareil.
   const existingDevice = request.cookies.get(DEVICE_COOKIE)?.value;
-  const deviceId = existingDevice && /^[0-9a-f]{32}$/.test(existingDevice) ? existingDevice : randomBytes(16).toString("hex");
+  const deviceId =
+    existingDevice && /^[0-9a-f]{32}$/.test(existingDevice)
+      ? existingDevice
+      : randomBytes(16).toString("hex");
   const result = await startPlayback(parsed.data, deviceId);
   if (!result.ok) {
     const status =

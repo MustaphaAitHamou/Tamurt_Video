@@ -4,5 +4,5 @@ onlyBuiltDependencies:
   - unrs-resolver
   - esbuild
 ignoredBuiltDependencies:
-  - '@parcel/watcher'
-  - '@swc/core'
+  - "@parcel/watcher"
+  - "@swc/core"

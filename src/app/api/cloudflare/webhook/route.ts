@@ -13,7 +13,13 @@ export async function POST(request: NextRequest) {
   if (!verifyCloudflareWebhook(rawBody, request.headers.get("webhook-signature"), secret)) {
     return NextResponse.json({ error: "invalid_signature" }, { status: 401 });
   }
-  let payload: { uid?: string; readyToStream?: boolean; duration?: number; input?: { width?: number; height?: number }; status?: { state?: string; errorReasonText?: string } };
+  let payload: {
+    uid?: string;
+    readyToStream?: boolean;
+    duration?: number;
+    input?: { width?: number; height?: number };
+    status?: { state?: string; errorReasonText?: string };
+  };
   try {
     payload = JSON.parse(rawBody);
   } catch {
@@ -29,8 +35,13 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
   if (!asset) return NextResponse.json({ status: "unknown_asset" });
   const status = await applyAssetStatus(admin, asset.id, {
-    state: payload.readyToStream ? "ready" : payload.status?.state === "error" ? "error" : "processing",
-    durationSeconds: payload.duration && payload.duration > 0 ? Math.round(payload.duration) : undefined,
+    state: payload.readyToStream
+      ? "ready"
+      : payload.status?.state === "error"
+        ? "error"
+        : "processing",
+    durationSeconds:
+      payload.duration && payload.duration > 0 ? Math.round(payload.duration) : undefined,
     width: payload.input?.width,
     height: payload.input?.height,
     errorMessage: payload.status?.errorReasonText,

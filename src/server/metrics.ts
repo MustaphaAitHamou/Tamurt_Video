@@ -1,7 +1,14 @@
 import "server-only";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { planEconomics, profitabilityRisks, storageCostCents, streamingCostCents, totalFixedCostsCents, type CostModel } from "@/server/finance/economics";
+import {
+  planEconomics,
+  profitabilityRisks,
+  storageCostCents,
+  streamingCostCents,
+  totalFixedCostsCents,
+  type CostModel,
+} from "@/server/finance/economics";
 import { getSettings } from "@/server/settings";
 
 export type PlatformMetrics = {
@@ -40,14 +47,23 @@ export type PlatformMetrics = {
     licenses_expiring_30d: number;
     claims_open: number;
   };
-  streaming: { sessions: number; minutes_watched: number; unique_viewers: number; active_streams_now: number; minutes_by_tier: Record<string, number> };
+  streaming: {
+    sessions: number;
+    minutes_watched: number;
+    unique_viewers: number;
+    active_streams_now: number;
+    minutes_by_tier: Record<string, number>;
+  };
   requests: { open: number; new_in_period: number; votes_in_period: number };
   incidents: { open: number; critical_open: number };
   finance_entries: Record<string, number>;
 };
 
 export async function getPlatformMetrics(from: Date, to: Date): Promise<PlatformMetrics> {
-  const { data, error } = await createSupabaseAdminClient().rpc("platform_metrics", { p_from: from.toISOString(), p_to: to.toISOString() });
+  const { data, error } = await createSupabaseAdminClient().rpc("platform_metrics", {
+    p_from: from.toISOString(),
+    p_to: to.toISOString(),
+  });
   if (error || !data) throw new Error(`Indicateurs indisponibles : ${error?.message}`);
   return data as unknown as PlatformMetrics;
 }
@@ -66,7 +82,11 @@ export async function getCostModel(): Promise<CostModel> {
 
 /** Synthèse financière d'une période (revenus séparés des coûts, estimations explicites). */
 export async function getFinanceSummary(from: Date, to: Date) {
-  const [metrics, model, settings] = await Promise.all([getPlatformMetrics(from, to), getCostModel(), getSettings()]);
+  const [metrics, model, settings] = await Promise.all([
+    getPlatformMetrics(from, to),
+    getCostModel(),
+    getSettings(),
+  ]);
   const { data: plans } = await createSupabaseAdminClient()
     .from("subscription_plans")
     .select("code, name, tier, price_cents")
@@ -101,12 +121,19 @@ export async function getFinanceSummary(from: Date, to: Date) {
   };
   const costs = {
     paymentFees: metrics.revenue.fees_cents + (manual.payment_fees ?? 0),
-    hosting: (model.fixedMonthlyCostsCents.hosting ?? 0) + (model.fixedMonthlyCostsCents.database ?? 0) + (manual.hosting ?? 0),
+    hosting:
+      (model.fixedMonthlyCostsCents.hosting ?? 0) +
+      (model.fixedMonthlyCostsCents.database ?? 0) +
+      (manual.hosting ?? 0),
     streaming: streamingCost + (manual.streaming ?? 0),
     storage: storageCost + (manual.storage ?? 0),
     email: (model.fixedMonthlyCostsCents.email ?? 0) + (manual.email ?? 0),
     contentLicenses: manual.content_licenses ?? 0,
-    other: (model.fixedMonthlyCostsCents.domain ?? 0) + (model.fixedMonthlyCostsCents.other ?? 0) + (manual.tools ?? 0) + (manual.other_cost ?? 0),
+    other:
+      (model.fixedMonthlyCostsCents.domain ?? 0) +
+      (model.fixedMonthlyCostsCents.other ?? 0) +
+      (manual.tools ?? 0) +
+      (manual.other_cost ?? 0),
   };
   const totalRevenue = revenue.subscriptions + revenue.ads + revenue.other;
   const totalCosts = Object.values(costs).reduce((a, b) => a + b, 0);

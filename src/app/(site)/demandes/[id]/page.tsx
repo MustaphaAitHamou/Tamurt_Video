@@ -41,17 +41,34 @@ export default async function RequestDetailPage({ params }: PageProps<"/demandes
           <p className="text-sm text-muted-foreground">
             {t(`contentTypes.${request.content_type}`)}
             {request.country ? ` · ${request.country}` : ""}
-            {request.director ? ` · ${request.director}` : ""} · {t("requestedOn", { date: formatDate(request.created_at, locale) })}
+            {request.director ? ` · ${request.director}` : ""} ·{" "}
+            {t("requestedOn", { date: formatDate(request.created_at, locale) })}
           </p>
-          <Badge variant={STATUS_VARIANT[request.status] ?? "muted"}>{t(`statuses.${request.status}`)}</Badge>
+          <Badge variant={STATUS_VARIANT[request.status] ?? "muted"}>
+            {t(`statuses.${request.status}`)}
+          </Badge>
         </div>
-        <VoteButton requestId={request.id} voted={hasVoted} votes={request.vote_count} canVote={isPremium && !["available", "rejected", "impossible"].includes(request.status)} />
+        <VoteButton
+          requestId={request.id}
+          voted={hasVoted}
+          votes={request.vote_count}
+          canVote={isPremium && !["available", "rejected", "impossible"].includes(request.status)}
+        />
       </div>
 
-      {request.public_note && <p className="rounded-xl border bg-card/60 p-4 text-sm">{request.public_note}</p>}
-      {request.comment && request.user_id === viewer.user.id && <p className="text-sm text-muted-foreground">« {request.comment} »</p>}
+      {request.public_note && (
+        <p className="rounded-xl border bg-card/60 p-4 text-sm">{request.public_note}</p>
+      )}
+      {request.comment && request.user_id === viewer.user.id && (
+        <p className="text-sm text-muted-foreground">« {request.comment} »</p>
+      )}
       {request.info_url && (
-        <a href={request.info_url} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+        <a
+          href={request.info_url}
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+          className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+        >
           <ExternalLinkIcon className="size-4" /> {t("infoUrl")}
         </a>
       )}
@@ -68,12 +85,17 @@ export default async function RequestDetailPage({ params }: PageProps<"/demandes
         <ol className="relative space-y-5 border-s ps-6">
           {events.map((event) => (
             <li key={event.id} className="relative">
-              <span className="absolute -start-[1.95rem] top-1 size-3 rounded-full bg-primary ring-4 ring-background" aria-hidden />
+              <span
+                className="absolute -start-[1.95rem] top-1 size-3 rounded-full bg-primary ring-4 ring-background"
+                aria-hidden
+              />
               <p className="font-medium">{t(`statuses.${event.to_status}`)}</p>
               <time className="text-xs text-muted-foreground" dateTime={event.created_at}>
                 {formatDateTime(event.created_at, locale)}
               </time>
-              {event.public_note && <p className="mt-1 text-sm text-muted-foreground">{event.public_note}</p>}
+              {event.public_note && (
+                <p className="mt-1 text-sm text-muted-foreground">{event.public_note}</p>
+              )}
             </li>
           ))}
         </ol>

@@ -14,7 +14,12 @@ import { AdSlotClient } from "@/components/ads/ad-slot-client";
 export async function AdSlot({ slotKey, className }: { slotKey: string; className?: string }) {
   if (!(await getSettings()).adsEnabled) return null;
   const viewer = await getViewer();
-  if (viewer && tierAtLeast(viewer.entitlements.tier, "founder") && !viewer.entitlements.includesAds) return null;
+  if (
+    viewer &&
+    tierAtLeast(viewer.entitlements.tier, "founder") &&
+    !viewer.entitlements.includesAds
+  )
+    return null;
   const supabase = await createSupabaseServerClient();
   const { data: slot } = await supabase
     .from("ad_slots")
@@ -23,7 +28,12 @@ export async function AdSlot({ slotKey, className }: { slotKey: string; classNam
     .maybeSingle();
   if (!slot?.is_enabled) return null;
   if (slot.audience === "visitors" && viewer) return null;
-  const config = (slot.config ?? {}) as { image_path?: string; href?: string; alt?: string; label?: string };
+  const config = (slot.config ?? {}) as {
+    image_path?: string;
+    href?: string;
+    alt?: string;
+    label?: string;
+  };
   if (slot.provider !== "house" || !config.image_path || !config.href) return null;
   return (
     <AdSlotClient

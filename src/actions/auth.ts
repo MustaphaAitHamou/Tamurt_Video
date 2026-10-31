@@ -16,13 +16,7 @@ import { failure, success, type ActionResult } from "@/server/errors";
 import { getClientIp, hashIp } from "@/server/http";
 import { rateLimit } from "@/server/rate-limit";
 
-const passwordSchema = z
-  .string()
-  .min(10)
-  .max(128)
-  .regex(/[a-z]/)
-  .regex(/[A-Z]/)
-  .regex(/[0-9]/);
+const passwordSchema = z.string().min(10).max(128).regex(/[a-z]/).regex(/[A-Z]/).regex(/[0-9]/);
 
 const emailSchema = z.string().trim().toLowerCase().pipe(z.email()).pipe(z.string().max(254));
 
@@ -31,10 +25,17 @@ async function limitByIp(action: string, limit: number, windowSeconds: number) {
   return rateLimit(`${action}:ip:${ipHash}`, limit, windowSeconds);
 }
 
-export async function signInAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function signInAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const t = await getTranslations("auth.errors");
   const parsed = z
-    .object({ email: emailSchema, password: z.string().min(1).max(128), next: z.string().optional() })
+    .object({
+      email: emailSchema,
+      password: z.string().min(1).max(128),
+      next: z.string().optional(),
+    })
     .safeParse(Object.fromEntries(formData));
   if (!parsed.success) return failure(t("invalidCredentials"), "VALIDATION");
 
@@ -50,7 +51,8 @@ export async function signInAction(_prev: ActionResult | null, formData: FormDat
     password: parsed.data.password,
   });
   if (error || !data.user) {
-    if (error?.code === "email_not_confirmed") return failure(t("emailNotConfirmed"), "EMAIL_NOT_CONFIRMED");
+    if (error?.code === "email_not_confirmed")
+      return failure(t("emailNotConfirmed"), "EMAIL_NOT_CONFIRMED");
     return failure(t("invalidCredentials"), "INVALID_CREDENTIALS");
   }
 
@@ -61,10 +63,20 @@ export async function signInAction(_prev: ActionResult | null, formData: FormDat
     .maybeSingle();
   const cookieStore = await cookies();
   if (profile?.preferred_locale) {
-    cookieStore.set("NEXT_LOCALE", profile.preferred_locale, { path: "/", maxAge: 31536000, sameSite: "lax", secure: process.env.NODE_ENV === "production" });
+    cookieStore.set("NEXT_LOCALE", profile.preferred_locale, {
+      path: "/",
+      maxAge: 31536000,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
   }
   cookieStore.delete(VIEWER_PROFILE_COOKIE);
-  await logAudit({ actorId: data.user.id, action: "auth.sign_in", entityType: "user", entityId: data.user.id });
+  await logAudit({
+    actorId: data.user.id,
+    action: "auth.sign_in",
+    entityType: "user",
+    entityId: data.user.id,
+  });
 
   const next = safeNextPath(parsed.data.next, "/");
   // Double authentification activée : le code est exigé avant d'accéder au site.
@@ -75,7 +87,10 @@ export async function signInAction(_prev: ActionResult | null, formData: FormDat
   redirect(next);
 }
 
-export async function signUpAction(_prev: ActionResult<{ email: string }> | null, formData: FormData): Promise<ActionResult<{ email: string }>> {
+export async function signUpAction(
+  _prev: ActionResult<{ email: string }> | null,
+  formData: FormData,
+): Promise<ActionResult<{ email: string }>> {
   const t = await getTranslations("auth.errors");
   const raw = Object.fromEntries(formData);
   const parsed = z
@@ -132,7 +147,10 @@ export async function signUpAction(_prev: ActionResult<{ email: string }> | null
   return success({ email: parsed.data.email });
 }
 
-export async function forgotPasswordAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function forgotPasswordAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const t = await getTranslations("auth");
   const parsed = emailSchema.safeParse(formData.get("email"));
   // Réponse identique que l'adresse existe ou non.
@@ -152,7 +170,10 @@ export async function forgotPasswordAction(_prev: ActionResult | null, formData:
   return success(undefined, t("resetSent"));
 }
 
-export async function updatePasswordAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+export async function updatePasswordAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
   const t = await getTranslations("auth");
   const user = await getSessionUser();
   if (!user) return failure(t("linkInvalid"), "UNAUTHENTICATED");
@@ -170,7 +191,12 @@ export async function updatePasswordAction(_prev: ActionResult | null, formData:
     if (error.code === "reauthentication_needed") return failure(t("linkInvalid"), "REAUTH");
     return failure(t("errors.generic"), error.code ?? "UPDATE_FAILED");
   }
-  await logAudit({ actorId: user.id, action: "auth.password_changed", entityType: "user", entityId: user.id });
+  await logAudit({
+    actorId: user.id,
+    action: "auth.password_changed",
+    entityType: "user",
+    entityId: user.id,
+  });
   return success(undefined, t("passwordUpdated"));
 }
 
@@ -189,9 +215,16 @@ export async function signOutAction(formData?: FormData) {
   const scope = formData?.get("scope");
   const supabase = await createSupabaseServerClient();
   const user = await getSessionUser();
-  await supabase.auth.signOut({ scope: scope === "global" ? "global" : scope === "others" ? "others" : "local" });
+  await supabase.auth.signOut({
+    scope: scope === "global" ? "global" : scope === "others" ? "others" : "local",
+  });
   if (user) {
-    await logAudit({ actorId: user.id, action: `auth.sign_out_${typeof scope === "string" ? scope : "local"}`, entityType: "user", entityId: user.id });
+    await logAudit({
+      actorId: user.id,
+      action: `auth.sign_out_${typeof scope === "string" ? scope : "local"}`,
+      entityType: "user",
+      entityId: user.id,
+    });
   }
   if (scope === "others") {
     revalidatePath("/compte/securite");

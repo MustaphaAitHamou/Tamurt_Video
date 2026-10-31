@@ -58,9 +58,15 @@ await mkdir(path.join(root, "public/brand"), { recursive: true });
 await writeFile(path.join(root, "public/brand/tamurt-video-logo.svg"), logoSvg({}));
 await writeFile(path.join(root, "public/brand/tamurt-video-mark.svg"), markSvg());
 await writeFile(path.join(root, "src/app/icon.svg"), markSvg());
-await sharp(Buffer.from(markSvg(180, "#0b0b0e"))).png().toFile(path.join(root, "src/app/apple-icon.png"));
-await sharp(Buffer.from(markSvg(512, "#0b0b0e"))).png().toFile(path.join(root, "public/brand/icon-512.png"));
-await sharp(Buffer.from(markSvg(192, "#0b0b0e"))).png().toFile(path.join(root, "public/brand/icon-192.png"));
+await sharp(Buffer.from(markSvg(180, "#0b0b0e")))
+  .png()
+  .toFile(path.join(root, "src/app/apple-icon.png"));
+await sharp(Buffer.from(markSvg(512, "#0b0b0e")))
+  .png()
+  .toFile(path.join(root, "public/brand/icon-512.png"));
+await sharp(Buffer.from(markSvg(192, "#0b0b0e")))
+  .png()
+  .toFile(path.join(root, "public/brand/icon-192.png"));
 await sharp(Buffer.from(logoSvg({ background: "#0b0b0e", scale: 4 })))
   .png()
   .toFile(path.join(root, "public/brand/tamurt-video-logo-preview.png"));

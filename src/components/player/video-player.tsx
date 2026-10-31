@@ -90,7 +90,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
   const refreshingRef = useRef(false);
   const sessionRef = useRef<PlaybackGranted | null>(null);
   // Une seule demande par tentative, même si l'effet est rejoué (mode strict de React).
-  const inflightRef = useRef<{ key: string; promise: Promise<PlaybackGranted | PlaybackDenied> } | null>(null);
+  const inflightRef = useRef<{
+    key: string;
+    promise: Promise<PlaybackGranted | PlaybackDenied>;
+  } | null>(null);
 
   const [session, setSession] = useState<PlaybackGranted | null>(null);
   const [denied, setDenied] = useState<PlaybackDenied | null>(null);
@@ -125,9 +128,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ titleId, episodeId, kind, sessionId: sessionId ?? null }),
       });
-      return (await response.json().catch(() => ({ ok: false, reason: "provider_unavailable", requiredTier: null }))) as
-        | PlaybackGranted
-        | PlaybackDenied;
+      return (await response
+        .json()
+        .catch(() => ({ ok: false, reason: "provider_unavailable", requiredTier: null }))) as
+        PlaybackGranted | PlaybackDenied;
     },
     [titleId, episodeId, kind],
   );
@@ -143,7 +147,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
       if (cancelled) return;
       if (result.ok) {
         setSession(result);
-        if (result.preferredSubtitle && result.subtitles.some((s) => s.language === result.preferredSubtitle)) {
+        if (
+          result.preferredSubtitle &&
+          result.subtitles.some((s) => s.language === result.preferredSubtitle)
+        ) {
           setSubtitle(result.preferredSubtitle);
         }
       } else {
@@ -179,7 +186,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
       event,
     });
     if (event === "stop" && "sendBeacon" in navigator) {
-      navigator.sendBeacon("/api/playback/progress", new Blob([body], { type: "application/json" }));
+      navigator.sendBeacon(
+        "/api/playback/progress",
+        new Blob([body], { type: "application/json" }),
+      );
       return;
     }
     void fetch("/api/playback/progress", {
@@ -220,7 +230,11 @@ export function VideoPlayer(props: VideoPlayerProps) {
         const drmSystems = session.drm
           ? Object.fromEntries(
               session.drm.map((d) => [
-                d.system === "widevine" ? "com.widevine.alpha" : d.system === "playready" ? "com.microsoft.playready" : "com.apple.fps",
+                d.system === "widevine"
+                  ? "com.widevine.alpha"
+                  : d.system === "playready"
+                    ? "com.microsoft.playready"
+                    : "com.apple.fps",
                 { licenseUrl: d.licenseUrl, serverCertificateUrl: d.certificateUrl },
               ]),
             )
@@ -242,7 +256,9 @@ export function VideoPlayer(props: VideoPlayerProps) {
           setLevels(allowed);
           if (allowed.length) hls.autoLevelCapping = Math.max(...allowed.map((l) => l.index));
         });
-        hls.on(HlsClass.Events.LEVEL_SWITCHED, (_event, data) => setCurrentHeight(hls.levels[data.level]?.height ?? null));
+        hls.on(HlsClass.Events.LEVEL_SWITCHED, (_event, data) =>
+          setCurrentHeight(hls.levels[data.level]?.height ?? null),
+        );
         hls.on(HlsClass.Events.ERROR, (_event, data) => {
           if (!data.fatal) return;
           if (data.type === HlsClass.ErrorTypes.NETWORK_ERROR) {
@@ -339,12 +355,17 @@ export function VideoPlayer(props: VideoPlayerProps) {
     const video = videoRef.current;
     if (!video) return;
     lastTimeRef.current = null;
-    video.currentTime = Math.min(Math.max(0, video.currentTime + seconds), video.duration || Infinity);
+    video.currentTime = Math.min(
+      Math.max(0, video.currentTime + seconds),
+      video.duration || Infinity,
+    );
   }, []);
 
   const toggleFullscreen = useCallback(async () => {
-    const container = containerRef.current as (HTMLDivElement & { webkitRequestFullscreen?: () => void }) | null;
-    const video = videoRef.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
+    const container = containerRef.current as
+      (HTMLDivElement & { webkitRequestFullscreen?: () => void }) | null;
+    const video = videoRef.current as
+      (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
     if (document.fullscreenElement) {
       await document.exitFullscreen().catch(() => undefined);
     } else if (container?.requestFullscreen) {
@@ -401,16 +422,25 @@ export function VideoPlayer(props: VideoPlayerProps) {
         break;
       case "c":
         if (session?.subtitles.length) {
-          setSubtitle((current) => (current === "off" ? (session.subtitles.find((s) => s.isDefault) ?? session.subtitles[0])?.language ?? "off" : "off"));
+          setSubtitle((current) =>
+            current === "off"
+              ? ((session.subtitles.find((s) => s.isDefault) ?? session.subtitles[0])?.language ??
+                "off")
+              : "off",
+          );
         }
         break;
     }
     showControls();
   };
 
-  const inIntro = Boolean(session?.intro && time >= session.intro.start && time < session.intro.end - 1);
+  const inIntro = Boolean(
+    session?.intro && time >= session.intro.start && time < session.intro.end - 1,
+  );
   const creditsReached = Boolean(
-    session?.nextEpisode && ((session.creditsStartSeconds !== null && time >= session.creditsStartSeconds) || (duration > 0 && time >= duration - 0.5)),
+    session?.nextEpisode &&
+    ((session.creditsStartSeconds !== null && time >= session.creditsStartSeconds) ||
+      (duration > 0 && time >= duration - 0.5)),
   );
   const showNextCard = creditsReached && !nextDismissed;
 
@@ -442,7 +472,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
   return (
     <div
       ref={attachContainer}
-      className={cn("relative h-dvh w-full overflow-hidden bg-black text-white outline-none select-none", !controlsVisible && playing && "cursor-none")}
+      className={cn(
+        "relative h-dvh w-full overflow-hidden bg-black text-white outline-none select-none",
+        !controlsVisible && playing && "cursor-none",
+      )}
       onMouseMove={showControls}
       onTouchStart={showControls}
       onKeyDown={onKeyDown}
@@ -510,13 +543,23 @@ export function VideoPlayer(props: VideoPlayerProps) {
         onRateChange={(event) => setRate(event.currentTarget.playbackRate)}
       >
         {session?.subtitles.map((track) => (
-          <track key={track.id} kind={track.kind === "captions" ? "captions" : "subtitles"} src={track.url} srcLang={track.language} label={track.label} />
+          <track
+            key={track.id}
+            kind={track.kind === "captions" ? "captions" : "subtitles"}
+            src={track.url}
+            srcLang={track.language}
+            label={track.label}
+          />
         ))}
       </video>
 
       {/* Chargement / mise en mémoire tampon */}
       {!denied && !fatalError && (buffering || !session) && (
-        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3" role="status" aria-live="polite">
+        <div
+          className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3"
+          role="status"
+          aria-live="polite"
+        >
           <Loader2Icon className="size-12 animate-spin text-white/80" />
           <span className="text-sm text-white/70">{session ? t("buffering") : t("loading")}</span>
         </div>
@@ -529,7 +572,9 @@ export function VideoPlayer(props: VideoPlayerProps) {
             <p className="font-display text-2xl font-semibold">
               {denied
                 ? t.has(`reasons.${denied.reason}`)
-                  ? t(`reasons.${denied.reason}` as "reasons.not_found", { plan: tTiers(denied.requiredTier ?? "standard") })
+                  ? t(`reasons.${denied.reason}` as "reasons.not_found", {
+                      plan: tTiers(denied.requiredTier ?? "standard"),
+                    })
                   : t("errors.fatal")
                 : fatalError}
             </p>
@@ -539,7 +584,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
                   <Link href={deniedAction.href}>{deniedAction.label}</Link>
                 </Button>
               )}
-              {(fatalError || denied?.reason === "too_many_streams" || denied?.reason === "provider_unavailable" || denied?.reason === "rate_limited") && (
+              {(fatalError ||
+                denied?.reason === "too_many_streams" ||
+                denied?.reason === "provider_unavailable" ||
+                denied?.reason === "rate_limited") && (
                 <Button variant="secondary" onClick={retry}>
                   {t("play")}
                 </Button>
@@ -554,7 +602,11 @@ export function VideoPlayer(props: VideoPlayerProps) {
 
       {/* Messages transitoires */}
       {(notice || resumeFrom !== null) && !denied && (
-        <div className="absolute top-20 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3 rounded-full bg-black/70 px-4 py-2 text-sm backdrop-blur" role="status" aria-live="polite">
+        <div
+          className="absolute top-20 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3 rounded-full bg-black/70 px-4 py-2 text-sm backdrop-blur"
+          role="status"
+          aria-live="polite"
+        >
           {notice ?? t("resumeFrom", { time: formatClock(resumeFrom ?? 0) })}
           {resumeFrom !== null && !notice && (
             <button
@@ -572,7 +624,9 @@ export function VideoPlayer(props: VideoPlayerProps) {
       )}
 
       {session?.provider === "dev_local" && controlsVisible && (
-        <p className="absolute top-20 end-4 z-20 rounded-full bg-warning/90 px-3 py-1 text-xs font-medium text-black">{t("devProvider")}</p>
+        <p className="absolute end-4 top-20 z-20 rounded-full bg-warning/90 px-3 py-1 text-xs font-medium text-black">
+          {t("devProvider")}
+        </p>
       )}
 
       {/* Passer l'introduction */}
@@ -591,13 +645,21 @@ export function VideoPlayer(props: VideoPlayerProps) {
 
       {/* Épisode suivant */}
       {showNextCard && session?.nextEpisode && (
-        <div className="absolute end-6 bottom-28 z-20 w-72 space-y-3 rounded-2xl border border-white/15 bg-black/80 p-4 backdrop-blur sm:end-10" role="status" aria-live="polite">
+        <div
+          className="absolute end-6 bottom-28 z-20 w-72 space-y-3 rounded-2xl border border-white/15 bg-black/80 p-4 backdrop-blur sm:end-10"
+          role="status"
+          aria-live="polite"
+        >
           <p className="text-xs tracking-wide text-white/60 uppercase">{t("nextEpisode")}</p>
           <p className="font-semibold">
             {session.nextEpisode.label} — {session.nextEpisode.name}
           </p>
           <div className="flex gap-2">
-            <Button size="sm" variant="light" onClick={() => session.nextEpisode && goToEpisode(session.nextEpisode.id)}>
+            <Button
+              size="sm"
+              variant="light"
+              onClick={() => session.nextEpisode && goToEpisode(session.nextEpisode.id)}
+            >
               <PlayIcon className="fill-current" />
               {countdownActive ? (
                 <Countdown seconds={AUTOPLAY_SECONDS} onComplete={playNextEpisode}>
@@ -623,7 +685,13 @@ export function VideoPlayer(props: VideoPlayerProps) {
           controlsVisible ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       >
-        <Button asChild variant="ghost" size="icon" aria-label={t("back")} onClick={() => report("stop")}>
+        <Button
+          asChild
+          variant="ghost"
+          size="icon"
+          aria-label={t("back")}
+          onClick={() => report("stop")}
+        >
           <Link href={props.backHref}>
             <ArrowLeftIcon className="size-6 rtl:rotate-180" />
           </Link>
@@ -643,7 +711,9 @@ export function VideoPlayer(props: VideoPlayerProps) {
           )}
         >
           <div className="relative flex items-center gap-3">
-            <span className="w-14 text-end text-xs text-white/80 tabular-nums">{formatClock(time)}</span>
+            <span className="w-14 text-end text-xs text-white/80 tabular-nums">
+              {formatClock(time)}
+            </span>
             <div className="relative flex-1">
               <div className="pointer-events-none absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 overflow-hidden rounded-full">
                 <div className="h-full bg-white/35" style={{ width: `${bufferedPercent}%` }} />
@@ -669,13 +739,32 @@ export function VideoPlayer(props: VideoPlayerProps) {
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="icon" onClick={togglePlay} aria-label={playing ? t("pause") : t("play")}>
-              {playing ? <PauseIcon className="size-6 fill-current" /> : <PlayIcon className="size-6 fill-current" />}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={togglePlay}
+              aria-label={playing ? t("pause") : t("play")}
+            >
+              {playing ? (
+                <PauseIcon className="size-6 fill-current" />
+              ) : (
+                <PlayIcon className="size-6 fill-current" />
+              )}
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => seekBy(-10)} aria-label={t("rewind")}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => seekBy(-10)}
+              aria-label={t("rewind")}
+            >
               <RotateCcwIcon className="size-5" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => seekBy(10)} aria-label={t("forward")}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => seekBy(10)}
+              aria-label={t("forward")}
+            >
               <RotateCwIcon className="size-5" />
             </Button>
             <div className="group/volume flex items-center">
@@ -730,7 +819,9 @@ export function VideoPlayer(props: VideoPlayerProps) {
                               episode.id === episodeId && "bg-accent",
                             )}
                           >
-                            <span className="block text-xs text-muted-foreground">{episode.label}</span>
+                            <span className="block text-xs text-muted-foreground">
+                              {episode.label}
+                            </span>
                             <span className="font-medium">{episode.name}</span>
                           </button>
                         </li>
@@ -743,7 +834,12 @@ export function VideoPlayer(props: VideoPlayerProps) {
               {session.subtitles.length > 0 && (
                 <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label={t("subtitles")} className={subtitle !== "off" ? "text-primary" : undefined}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t("subtitles")}
+                      className={subtitle !== "off" ? "text-primary" : undefined}
+                    >
                       <CaptionsIcon className="size-5" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -767,7 +863,12 @@ export function VideoPlayer(props: VideoPlayerProps) {
                     <SettingsIcon className="size-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" side="top" className="w-56" container={portalContainer}>
+                <DropdownMenuContent
+                  align="end"
+                  side="top"
+                  className="w-56"
+                  container={portalContainer}
+                >
                   {levels.length > 0 && (
                     <>
                       <DropdownMenuLabel>
@@ -808,25 +909,36 @@ export function VideoPlayer(props: VideoPlayerProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {typeof document !== "undefined" && "pictureInPictureEnabled" in document && document.pictureInPictureEnabled && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t("pictureInPicture")}
-                  className="hidden sm:inline-flex"
-                  onClick={() => {
-                    const video = videoRef.current;
-                    if (!video) return;
-                    if (document.pictureInPictureElement) void document.exitPictureInPicture();
-                    else void video.requestPictureInPicture().catch(() => undefined);
-                  }}
-                >
-                  <PictureInPicture2Icon className="size-5" />
-                </Button>
-              )}
+              {typeof document !== "undefined" &&
+                "pictureInPictureEnabled" in document &&
+                document.pictureInPictureEnabled && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t("pictureInPicture")}
+                    className="hidden sm:inline-flex"
+                    onClick={() => {
+                      const video = videoRef.current;
+                      if (!video) return;
+                      if (document.pictureInPictureElement) void document.exitPictureInPicture();
+                      else void video.requestPictureInPicture().catch(() => undefined);
+                    }}
+                  >
+                    <PictureInPicture2Icon className="size-5" />
+                  </Button>
+                )}
 
-              <Button variant="ghost" size="icon" onClick={() => void toggleFullscreen()} aria-label={fullscreen ? t("exitFullscreen") : t("fullscreen")}>
-                {fullscreen ? <MinimizeIcon className="size-5" /> : <MaximizeIcon className="size-5" />}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => void toggleFullscreen()}
+                aria-label={fullscreen ? t("exitFullscreen") : t("fullscreen")}
+              >
+                {fullscreen ? (
+                  <MinimizeIcon className="size-5" />
+                ) : (
+                  <MaximizeIcon className="size-5" />
+                )}
               </Button>
             </div>
           </div>
@@ -837,7 +949,15 @@ export function VideoPlayer(props: VideoPlayerProps) {
 }
 
 /** Décompte autonome : monté le temps du compte à rebours, son état repart de zéro à chaque affichage. */
-function Countdown({ seconds, onComplete, children }: { seconds: number; onComplete: () => void; children: (remaining: number) => React.ReactNode }) {
+function Countdown({
+  seconds,
+  onComplete,
+  children,
+}: {
+  seconds: number;
+  onComplete: () => void;
+  children: (remaining: number) => React.ReactNode;
+}) {
   const [remaining, setRemaining] = useState(seconds);
   useEffect(() => {
     const interval = setInterval(() => setRemaining((value) => value - 1), 1000);

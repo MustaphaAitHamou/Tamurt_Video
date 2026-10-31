@@ -14,7 +14,11 @@ export const metadata: Metadata = { title: "Recherche", robots: { index: false }
 export default async function SearchPage({ searchParams }: PageProps<"/recherche">) {
   const params = await searchParams;
   const query = (Array.isArray(params.q) ? params.q[0] : params.q)?.trim().slice(0, 200) ?? "";
-  const [t, results, viewer] = await Promise.all([getTranslations("search"), searchCatalog(query, 48), getViewer()]);
+  const [t, results, viewer] = await Promise.all([
+    getTranslations("search"),
+    searchCatalog(query, 48),
+    getViewer(),
+  ]);
 
   // Historique de recherche : uniquement si l'utilisateur l'a activé (désactivé par défaut).
   if (viewer?.profile.searchHistoryEnabled && query.length >= 2) {
@@ -31,12 +35,20 @@ export default async function SearchPage({ searchParams }: PageProps<"/recherche
       <div className="mb-8 max-w-2xl space-y-4">
         <h1 className="text-3xl font-bold">{query ? t("resultsFor", { query }) : t("label")}</h1>
         <SearchBox className="md:hidden" />
-        {query && <p className="text-sm text-muted-foreground">{t("resultCount", { count: results.length })}</p>}
+        {query && (
+          <p className="text-sm text-muted-foreground">
+            {t("resultCount", { count: results.length })}
+          </p>
+        )}
       </div>
       {query.length < 2 ? (
         <EmptyState title={t("emptyQuery")} icon={SearchXIcon} />
       ) : results.length === 0 ? (
-        <EmptyState title={t("noResults", { query })} icon={SearchXIcon} action={{ href: "/demandes", label: "Proposer une œuvre" }} />
+        <EmptyState
+          title={t("noResults", { query })}
+          icon={SearchXIcon}
+          action={{ href: "/demandes", label: "Proposer une œuvre" }}
+        />
       ) : (
         <TitleGrid items={results} />
       )}

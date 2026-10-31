@@ -6,11 +6,21 @@ import { getEnv } from "@/lib/env";
 import type { PlanTier } from "@/lib/permissions";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getViewer } from "@/server/auth/session";
-import { describeDevice, getClientIp, getRequestCountry, getUserAgent, hashIp } from "@/server/http";
+import {
+  describeDevice,
+  getClientIp,
+  getRequestCountry,
+  getUserAgent,
+  hashIp,
+} from "@/server/http";
 import { rateLimit } from "@/server/rate-limit";
 import { getStreamingProvider } from "@/server/streaming";
 import { signMediaToken } from "@/server/streaming/tokens";
-import { StreamingUnavailableError, type DrmConfiguration, type StreamingProviderId } from "@/server/streaming/types";
+import {
+  StreamingUnavailableError,
+  type DrmConfiguration,
+  type StreamingProviderId,
+} from "@/server/streaming/types";
 
 export type PlaybackSubtitle = {
   id: string;
@@ -60,17 +70,28 @@ export function playbackTtlSeconds(durationSeconds: number | null, override?: nu
   return Math.round(Math.min(Math.max(base, 7200), 43_200));
 }
 
-const denied = (reason: string, requiredTier: PlanTier | null = null): PlaybackDenied => ({ ok: false, reason, requiredTier });
+const denied = (reason: string, requiredTier: PlanTier | null = null): PlaybackDenied => ({
+  ok: false,
+  reason,
+  requiredTier,
+});
 
 /**
  * Décision et délivrance d'une autorisation de lecture. Tous les contrôles sont
  * effectués côté serveur : identité, compte, droits de diffusion (licence,
  * territoire, période, mode d'exploitation), formule, profil, écrans simultanés.
  */
-export async function startPlayback(request: PlaybackRequest, deviceId: string | null = null): Promise<PlaybackGranted | PlaybackDenied> {
+export async function startPlayback(
+  request: PlaybackRequest,
+  deviceId: string | null = null,
+): Promise<PlaybackGranted | PlaybackDenied> {
   const env = getEnv();
   const admin = createSupabaseAdminClient();
-  const [viewer, country, ip] = await Promise.all([getViewer(), getRequestCountry(), getClientIp()]);
+  const [viewer, country, ip] = await Promise.all([
+    getViewer(),
+    getRequestCountry(),
+    getClientIp(),
+  ]);
 
   const limitKey = viewer ? `play:user:${viewer.user.id}` : `play:ip:${hashIp(ip) ?? "unknown"}`;
   const limit = await rateLimit(limitKey, 60, 600);
@@ -101,7 +122,12 @@ export async function startPlayback(request: PlaybackRequest, deviceId: string |
         .select("id, last_position_seconds, ended_at, account_id, title_id")
         .eq("id", request.sessionId)
         .maybeSingle();
-      if (existing && existing.account_id === viewer.user.id && existing.title_id === request.titleId && !existing.ended_at) {
+      if (
+        existing &&
+        existing.account_id === viewer.user.id &&
+        existing.title_id === request.titleId &&
+        !existing.ended_at
+      ) {
         sessionId = existing.id;
         resumePosition = existing.last_position_seconds;
       }
@@ -135,11 +161,17 @@ export async function startPlayback(request: PlaybackRequest, deviceId: string |
     const provider = getStreamingProvider(decision.provider);
     grant = await provider.grantPlayback({
       providerAssetId: decision.provider_asset_id,
-      ttlSeconds: playbackTtlSeconds(decision.duration_seconds ?? null, env.streaming.tokenTtlSeconds),
+      ttlSeconds: playbackTtlSeconds(
+        decision.duration_seconds ?? null,
+        env.streaming.tokenTtlSeconds,
+      ),
       country,
     });
   } catch (cause) {
-    console.error("[playback] fournisseur", cause instanceof StreamingUnavailableError ? cause.message : cause);
+    console.error(
+      "[playback] fournisseur",
+      cause instanceof StreamingUnavailableError ? cause.message : cause,
+    );
     return denied("provider_unavailable");
   }
 
@@ -182,7 +214,11 @@ export async function startPlayback(request: PlaybackRequest, deviceId: string |
         .maybeSingle();
       if (next) {
         const season = (next.seasons as { season_number: number } | null)?.season_number ?? 1;
-        nextEpisode = { id: next.id, name: next.name, label: `S${season} · É${next.episode_number}` };
+        nextEpisode = {
+          id: next.id,
+          name: next.name,
+          label: `S${season} · É${next.episode_number}`,
+        };
       }
     }
   }

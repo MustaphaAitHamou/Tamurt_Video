@@ -92,11 +92,14 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
     id: claims.sub,
     email: typeof claims.email === "string" ? claims.email : "",
     aal: claims.aal === "aal2" ? "aal2" : "aal1",
-    provider: typeof claims.app_metadata?.provider === "string" ? claims.app_metadata.provider : undefined,
+    provider:
+      typeof claims.app_metadata?.provider === "string" ? claims.app_metadata.provider : undefined,
   };
 });
 
-function mapEntitlements(row: Database["public"]["Functions"]["get_my_entitlements"]["Returns"][number] | null): Entitlements {
+function mapEntitlements(
+  row: Database["public"]["Functions"]["get_my_entitlements"]["Returns"][number] | null,
+): Entitlements {
   return {
     tier: row?.tier ?? "free",
     planTier: row?.plan_tier ?? null,
@@ -215,7 +218,9 @@ export async function requireViewer(nextPath = "/"): Promise<Viewer> {
 }
 
 export function hasPermission(viewer: Viewer | null, permission: Permission): boolean {
-  return Boolean(viewer && viewer.staff.mfaSatisfied && viewer.staff.permissions.includes(permission));
+  return Boolean(
+    viewer && viewer.staff.mfaSatisfied && viewer.staff.permissions.includes(permission),
+  );
 }
 
 /**

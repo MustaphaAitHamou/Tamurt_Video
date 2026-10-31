@@ -17,7 +17,9 @@ const securityHeaders = [
   },
   ...(isDev
     ? []
-    : [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }]),
+    : [
+        { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+      ]),
 ];
 
 const nextConfig: NextConfig = {
@@ -63,7 +65,15 @@ const nextConfig: NextConfig = {
         ],
       },
       // Espaces privés : jamais indexés, même si un lien fuit.
-      ...["/admin/:path*", "/compte/:path*", "/regarder/:path*", "/profils", "/espace-fondateur", "/connexion/:path*", "/auth/:path*"].map((source) => ({
+      ...[
+        "/admin/:path*",
+        "/compte/:path*",
+        "/regarder/:path*",
+        "/profils",
+        "/espace-fondateur",
+        "/connexion/:path*",
+        "/auth/:path*",
+      ].map((source) => ({
         source,
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
       })),

@@ -1,4 +1,7 @@
-export const REQUEST_STATUS_VARIANT: Record<string, "muted" | "gold" | "success" | "destructive" | "outline"> = {
+export const REQUEST_STATUS_VARIANT: Record<
+  string,
+  "muted" | "gold" | "success" | "destructive" | "outline"
+> = {
   received: "muted",
   under_review: "outline",
   rights_search: "outline",
@@ -24,4 +27,8 @@ export const REQUEST_STATUS_LABELS: Record<string, string> = {
 };
 
 /** Statuts réservés aux personnes habilitées à confirmer une acquisition de droits. */
-export const ACQUISITION_STATUSES = new Set(["acquisition_confirmed", "publication_planned", "available"]);
+export const ACQUISITION_STATUSES = new Set([
+  "acquisition_confirmed",
+  "publication_planned",
+  "available",
+]);

@@ -25,7 +25,10 @@ export default async function SignUpPage({ searchParams }: PageProps<"/inscripti
       <SignUpForm />
       <p className="text-center text-sm text-muted-foreground">
         {t("haveAccount")}{" "}
-        <Link href="/connexion" className="font-medium text-foreground underline-offset-4 hover:underline">
+        <Link
+          href="/connexion"
+          className="font-medium text-foreground underline-offset-4 hover:underline"
+        >
           {t("signIn")}
         </Link>
       </p>

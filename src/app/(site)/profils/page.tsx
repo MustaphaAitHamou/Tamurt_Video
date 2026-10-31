@@ -12,7 +12,11 @@ export default async function ProfilesPage() {
   return (
     <div className="mx-auto flex min-h-[80dvh] max-w-4xl flex-col items-center justify-center px-4 pt-28 pb-16">
       <h1 className="mb-12 text-4xl font-bold">{t("profilesTitle")}</h1>
-      <ProfileManager profiles={viewer.viewerProfiles} activeId={viewer.activeProfile.id} maxProfiles={viewer.entitlements.maxProfiles} />
+      <ProfileManager
+        profiles={viewer.viewerProfiles}
+        activeId={viewer.activeProfile.id}
+        maxProfiles={viewer.entitlements.maxProfiles}
+      />
     </div>
   );
 }

@@ -6,22 +6,46 @@ import { useTranslations } from "next-intl";
 import { PencilIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
-import { createProfileAction, deleteProfileAction, switchProfileAction, updateProfileAction } from "@/actions/profiles";
+import {
+  createProfileAction,
+  deleteProfileAction,
+  switchProfileAction,
+  updateProfileAction,
+} from "@/actions/profiles";
 import { ProfileAvatar } from "@/components/account/profile-avatar";
 import { FormMessage, SubmitButton, TextField } from "@/components/forms/form-fields";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { AVATARS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-type Profile = { id: string; name: string; avatarKey: string; isKids: boolean; maxAgeRating: number | null; isDefault: boolean };
+type Profile = {
+  id: string;
+  name: string;
+  avatarKey: string;
+  isKids: boolean;
+  maxAgeRating: number | null;
+  isDefault: boolean;
+};
 
 function ProfileFormFields({ profile }: { profile?: Profile }) {
   const t = useTranslations("account");
   const [avatar, setAvatar] = useState(profile?.avatarKey ?? "ochre");
   return (
     <>
-      <TextField label={t("profileName")} name="name" defaultValue={profile?.name} required maxLength={30} />
+      <TextField
+        label={t("profileName")}
+        name="name"
+        defaultValue={profile?.name}
+        required
+        maxLength={30}
+      />
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium">{t("avatar")}</legend>
         <input type="hidden" name="avatarKey" value={avatar} />
@@ -33,7 +57,10 @@ function ProfileFormFields({ profile }: { profile?: Profile }) {
               onClick={() => setAvatar(a.key)}
               aria-pressed={avatar === a.key}
               aria-label={a.label}
-              className={cn("cursor-pointer rounded-xl p-0.5 ring-2 ring-transparent transition", avatar === a.key && "ring-primary")}
+              className={cn(
+                "cursor-pointer rounded-xl p-0.5 ring-2 ring-transparent transition",
+                avatar === a.key && "ring-primary",
+              )}
             >
               <ProfileAvatar avatarKey={a.key} className="size-11" />
             </button>
@@ -41,7 +68,12 @@ function ProfileFormFields({ profile }: { profile?: Profile }) {
         </div>
       </fieldset>
       <label className="flex items-start gap-3 text-sm">
-        <input type="checkbox" name="isKids" defaultChecked={profile?.isKids} className="mt-0.5 size-4 accent-primary" />
+        <input
+          type="checkbox"
+          name="isKids"
+          defaultChecked={profile?.isKids}
+          className="mt-0.5 size-4 accent-primary"
+        />
         <span>
           {t("kidsProfile")}
           <span className="block text-xs text-muted-foreground">{t("kidsProfileHint")}</span>
@@ -51,7 +83,11 @@ function ProfileFormFields({ profile }: { profile?: Profile }) {
         <span className="font-medium">{t("maxAgeRating")}</span>
         <select
           name="maxAgeRating"
-          defaultValue={profile?.maxAgeRating === null || profile?.maxAgeRating === undefined ? "" : String(profile.maxAgeRating)}
+          defaultValue={
+            profile?.maxAgeRating === null || profile?.maxAgeRating === undefined
+              ? ""
+              : String(profile.maxAgeRating)
+          }
           className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-sm [&>option]:bg-popover"
         >
           <option value="">Aucune restriction</option>
@@ -76,7 +112,9 @@ function CreateProfileDialog() {
           <span className="flex size-28 items-center justify-center rounded-2xl border-2 border-dashed border-white/25 text-white/50 transition group-hover:border-white/60 group-hover:text-white sm:size-32">
             <PlusIcon className="size-10" />
           </span>
-          <span className="text-sm text-muted-foreground group-hover:text-foreground">{t("addProfile")}</span>
+          <span className="text-sm text-muted-foreground group-hover:text-foreground">
+            {t("addProfile")}
+          </span>
         </button>
       </DialogTrigger>
       <DialogContent>
@@ -138,7 +176,15 @@ function EditProfileDialog({ profile }: { profile: Profile }) {
   );
 }
 
-export function ProfileManager({ profiles, activeId, maxProfiles }: { profiles: Profile[]; activeId: string; maxProfiles: number }) {
+export function ProfileManager({
+  profiles,
+  activeId,
+  maxProfiles,
+}: {
+  profiles: Profile[];
+  activeId: string;
+  maxProfiles: number;
+}) {
   const t = useTranslations("account");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -163,11 +209,17 @@ export function ProfileManager({ profiles, activeId, maxProfiles }: { profiles: 
               )}
               aria-label={profile.name}
             >
-              <ProfileAvatar avatarKey={profile.avatarKey} name={profile.name} className="size-28 text-5xl sm:size-32" />
+              <ProfileAvatar
+                avatarKey={profile.avatarKey}
+                name={profile.name}
+                className="size-28 text-5xl sm:size-32"
+              />
             </button>
             <span className="flex items-center gap-1 text-sm font-medium">
               {profile.name}
-              {profile.isKids && <span className="rounded bg-white/15 px-1.5 text-[10px] uppercase">Enfant</span>}
+              {profile.isKids && (
+                <span className="rounded bg-white/15 px-1.5 text-[10px] uppercase">Enfant</span>
+              )}
               <EditProfileDialog profile={profile} />
             </span>
           </li>

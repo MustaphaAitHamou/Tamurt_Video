@@ -17,7 +17,11 @@ export class DevStreamingProvider implements StreamingProvider {
 
   async grantPlayback(input: { providerAssetId: string; ttlSeconds: number; country: string }) {
     const token = await signMediaToken(
-      { sub: input.providerAssetId, uid: null, ...(this.geoLock && input.country !== "XX" ? { ctry: input.country } : {}) },
+      {
+        sub: input.providerAssetId,
+        uid: null,
+        ...(this.geoLock && input.country !== "XX" ? { ctry: input.country } : {}),
+      },
       this.secret,
       input.ttlSeconds,
     );

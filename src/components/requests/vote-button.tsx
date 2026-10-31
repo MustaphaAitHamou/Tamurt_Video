@@ -9,7 +9,17 @@ import { toast } from "sonner";
 import { toggleVoteAction } from "@/actions/requests";
 import { Button } from "@/components/ui/button";
 
-export function VoteButton({ requestId, voted, votes, canVote }: { requestId: string; voted: boolean; votes: number; canVote: boolean }) {
+export function VoteButton({
+  requestId,
+  voted,
+  votes,
+  canVote,
+}: {
+  requestId: string;
+  voted: boolean;
+  votes: number;
+  canVote: boolean;
+}) {
   const t = useTranslations("requests");
   const router = useRouter();
   const [pending, startTransition] = useTransition();

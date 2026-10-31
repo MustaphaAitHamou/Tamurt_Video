@@ -14,7 +14,10 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         sizes="100vw"
         className="-z-20 object-cover opacity-40"
       />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/70 via-background/85 to-background" aria-hidden />
+      <div
+        className="absolute inset-0 -z-10 bg-gradient-to-b from-background/70 via-background/85 to-background"
+        aria-hidden
+      />
       <div className="bg-tamurt-pattern absolute inset-0 -z-10 opacity-70" aria-hidden />
       <header className="px-4 py-5 sm:px-8">
         <Link href="/" aria-label="Tamurt Vidéo — accueil" className="inline-block">

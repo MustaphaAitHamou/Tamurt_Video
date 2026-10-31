@@ -4,8 +4,18 @@ import nodemailer from "nodemailer";
 
 import { getEnv } from "@/lib/env";
 
-export type OutgoingEmail = { to: string; subject: string; html: string; text: string; replyTo?: string };
-export type SendResult = { status: "sent" | "logged" | "failed"; providerMessageId?: string; error?: string };
+export type OutgoingEmail = {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  replyTo?: string;
+};
+export type SendResult = {
+  status: "sent" | "logged" | "failed";
+  providerMessageId?: string;
+  error?: string;
+};
 
 export interface EmailProvider {
   readonly id: "console" | "smtp" | "resend";
@@ -54,10 +64,19 @@ class ResendEmailProvider implements EmailProvider {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: this.from, to: [email.to], subject: email.subject, html: email.html, text: email.text, reply_to: email.replyTo }),
+      body: JSON.stringify({
+        from: this.from,
+        to: [email.to],
+        subject: email.subject,
+        html: email.html,
+        text: email.text,
+        reply_to: email.replyTo,
+      }),
     });
     const body = (await response.json().catch(() => ({}))) as { id?: string; message?: string };
-    return response.ok ? { status: "sent", providerMessageId: body.id } : { status: "failed", error: body.message ?? `HTTP ${response.status}` };
+    return response.ok
+      ? { status: "sent", providerMessageId: body.id }
+      : { status: "failed", error: body.message ?? `HTTP ${response.status}` };
   }
 }
 
@@ -67,7 +86,8 @@ export function getEmailProvider(): EmailProvider {
   if (cached) return cached;
   const env = getEnv();
   if (env.email.provider === "smtp") cached = new SmtpEmailProvider(env.email.from);
-  else if (env.email.provider === "resend" && env.email.resendApiKey) cached = new ResendEmailProvider(env.email.resendApiKey, env.email.from);
+  else if (env.email.provider === "resend" && env.email.resendApiKey)
+    cached = new ResendEmailProvider(env.email.resendApiKey, env.email.from);
   else cached = new ConsoleEmailProvider();
   return cached;
 }

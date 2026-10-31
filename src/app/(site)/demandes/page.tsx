@@ -16,7 +16,8 @@ import { listRequests } from "@/server/requests";
 
 export const metadata: Metadata = {
   title: "Demandes de films et séries",
-  description: "Proposez et votez pour les prochaines acquisitions de Tamurt Vidéo (membres Premium).",
+  description:
+    "Proposez et votez pour les prochaines acquisitions de Tamurt Vidéo (membres Premium).",
 };
 
 export default async function RequestsPage({ searchParams }: PageProps<"/demandes">) {
@@ -44,10 +45,16 @@ export default async function RequestsPage({ searchParams }: PageProps<"/demande
           </Button>
         )}
       </div>
-      <p className="mb-6 rounded-xl border bg-card/60 p-4 text-sm leading-relaxed text-muted-foreground">{t("disclaimer")}</p>
+      <p className="mb-6 rounded-xl border bg-card/60 p-4 text-sm leading-relaxed text-muted-foreground">
+        {t("disclaimer")}
+      </p>
 
       {!viewer ? (
-        <EmptyState title={t("premiumOnly")} icon={CrownIcon} action={{ href: "/connexion?next=/demandes", label: "Se connecter" }} />
+        <EmptyState
+          title={t("premiumOnly")}
+          icon={CrownIcon}
+          action={{ href: "/connexion?next=/demandes", label: "Se connecter" }}
+        />
       ) : (
         <>
           {!isPremium && (
@@ -63,14 +70,23 @@ export default async function RequestsPage({ searchParams }: PageProps<"/demande
           <nav className="mb-6 flex flex-wrap gap-2" aria-label="Tri des demandes">
             {[
               { href: "/demandes", label: t("sortTop"), active: !mine && sort === "top" },
-              { href: "/demandes?tri=recentes", label: t("sortRecent"), active: !mine && sort === "recent" },
+              {
+                href: "/demandes?tri=recentes",
+                label: t("sortRecent"),
+                active: !mine && sort === "recent",
+              },
               { href: "/demandes?vue=miennes", label: t("mine"), active: mine },
             ].map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 aria-current={item.active ? "page" : undefined}
-                className={cn("rounded-full px-4 py-1.5 text-sm", item.active ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground")}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-sm",
+                  item.active
+                    ? "bg-foreground text-background"
+                    : "bg-muted text-muted-foreground hover:text-foreground",
+                )}
               >
                 {item.label}
               </Link>
@@ -81,12 +97,17 @@ export default async function RequestsPage({ searchParams }: PageProps<"/demande
           ) : (
             <ol className="space-y-3">
               {requests.map((r) => (
-                <li key={r.id} className="flex items-center gap-4 rounded-2xl border bg-card/60 p-4 transition hover:border-white/20">
+                <li
+                  key={r.id}
+                  className="flex items-center gap-4 rounded-2xl border bg-card/60 p-4 transition hover:border-white/20"
+                >
                   <VoteButton
                     requestId={r.id}
                     voted={r.hasVoted}
                     votes={r.votes}
-                    canVote={isPremium && !["available", "rejected", "impossible"].includes(r.status)}
+                    canVote={
+                      isPremium && !["available", "rejected", "impossible"].includes(r.status)
+                    }
                   />
                   <div className="min-w-0 flex-1 space-y-1">
                     <Link href={`/demandes/${r.id}`} className="font-medium hover:underline">
@@ -95,10 +116,13 @@ export default async function RequestsPage({ searchParams }: PageProps<"/demande
                     </Link>
                     <p className="text-xs text-muted-foreground">
                       {t(`contentTypes.${r.contentType}`)}
-                      {r.country ? ` · ${r.country}` : ""} · {t("requestedOn", { date: formatDate(r.createdAt, locale) })}
+                      {r.country ? ` · ${r.country}` : ""} ·{" "}
+                      {t("requestedOn", { date: formatDate(r.createdAt, locale) })}
                     </p>
                   </div>
-                  <Badge variant={STATUS_VARIANT[r.status] ?? "muted"}>{t(`statuses.${r.status}`)}</Badge>
+                  <Badge variant={STATUS_VARIANT[r.status] ?? "muted"}>
+                    {t(`statuses.${r.status}`)}
+                  </Badge>
                 </li>
               ))}
             </ol>
