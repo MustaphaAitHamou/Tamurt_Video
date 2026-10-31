@@ -65,12 +65,16 @@ export type Viewer = {
     avatarKey: string;
     preferredLocale: string;
     subtitleLocale: string | null;
+    countryCode: string | null;
+    marketingOptIn: boolean;
+    notificationPreferences: Record<string, boolean>;
     autoplayNext: boolean;
     searchHistoryEnabled: boolean;
     personalizedRecommendations: boolean;
     founderSince: string | null;
     founderNumber: number | null;
     suspendedAt: string | null;
+    createdAt: string;
   };
   entitlements: Entitlements;
   staff: StaffContext;
@@ -129,7 +133,7 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     supabase
       .from("profiles")
       .select(
-        "display_name, avatar_key, preferred_locale, subtitle_locale, autoplay_next, search_history_enabled, personalized_recommendations, founder_since, founder_number, suspended_at",
+        "display_name, avatar_key, preferred_locale, subtitle_locale, country_code, marketing_opt_in, notification_preferences, autoplay_next, search_history_enabled, personalized_recommendations, founder_since, founder_number, suspended_at, created_at",
       )
       .eq("id", user.id)
       .maybeSingle(),
@@ -175,6 +179,10 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
       avatarKey: profile.avatar_key,
       preferredLocale: profile.preferred_locale,
       subtitleLocale: profile.subtitle_locale,
+      countryCode: profile.country_code,
+      marketingOptIn: profile.marketing_opt_in,
+      notificationPreferences: (profile.notification_preferences ?? {}) as Record<string, boolean>,
+      createdAt: profile.created_at,
       autoplayNext: profile.autoplay_next,
       searchHistoryEnabled: profile.search_history_enabled,
       personalizedRecommendations: profile.personalized_recommendations,

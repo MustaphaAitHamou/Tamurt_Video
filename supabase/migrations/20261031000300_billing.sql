@@ -22,6 +22,7 @@ create table public.subscription_plans (
   available_in_phases text[] not null default '{founder,commercial}'
     check (available_in_phases <@ array['founder', 'commercial']),
   sort_order smallint not null default 0,
+  provider_product_id text unique,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

@@ -50,7 +50,7 @@ create type public.home_section_source as enum (
 create type public.payment_event_status as enum ('received', 'processing', 'processed', 'ignored', 'failed');
 create type public.finance_category as enum (
   'subscription_revenue', 'ad_revenue', 'other_revenue',
-  'payment_fees', 'hosting', 'streaming', 'storage', 'email', 'tools', 'other_cost'
+  'payment_fees', 'hosting', 'streaming', 'storage', 'email', 'tools', 'content_licenses', 'other_cost'
 );
 create type public.data_request_type as enum ('access', 'export', 'rectification', 'erasure', 'restriction', 'objection');
 

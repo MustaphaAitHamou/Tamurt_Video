@@ -66,7 +66,13 @@ export async function signInAction(_prev: ActionResult | null, formData: FormDat
   cookieStore.delete(VIEWER_PROFILE_COOKIE);
   await logAudit({ actorId: data.user.id, action: "auth.sign_in", entityType: "user", entityId: data.user.id });
 
-  redirect(safeNextPath(parsed.data.next, "/"));
+  const next = safeNextPath(parsed.data.next, "/");
+  // Double authentification activée : le code est exigé avant d'accéder au site.
+  const { data: assurance } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (assurance?.nextLevel === "aal2" && assurance.currentLevel !== "aal2") {
+    redirect(`/connexion/double-authentification?next=${encodeURIComponent(next)}`);
+  }
+  redirect(next);
 }
 
 export async function signUpAction(_prev: ActionResult<{ email: string }> | null, formData: FormData): Promise<ActionResult<{ email: string }>> {

@@ -1917,6 +1917,7 @@ export type Database = {
           max_streams: number;
           name: string;
           price_cents: number;
+          provider_product_id: string | null;
           sort_order: number;
           tagline: string | null;
           tier: Database["public"]["Enums"]["plan_tier"];
@@ -1940,6 +1941,7 @@ export type Database = {
           max_streams?: number;
           name: string;
           price_cents: number;
+          provider_product_id?: string | null;
           sort_order?: number;
           tagline?: string | null;
           tier: Database["public"]["Enums"]["plan_tier"];
@@ -1962,6 +1964,7 @@ export type Database = {
           max_streams?: number;
           name?: string;
           price_cents?: number;
+          provider_product_id?: string | null;
           sort_order?: number;
           tagline?: string | null;
           tier?: Database["public"]["Enums"]["plan_tier"];
@@ -2871,6 +2874,7 @@ export type Database = {
         Returns: number;
       };
       notify_title_available: { Args: { p_title: string }; Returns: number };
+      platform_metrics: { Args: { p_from: string; p_to: string }; Returns: Json };
       prefix_tsquery: { Args: { p_query: string }; Returns: unknown };
       purge_rate_limits: { Args: Record<PropertyKey, never>; Returns: number };
       rate_limit_hit: {
@@ -2941,6 +2945,12 @@ export type Database = {
           allowed: boolean;
           resume_position_seconds: number;
           session_id: string;
+        }[];
+      };
+      subscriptions_needing_reconciliation: {
+        Args: { p_limit?: number };
+        Returns: {
+          provider_subscription_id: string;
         }[];
       };
       takedown_title: {
@@ -3018,6 +3028,7 @@ export type Database = {
         | "storage"
         | "email"
         | "tools"
+        | "content_licenses"
         | "other_cost";
       home_section_source:
         | "popular"
@@ -3209,6 +3220,7 @@ export const Constants = {
         "storage",
         "email",
         "tools",
+        "content_licenses",
         "other_cost",
       ],
       home_section_source: [
