@@ -133,7 +133,7 @@
   "founderLanding": {
     "eyebrow": "Phase fondatrice",
     "title": "Construisons ensemble la maison du cinéma amazigh et algérien",
-    "subtitle": "Tamurt Vidéo est en construction. Devenez membre fondateur pour 2 € par mois et soutenez la naissance d'une plateforme de streaming dédiée à nos films, nos séries et notre mémoire audiovisuelle.",
+    "subtitle": "Tamurt Vidéo est en construction. Devenez membre fondateur pour 2 € par mois et soutenez la naissance d'une plateforme de streaming dédiée à nos films, nos séries et notre mémoire audiovisuelle.",
     "cta": "Devenir membre fondateur",
     "ctaSecondary": "Comprendre le projet",
     "honesty": "Pendant la phase fondatrice, l'abonnement soutient le développement : il ne donne pas accès à un catalogue de films commerciaux tant que les droits n'ont pas été acquis.",
@@ -149,7 +149,7 @@
     "benefit2": "L'espace membre : actualités, avancement et feuille de route",
     "benefit3": "La consultation du catalogue annoncé et votre liste de souhaits",
     "benefit4": "Les contenus déjà légalement disponibles",
-    "benefit5": "Au lancement du catalogue, l'accès Standard au tarif de 2 € par mois tant que votre abonnement reste actif",
+    "benefit5": "Au lancement du catalogue, l'accès Standard au tarif de 2 € par mois tant que votre abonnement reste actif",
     "priceLabel": "par mois, sans engagement",
     "priceNote": "Montant facturé en euros (EUR). Renouvellement automatique chaque mois, résiliable à tout moment depuis votre compte.",
     "notDonation": "Il s'agit d'un abonnement de soutien payant, et non d'un don ouvrant droit à une réduction d'impôt.",
@@ -160,11 +160,12 @@
     "faq1Q": "Est-ce que je peux regarder des films dès maintenant ?",
     "faq1A": "Seuls les contenus dont les droits sont déjà acquis sont accessibles. Le catalogue s'enrichira au fil des acquisitions, annoncées dans votre espace membre.",
     "faq2Q": "Que se passe-t-il au lancement du catalogue Standard ?",
-    "faq2A": "Si votre abonnement fondateur est toujours actif, vous accédez aux fonctionnalités Standard en continuant de payer 2 € par mois au lieu de 10 €. Ce tarif est conservé tant que vous ne résiliez pas.",
+    "faq2A": "Si votre abonnement fondateur est toujours actif, vous accédez aux fonctionnalités Standard en continuant de payer 2 € par mois au lieu de 10 €. Ce tarif est conservé tant que vous ne résiliez pas.",
     "faq3Q": "Puis-je résilier quand je le souhaite ?",
     "faq3A": "Oui, en un clic depuis votre compte. L'accès reste ouvert jusqu'à la fin de la période déjà payée. Une résiliation met fin définitivement au tarif fondateur.",
     "faq4Q": "Les paiements sont-ils sécurisés ?",
-    "faq4A": "Les paiements sont traités par un prestataire certifié. Tamurt Vidéo ne stocke jamais vos données de carte bancaire."
+    "faq4A": "Les paiements sont traités par un prestataire certifié. Tamurt Vidéo ne stocke jamais vos données de carte bancaire.",
+    "includedTitle": "Déjà inclus avec la formule Fondateur"
   },
   "pricing": {
     "title": "Choisissez votre formule",
@@ -477,7 +478,7 @@
     "announcedEmpty": "Les premières annonces arriveront dès la signature des contrats de diffusion.",
     "wishlistTitle": "Ma liste de souhaits",
     "nextFeaturesTitle": "Prochaines fonctionnalités",
-    "launchPromise": "Au lancement du catalogue Standard, vous bénéficierez de l'accès Standard pour 2 € par mois au lieu de 10 €, tant que votre abonnement reste actif.",
+    "launchPromise": "Au lancement du catalogue Standard, vous bénéficierez de l'accès Standard pour 2 € par mois au lieu de 10 €, tant que votre abonnement reste actif.",
     "notFounder": "Cet espace est réservé aux membres fondateurs.",
     "becomeFounder": "Devenir membre fondateur",
     "roadmapStatuses": {
@@ -606,7 +607,8 @@
     "analytics": "Mesure d'audience",
     "analyticsText": "Statistiques anonymisées de fréquentation.",
     "ads": "Publicité",
-    "adsText": "Affichage de publicités sur les pages publiques. Jamais pendant la lecture d'un abonné."
+    "adsText": "Affichage de publicités sur les pages publiques. Jamais pendant la lecture d'un abonné.",
+    "learnMore": "En savoir plus"
   },
   "errors": {
     "notFoundTitle": "Cette page s'est égarée",
