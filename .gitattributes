@@ -1,0 +1,9 @@
+# Fins de ligne Unix (LF) dans le dépôt et dans les copies de travail, Windows compris :
+# formatage Prettier identique partout, scripts et SQL sans retours chariot.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
+*.ico binary
+*.ttf binary
+*.woff2 binary

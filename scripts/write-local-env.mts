@@ -3,20 +3,29 @@
  * Usage : pnpm env:local  (la pile doit être démarrée : pnpm db:start)
  * Aucune clé de production n'est manipulée : uniquement les clés locales de démonstration.
  */
-import { execFileSync } from "node:child_process";
+import { execSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const root = path.resolve(import.meta.dirname, "..");
 const target = path.join(root, ".env.local");
 
-const output = execFileSync("pnpm", ["exec", "supabase", "status", "-o", "env"], {
-  cwd: root,
-  encoding: "utf8",
-});
+// Commande fixe exécutée via le shell du système (cmd.exe sous Windows, sh ailleurs) :
+// « pnpm » y est un script .cmd que Node ne sait pas lancer directement.
+let output: string;
+try {
+  output = execSync("pnpm exec supabase status -o env", {
+    cwd: root,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+} catch {
+  console.error("Pile Supabase locale injoignable : lancez Docker Desktop puis `pnpm db:start`.");
+  process.exit(1);
+}
 const status = Object.fromEntries(
   output
-    .split("\n")
+    .split(/\r?\n/)
     .map((line) => line.match(/^([A-Z_]+)="?(.*?)"?$/))
     .filter((match): match is RegExpMatchArray => Boolean(match))
     .map((match) => [match[1], match[2]]),
@@ -34,7 +43,7 @@ if (!url || !publishable || !secret) {
 const existing = existsSync(target)
   ? Object.fromEntries(
       readFileSync(target, "utf8")
-        .split("\n")
+        .split(/\r?\n/)
         .map((line) => line.match(/^([A-Z0-9_]+)=(.*)$/))
         .filter((match): match is RegExpMatchArray => Boolean(match))
         .map((match) => [match[1], match[2]]),

@@ -28,7 +28,7 @@
     "db:types": "supabase gen types typescript --local --schema public > src/lib/supabase/database.types.ts && prettier --write src/lib/supabase/database.types.ts",
     "env:local": "tsx scripts/write-local-env.mts",
     "seed:demo": "tsx scripts/seed-demo.mts",
-    "media:dev": "bash scripts/generate-dev-media.sh",
+    "media:dev": "tsx scripts/generate-dev-media.mts",
     "brand:generate": "tsx scripts/generate-brand.mts",
     "demo:art": "tsx scripts/generate-demo-art.mts"
   },

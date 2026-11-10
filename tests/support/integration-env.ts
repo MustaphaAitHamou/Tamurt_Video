@@ -7,7 +7,7 @@ import path from "node:path";
  */
 const envFile = path.join(process.cwd(), ".env.local");
 if (existsSync(envFile)) {
-  for (const line of readFileSync(envFile, "utf8").split("\n")) {
+  for (const line of readFileSync(envFile, "utf8").split(/\r?\n/)) {
     const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
     if (match && process.env[match[1]!] === undefined) process.env[match[1]!] = match[2];
   }

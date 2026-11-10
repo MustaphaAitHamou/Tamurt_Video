@@ -34,8 +34,14 @@ Playwright · GitHub Actions · Vercel.
 
 ## Démarrage local
 
-Prérequis : Node 22 (`.nvmrc`), pnpm 10, Docker. Le CLI Supabase est installé comme
-dépendance du projet.
+Prérequis : Node 22 (`.nvmrc`), pnpm 10 (`corepack enable`), Docker **démarré**, et
+ffmpeg pour les vidéos de test. Le CLI Supabase est installé comme dépendance du projet.
+Tous les scripts fonctionnent sous Windows (PowerShell), macOS et Linux.
+
+> **Windows** : installer Docker Desktop avec le moteur WSL 2 et le lancer avant
+> `pnpm db:start` (l'erreur `dockerDesktopLinuxEngine … cannot find the file` signifie
+> que Docker Desktop n'est pas démarré). ffmpeg : `winget install Gyan.FFmpeg`, puis
+> rouvrir le terminal.
 
 ```bash
 pnpm install
