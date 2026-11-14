@@ -2,43 +2,43 @@
 @import "tw-animate-css";
 
 /*
- * Identité visuelle Tamurt Vidéo — mode sombre prioritaire.
- * Noir profond, anthracite, rouge « tamurt » (le rouge du Yaz ⵣ) et or des
- * bijoux kabyles pour les distinctions fondateur / premium.
+ * Identité Tamurt Vidéo (DA Tamurt Services) : le rouge de la famille à pleine puissance,
+ * sur le noir d'une salle obscure. L'app est toujours sombre. L'or des bijoux kabyles
+ * reste réservé aux distinctions fondateur / premium.
  */
 :root {
   color-scheme: dark;
-  --radius: 0.75rem;
+  --radius: 0.875rem;
 
-  --background: oklch(0.13 0.005 285);
-  --foreground: oklch(0.97 0.003 285);
-  --card: oklch(0.175 0.006 285);
-  --card-foreground: oklch(0.97 0.003 285);
-  --popover: oklch(0.19 0.007 285);
-  --popover-foreground: oklch(0.97 0.003 285);
+  --background: #0f0f10;
+  --foreground: #f5f5f5;
+  --card: #1c1c1f;
+  --card-foreground: #f5f5f5;
+  --popover: #232327;
+  --popover-foreground: #f5f5f5;
   /* Fond plein (texte blanc ≥ 4,5:1, WCAG AA) ; --primary-text : texte rouge sur fond sombre. */
-  --primary: oklch(0.56 0.215 24);
-  --primary-foreground: oklch(0.99 0 0);
-  --primary-text: oklch(0.71 0.17 22);
-  --secondary: oklch(0.235 0.007 285);
-  --secondary-foreground: oklch(0.96 0.003 285);
-  --muted: oklch(0.21 0.006 285);
-  --muted-foreground: oklch(0.74 0.012 285);
-  --accent: oklch(0.26 0.008 285);
-  --accent-foreground: oklch(0.98 0.003 285);
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --destructive-text: oklch(0.72 0.17 25);
-  --success: oklch(0.72 0.16 150);
-  --warning: oklch(0.8 0.15 75);
+  --primary: #e5162f;
+  --primary-foreground: #ffffff;
+  --primary-text: #ff5a67;
+  --secondary: #26262a;
+  --secondary-foreground: #f5f5f5;
+  --muted: #1c1c1f;
+  --muted-foreground: #b0b0b8;
+  --accent: #26262a;
+  --accent-foreground: #f5f5f5;
+  --destructive: #b8261a;
+  --destructive-foreground: #ffffff;
+  --destructive-text: #ff8f85;
+  --success: #5fd3bb;
+  --warning: #f8ba3c;
   --gold: oklch(0.79 0.12 80);
   --gold-foreground: oklch(0.2 0.03 80);
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 13%);
-  --ring: oklch(0.6 0.215 22);
-  --overlay: oklch(0.08 0.004 285 / 80%);
+  --border: #2e2e33;
+  --input: #7f7f88;
+  --ring: #f5f5f5;
+  --overlay: rgb(6 6 7 / 80%);
 
-  --chart-1: oklch(0.6 0.215 22);
+  --chart-1: #ff3347;
   --chart-2: oklch(0.79 0.12 80);
   --chart-3: oklch(0.7 0.12 230);
   --chart-4: oklch(0.72 0.16 150);
@@ -78,16 +78,17 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
-  --radius-sm: calc(var(--radius) - 4px);
+  /* Coins de la DA Vidéo : 12 px pour les champs, 14 px pour boutons et cartes, 18 px pour les panneaux. */
+  --radius-sm: calc(var(--radius) - 2px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  --font-sans: var(--font-geist-sans), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
-  --font-display:
-    var(--font-outfit), var(--font-geist-sans), var(--font-arabic), ui-sans-serif, sans-serif;
+  /* Onest pour tout : titres en 800, boutons en 700 ; Noto Sans Arabic pour l'arabe. */
+  --font-sans: var(--font-onest), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-onest), var(--font-arabic), ui-sans-serif, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-tifinagh: var(--font-tifinagh), var(--font-geist-sans), sans-serif;
+  --font-tifinagh: var(--font-tifinagh), var(--font-onest), sans-serif;
 
   --animate-fade-up: fade-up 0.5s ease-out both;
   --animate-shimmer: shimmer 1.6s linear infinite;
@@ -139,13 +140,14 @@
   }
 
   html[lang="ar"] body {
-    font-family: var(--font-arabic), var(--font-geist-sans), sans-serif;
+    font-family: var(--font-arabic), var(--font-onest), sans-serif;
   }
 
   h1,
   h2,
   h3 {
-    @apply font-display tracking-tight text-balance;
+    @apply font-display text-balance;
+    letter-spacing: -0.01em;
   }
 
   ::selection {
@@ -217,4 +219,14 @@
   .text-shadow-hero {
     text-shadow: 0 2px 24px oklch(0 0 0 / 55%);
   }
+}
+
+/* Frise Vidéo « pellicule » : le bord perforé d'une bobine de cinéma. Décorative, 12 px. */
+@utility frise {
+  height: 12px;
+  background-color: var(--primary);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 12 12%22 width=%2212%22 height=%2212%22 fill=%22%23000%22%3E%3Cpath d=%22M3.5 2.5h5a1.5 1.5 0 0 1 1.5 1.5v4a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 2 8V4a1.5 1.5 0 0 1 1.5-1.5z%22/%3E%3C/svg%3E")
+    left center / auto 100% repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 12 12%22 width=%2212%22 height=%2212%22 fill=%22%23000%22%3E%3Cpath d=%22M3.5 2.5h5a1.5 1.5 0 0 1 1.5 1.5v4a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 2 8V4a1.5 1.5 0 0 1 1.5-1.5z%22/%3E%3C/svg%3E")
+    left center / auto 100% repeat-x;
 }

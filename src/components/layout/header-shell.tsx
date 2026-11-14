@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -27,10 +28,13 @@ export function HeaderShell({
   viewer,
   links,
   founderPhase,
+  tamurtServicesUrl,
 }: {
   viewer: HeaderViewer | null;
   links: NavLink[];
   founderPhase: boolean;
+  /** Adresse de Tamurt Services : affiche le bouton yaz en bout d'en-tête quand elle est connue. */
+  tamurtServicesUrl: string | null;
 }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
@@ -58,7 +62,7 @@ export function HeaderShell({
       <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-4 px-4 sm:px-6 lg:px-10">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon-sm" className="lg:hidden" aria-label={t("openMenu")}>
+            <Button variant="ghost" size="icon-sm" className="xl:hidden" aria-label={t("openMenu")}>
               <MenuIcon className="size-5" />
             </Button>
           </SheetTrigger>
@@ -97,13 +101,13 @@ export function HeaderShell({
           <LogoMark className="size-8 sm:hidden" />
         </Link>
 
-        <nav aria-label={t("mainNavigation")} className="hidden items-center gap-1 lg:flex">
+        <nav aria-label={t("mainNavigation")} className="hidden items-center gap-1 xl:flex">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "rounded-full px-3 py-1.5 text-sm font-medium text-white/75 transition hover:text-white",
+                "rounded-full px-2.5 py-1.5 text-sm font-medium text-white/75 transition hover:text-white",
                 isActive(link, pathname, search) && "text-white",
                 link.href === "/fondateurs" && founderPhase && "text-gold hover:text-gold",
               )}
@@ -115,7 +119,7 @@ export function HeaderShell({
         </nav>
 
         <div className="ms-auto flex items-center gap-2">
-          <SearchBox className="hidden w-64 md:block xl:w-80" />
+          <SearchBox className="hidden w-56 md:block xl:w-48 2xl:w-80" />
           <Button
             variant="ghost"
             size="icon-sm"
@@ -142,6 +146,24 @@ export function HeaderShell({
               </Button>
             </>
           )}
+          {tamurtServicesUrl ? (
+            /* Le bouton yaz : la porte vers Tamurt Services et toute la famille d'applications. */
+            <a
+              href={tamurtServicesUrl}
+              title="Tamurt Services"
+              aria-label="Tamurt Services"
+              className="group grid size-10 shrink-0 place-items-center rounded-md"
+            >
+              <Image
+                src="/brand/tamurt-yaz.svg"
+                alt=""
+                width={32}
+                height={32}
+                unoptimized
+                className="size-8 transition-transform duration-200 group-hover:scale-[1.08] motion-reduce:transition-none"
+              />
+            </a>
+          ) : null}
         </div>
       </div>
       {mobileSearch && (

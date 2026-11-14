@@ -31,19 +31,19 @@ function layout(input: {
   const body = input.paragraphs
     .map(
       (p) =>
-        `<p style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#c4c4cc;">${escapeHtml(p)}</p>`,
+        `<p style="margin:0 0 14px 0;font-size:15px;line-height:1.6;color:#b0b0b8;">${escapeHtml(p)}</p>`,
     )
     .join("");
   const cta = input.cta
-    ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 6px 0;"><tr><td style="border-radius:999px;background:#e3263a;"><a href="${escapeHtml(input.cta.url)}" style="display:inline-block;padding:13px 26px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:999px;">${escapeHtml(input.cta.label)}</a></td></tr></table>`
+    ? `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:8px 0 6px 0;"><tr><td style="border-radius:14px;background:#e5162f;"><a href="${escapeHtml(input.cta.url)}" style="display:inline-block;padding:13px 26px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:999px;">${escapeHtml(input.cta.label)}</a></td></tr></table>`
     : "";
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark light"></head>
-<body style="margin:0;padding:0;background:#07070a;font-family:Helvetica,Arial,sans-serif;color:#f4f4f6;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#07070a;padding:32px 16px;"><tr><td align="center">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#121216;border:1px solid #26262e;border-radius:16px;">
-<tr><td style="padding:28px 32px 8px 32px;"><span style="display:inline-block;width:14px;height:14px;background:#e3263a;transform:rotate(45deg);margin-right:10px;vertical-align:middle;"></span><span style="font-size:18px;font-weight:800;letter-spacing:4px;vertical-align:middle;">TAMURT</span> <span style="font-size:12px;font-weight:700;letter-spacing:3px;color:#e3263a;vertical-align:middle;">VIDÉO</span></td></tr>
+<body style="margin:0;padding:0;background:#0f0f10;font-family:Helvetica,Arial,sans-serif;color:#f5f5f5;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0f0f10;padding:32px 16px;"><tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#1c1c1f;border:1px solid #2e2e33;border-radius:16px;">
+<tr><td style="padding:28px 32px 8px 32px;"><span style="font-size:18px;font-weight:800;letter-spacing:2px;color:#ff5a67;vertical-align:middle;">TAMURT</span> <span style="font-size:18px;font-weight:800;color:#ffffff;vertical-align:middle;">Vidéo</span></td></tr>
 <tr><td style="padding:16px 32px 12px 32px;"><h1 style="margin:0 0 16px 0;font-size:22px;line-height:1.3;color:#ffffff;">${escapeHtml(input.heading)}</h1>${body}${cta}</td></tr>
-<tr><td style="padding:20px 32px 28px 32px;border-top:1px solid #26262e;"><p style="margin:0;font-size:12px;line-height:1.6;color:#6e6e78;">${escapeHtml(input.footerNote ?? "Vous recevez cet email car il concerne votre compte Tamurt Vidéo. Gérez vos préférences de notification depuis votre compte.")}</p></td></tr>
+<tr><td style="padding:20px 32px 28px 32px;border-top:1px solid #2e2e33;"><p style="margin:0;font-size:12px;line-height:1.6;color:#b0b0b8;">${escapeHtml(input.footerNote ?? "Vous recevez cet email car il concerne votre compte Tamurt Vidéo. Gérez vos préférences de notification depuis votre compte.")}</p></td></tr>
 </table></td></tr></table></body></html>`;
 }
 

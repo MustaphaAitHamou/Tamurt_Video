@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -12,9 +11,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
-const outfit = localFont({
-  src: "../../node_modules/@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2",
-  variable: "--font-outfit",
+// Onest, la police de Tamurt Vidéo (DA Tamurt Services) : une grotesque nette, lisible de loin sur un écran.
+// Fichier variable auto-hébergé (latin, lettres kabyles comprises) ; licence dans src/app/fonts/OFL.txt.
+const onest = localFont({
+  src: "./fonts/Onest-Variable.woff2",
+  variable: "--font-onest",
   weight: "100 900",
   display: "swap",
 });
@@ -60,7 +61,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0b0b0e",
+  themeColor: "#0f0f10",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
@@ -76,13 +77,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang={locale}
       dir={directionFor(locale)}
       data-intl={localeIntlTag[locale]}
-      className={cn(
-        GeistSans.variable,
-        GeistMono.variable,
-        outfit.variable,
-        notoArabic.variable,
-        notoTifinagh.variable,
-      )}
+      className={cn(onest.variable, GeistMono.variable, notoArabic.variable, notoTifinagh.variable)}
       suppressHydrationWarning
     >
       <body>

@@ -36,6 +36,19 @@ s'est arrêté. Dernière mise à jour : 31 octobre 2026.
   création de licence et justificatif, refus de publication sans licence, modération des
   demandes, API Tamurt HQ (clé valide/absente/invalide), affichage arabe RTL.
 
+## Identité visuelle (DA Tamurt Services, 14/11/2026)
+
+- **Appliqué** :
+  - jetons (rouge famille, salle obscure, statuts de la DA), police Onest, boutons à 14 px ;
+  - logos, favicon, icônes PWA, image de partage et e-mails aux couleurs de la DA ;
+  - frise « pellicule » et bouton yaz ;
+  - en-tête resserré : il ne déborde plus de 1024 à 1536 px, et la navigation complète apparaît à partir de 1280 px.
+- **Retiré** : `pnpm brand:generate` et `logo-paths.ts`, qui produisaient l'ancien logo. Les fichiers d'identité viennent désormais du kit de la DA.
+- **Vérifié** :
+  - `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm i18n:check` et `pnpm test` (68/68) ;
+  - `pnpm build`, puis rendu contrôlé avec un Supabase factice.
+- **Non relancés** : `pnpm test:integration` et `pnpm test:e2e`, faute de pile Supabase locale dans l'environnement de travail.
+
 ## Non vérifiable ici (voir `docs/BLOCKERS.md`)
 
 - Cloudflare Stream réel (envoi, jetons, webhook) ; Stripe avec de vraies clés de test du

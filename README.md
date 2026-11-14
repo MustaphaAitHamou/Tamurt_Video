@@ -25,6 +25,15 @@ archives d'Algérie, de Kabylie et du monde amazigh. Service de l'écosystème
 | Langues        | Français (référence), anglais et arabe (RTL) en brouillon, kabyle partiel.                                                                                                                                                                                            |
 | Tamurt HQ      | API de métriques agrégées authentifiée par clé (`/api/hq/v1/metrics`).                                                                                                                                                                                                |
 
+## Identité visuelle
+
+Tamurt Vidéo suit la DA de la famille **Tamurt Services** : le rouge de la famille (`#E5162F`) à pleine puissance sur le noir d'une salle obscure (`#0F0F10`). L'app est toujours sombre, et l'or reste réservé aux distinctions fondateur / premium.
+
+- **Police** : Onest, auto-hébergée (`src/app/fonts`, licence OFL jointe), titres en 800 et boutons en 700. Noto Sans Arabic couvre l'arabe et Noto Sans Tifinagh le tifinagh.
+- **Formes** : boutons et cartes à 14 px, champs à 12 px, frise « pellicule » en haut du pied de page.
+- **Fichiers** : logos et icônes dans `public/brand`, favicon `src/app/icon.svg`, image de partage générée à partir du logo de la DA.
+- **Bouton yaz** : il apparaît en bout d'en-tête quand `TAMURT_SERVICES_URL` est renseignée.
+
 ## Pile technique
 
 Next.js 16 (App Router, Turbopack) · React 19 · TypeScript strict · Tailwind CSS 4 ·
@@ -82,7 +91,7 @@ suivis de `tamurt.test`. Les emails sont visibles dans Mailpit (http://127.0.0.1
 | `pnpm test:integration`                              | Tests d'intégration sur la base locale (RLS, droits, paiements) |
 | `pnpm test:e2e`                                      | Tests de bout en bout (Playwright, dont accessibilité axe)      |
 | `pnpm db:reset` · `pnpm db:types`                    | Réinitialisation de la base locale, génération des types        |
-| `pnpm brand:generate` · `pnpm demo:art`              | Identité visuelle et visuels fictifs                            |
+| `pnpm demo:art`                                      | Visuels fictifs de démonstration                                |
 
 ## Structure
 

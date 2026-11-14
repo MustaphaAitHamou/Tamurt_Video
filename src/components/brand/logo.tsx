@@ -1,38 +1,13 @@
-import { useId } from "react";
+import Image from "next/image";
 
 import { cn } from "@/lib/utils";
-import {
-  LETTERS_TAMURT,
-  LETTERS_VIDEO,
-  MARK_DIAMOND,
-  MARK_INNER,
-  MARK_PLAY,
-  layoutLetters,
-} from "@/components/brand/logo-paths";
 
-const tamurt = layoutLetters(LETTERS_TAMURT);
-const video = layoutLetters(LETTERS_VIDEO, 6);
-const VIDEO_SCALE = 0.42;
-const MARK_GAP = 18;
-const FULL_WIDTH = 64 + MARK_GAP + tamurt.width + 14 + video.width * VIDEO_SCALE;
+/**
+ * Identité Tamurt Vidéo (DA Tamurt Services). Fichiers dans public/brand ;
+ * l'application est toujours sombre, seules les versions pour fond sombre sont utilisées.
+ */
 
-function MarkShapes({ gradientId }: { gradientId: string }) {
-  return (
-    <>
-      <defs>
-        <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#ff4d5e" />
-          <stop offset="1" stopColor="#b01428" />
-        </linearGradient>
-      </defs>
-      <path d={MARK_DIAMOND} fill={`url(#${gradientId})`} />
-      <path d={MARK_INNER} fill="none" stroke="#fff" strokeOpacity={0.22} strokeWidth={1.6} />
-      <path d={MARK_PLAY} fill="#fff" />
-    </>
-  );
-}
-
-/** Emblème seul (losange et triangle de lecture). */
+/** Icône seule : le yaz en vol et le triangle de lecture, rouges sur la tuile noire. */
 export function LogoMark({
   className,
   title = "Tamurt Vidéo",
@@ -40,20 +15,19 @@ export function LogoMark({
   className?: string;
   title?: string;
 }) {
-  const gradientId = useId();
   return (
-    <svg
-      viewBox="0 0 64 64"
-      role="img"
-      aria-label={title}
+    <Image
+      src="/brand/icone.svg"
+      alt={title}
+      width={64}
+      height={64}
+      unoptimized
       className={cn("size-8 shrink-0", className)}
-    >
-      <MarkShapes gradientId={gradientId} />
-    </svg>
+    />
   );
 }
 
-/** Logotype complet, vectoriel et indépendant des polices chargées. */
+/** Logotype : le mot TAMURT rouge et sa ligne ⵜⴰⵎⵓⵔⵜ, puis « Vidéo ». */
 export function Logo({
   className,
   title = "Tamurt Vidéo",
@@ -61,29 +35,15 @@ export function Logo({
   className?: string;
   title?: string;
 }) {
-  const gradientId = useId();
   return (
-    <svg
-      viewBox={`0 -2 ${FULL_WIDTH.toFixed(2)} 68`}
-      role="img"
-      aria-label={title}
+    <Image
+      src="/brand/wordmark-sombre.svg"
+      alt={title}
+      width={119}
+      height={30}
+      unoptimized
+      priority
       className={cn("h-8 w-auto shrink-0", className)}
-    >
-      <MarkShapes gradientId={gradientId} />
-      <g transform={`translate(${64 + MARK_GAP} 12)`} fill="currentColor" fillRule="evenodd">
-        {tamurt.placed.map((letter, index) => (
-          <path key={index} transform={`translate(${letter.x} 0)`} d={letter.d} />
-        ))}
-      </g>
-      <g
-        transform={`translate(${(64 + MARK_GAP + tamurt.width + 14).toFixed(2)} ${(52 - 40 * VIDEO_SCALE).toFixed(2)}) scale(${VIDEO_SCALE})`}
-        fill="var(--primary)"
-        fillRule="evenodd"
-      >
-        {video.placed.map((letter, index) => (
-          <path key={index} transform={`translate(${letter.x} 0)`} d={letter.d} />
-        ))}
-      </g>
-    </svg>
+    />
   );
 }

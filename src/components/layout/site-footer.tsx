@@ -56,7 +56,9 @@ export async function SiteFooter() {
   ];
 
   return (
-    <footer className="relative mt-24 border-t bg-black/40">
+    <footer className="relative mt-24 bg-black/40">
+      {/* Frise « pellicule » de la DA : sur l'accueil, les rangées chevauchent le carrousel, la bande se pose donc ici. */}
+      <div className="relative frise" aria-hidden />
       <div className="bg-tamurt-pattern absolute inset-0 opacity-60" aria-hidden />
       <div className="relative mx-auto max-w-[1600px] px-4 py-14 sm:px-6 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr]">

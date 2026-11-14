@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getViewer } from "@/server/auth/session";
 import { getPublicSettings } from "@/server/settings";
+import { tamurtServicesUrl } from "@/lib/tamurt-services";
 import { HeaderShell } from "@/components/layout/header-shell";
 import type { HeaderViewer, NavLink } from "@/components/layout/types";
 
@@ -55,7 +56,12 @@ export async function SiteHeader() {
 
   return (
     <Suspense>
-      <HeaderShell viewer={headerViewer} links={links} founderPhase={founderPhase} />
+      <HeaderShell
+        viewer={headerViewer}
+        links={links}
+        founderPhase={founderPhase}
+        tamurtServicesUrl={tamurtServicesUrl()}
+      />
     </Suspense>
   );
 }
