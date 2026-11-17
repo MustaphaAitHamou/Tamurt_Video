@@ -49,6 +49,15 @@ s'est arrêté. Dernière mise à jour : 31 octobre 2026.
   - `pnpm build`, puis rendu contrôlé avec un Supabase factice.
 - **Non relancés** : `pnpm test:integration` et `pnpm test:e2e`, faute de pile Supabase locale dans l'environnement de travail.
 
+## Retouches de l'accueil (17/11/2026)
+
+- **Retiré** : la frise rouge « pellicule » du pied de page, jugée agressive pour les yeux ; un simple filet la remplace.
+- **Motifs berbères** : nouveau motif de fond (losange double à point central, zigzags des montagnes et de l'eau, dents de loup, chevrons, yaz ⵣ en rouge aux croisements), et une variante plus présente pour les grands bandeaux.
+- **Accueil allégé** : héros plus court (accroche réduite, sans encadré de prix ni bloc de mise en garde), illustration originale (écran ouvert sur un village kabyle, pellicule à motifs berbères), avancement réduit à une ligne et un lien vers la feuille de route.
+- **Formules** : nouvelle section « Nos formules » sur l'accueil avec Fondateur (disponible), Standard et Premium (au lancement du catalogue), lues dans `subscription_plans` (prix et textes réels, trois points clés chacune) ; rappel du tarif fondateur conservé pour l'accès Standard, mentions d'honnêteté et de facturation sous les cartes, lien vers la page des offres.
+- **Vérifié** avec la pile Supabase locale et les données de démo : `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm i18n:check`, `pnpm test` (68/68), `pnpm test:integration` (25/25), `pnpm test:e2e` (34 réussis, 1 ignoré : lecteur HLS sans médias de test locaux), `pnpm build` ; rendu contrôlé sur ordinateur (1440 px) et mobile (390 px, sans débordement).
+- **À signaler** : Next.js 16.4.3 est signalé par `next dev` et `next build` comme concerné par une vulnérabilité connue ; mise à jour à décider.
+
 ## Non vérifiable ici (voir `docs/BLOCKERS.md`)
 
 - Cloudflare Stream réel (envoi, jetons, webhook) ; Stripe avec de vraies clés de test du

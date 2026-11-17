@@ -201,9 +201,20 @@
     mask-image: linear-gradient(to right, transparent 0, black 3%, black 97%, transparent 100%);
   }
 
-  /* Motif géométrique inspiré des poteries et tapis kabyles, très discret */
+  /*
+   * Motifs berbères (DA Tamurt Vidéo), inspirés des poteries et tapis kabyles : losange double
+   * à point central, zigzags des montagnes et de l'eau, dents de loup, chevrons, et le yaz ⵣ
+   * en rouge aux croisements. Tuile de 96 px, très discrète derrière le contenu.
+   */
   .bg-tamurt-pattern {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.045' stroke-width='1.2'%3E%3Cpath d='M28 4 52 28 28 52 4 28Z'/%3E%3Cpath d='M28 16 40 28 28 40 16 28Z'/%3E%3Cpath d='M0 0 8 8M56 0 48 8M0 56 8 48M56 56 48 48'/%3E%3C/g%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.055' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M48 22 74 48 48 74 22 48Z'/%3E%3Cpath d='M48 32 64 48 48 64 32 48Z'/%3E%3Cpath d='M0 6 8 0 16 6 24 0 32 6 40 0 48 6 56 0 64 6 72 0 80 6 88 0 96 6'/%3E%3Cpath d='M0 90 8 96 16 90 24 96 32 90 40 96 48 90 56 96 64 90 72 96 80 90 88 96 96 90'/%3E%3Cpath d='M8 40 16 48 8 56M88 40 80 48 88 56'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Ccircle cx='48' cy='48' r='2.4'/%3E%3Cpath d='M48 13 52 19H44Z'/%3E%3Cpath d='M48 83 52 77H44Z'/%3E%3Cpath d='M13 48 19 44V52Z'/%3E%3Cpath d='M83 48 77 44V52Z'/%3E%3Ccircle cx='48' cy='27' r='1.1'/%3E%3Ccircle cx='48' cy='69' r='1.1'/%3E%3Ccircle cx='27' cy='48' r='1.1'/%3E%3Ccircle cx='69' cy='48' r='1.1'/%3E%3C/g%3E%3Cg fill='none' stroke='%23e5162f' stroke-opacity='0.12' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M0 -8V8M-6 -7C-6 -2 6 -2 6 -7M-6 7C-6 2 6 2 6 7M96 -8V8M90 -7C90 -2 102 -2 102 -7M90 7C90 2 102 2 102 7M0 88V104M-6 89C-6 94 6 94 6 89M-6 103C-6 98 6 98 6 103M96 88V104M90 89C90 94 102 94 102 89M90 103C90 98 102 98 102 103'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 96px 96px;
+  }
+
+  /* Variante plus présente pour les grands bandeaux (accueil, pages de soutien). */
+  .bg-tamurt-pattern-strong {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.085' stroke-width='1.2' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M48 22 74 48 48 74 22 48Z'/%3E%3Cpath d='M48 32 64 48 48 64 32 48Z'/%3E%3Cpath d='M0 6 8 0 16 6 24 0 32 6 40 0 48 6 56 0 64 6 72 0 80 6 88 0 96 6'/%3E%3Cpath d='M0 90 8 96 16 90 24 96 32 90 40 96 48 90 56 96 64 90 72 96 80 90 88 96 96 90'/%3E%3Cpath d='M8 40 16 48 8 56M88 40 80 48 88 56'/%3E%3C/g%3E%3Cg fill='%23ffffff' fill-opacity='0.09'%3E%3Ccircle cx='48' cy='48' r='2.4'/%3E%3Cpath d='M48 13 52 19H44Z'/%3E%3Cpath d='M48 83 52 77H44Z'/%3E%3Cpath d='M13 48 19 44V52Z'/%3E%3Cpath d='M83 48 77 44V52Z'/%3E%3Ccircle cx='48' cy='27' r='1.1'/%3E%3Ccircle cx='48' cy='69' r='1.1'/%3E%3Ccircle cx='27' cy='48' r='1.1'/%3E%3Ccircle cx='69' cy='48' r='1.1'/%3E%3C/g%3E%3Cg fill='none' stroke='%23e5162f' stroke-opacity='0.2' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M0 -8V8M-6 -7C-6 -2 6 -2 6 -7M-6 7C-6 2 6 2 6 7M96 -8V8M90 -7C90 -2 102 -2 102 -7M90 7C90 2 102 2 102 7M0 88V104M-6 89C-6 94 6 94 6 89M-6 103C-6 98 6 98 6 103M96 88V104M90 89C90 94 102 94 102 89M90 103C90 98 102 98 102 103'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 96px 96px;
   }
 
   .bg-skeleton {
@@ -221,12 +232,48 @@
   }
 }
 
-/* Frise Vidéo « pellicule » : le bord perforé d'une bobine de cinéma. Décorative, 12 px. */
-@utility frise {
-  height: 12px;
-  background-color: var(--primary);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 12 12%22 width=%2212%22 height=%2212%22 fill=%22%23000%22%3E%3Cpath d=%22M3.5 2.5h5a1.5 1.5 0 0 1 1.5 1.5v4a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 2 8V4a1.5 1.5 0 0 1 1.5-1.5z%22/%3E%3C/svg%3E")
-    left center / auto 100% repeat-x;
-  mask: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 12 12%22 width=%2212%22 height=%2212%22 fill=%22%23000%22%3E%3Cpath d=%22M3.5 2.5h5a1.5 1.5 0 0 1 1.5 1.5v4a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 2 8V4a1.5 1.5 0 0 1 1.5-1.5z%22/%3E%3C/svg%3E")
-    left center / auto 100% repeat-x;
+/* Animations de l'illustration d'accueil (founder-illustration.tsx), lentes et discrètes. */
+@keyframes tv-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+@keyframes tv-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+@keyframes tv-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+.tv-float {
+  animation: tv-float 6s ease-in-out infinite;
+}
+.tv-twinkle {
+  animation: tv-twinkle 2.8s ease-in-out infinite;
+}
+.tv-pulse {
+  animation: tv-pulse 2.2s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tv-float,
+  .tv-twinkle,
+  .tv-pulse {
+    animation: none;
+  }
 }
